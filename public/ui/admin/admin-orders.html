@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Orders</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <body>
+        <div>
+            <button onclick="OrderPending()">ORDER PENDING</button>
+        </div>
+        <div>
+            <button onclick="OrderAktif()">ORDER AKTIF</button>
+        </div>
+        <!-- <div>
+            <button onclick="confirmOrder()">Go to Order</button>
+        </div> -->
+    </body>
+    <script>
+        function OrderPending() {
+            window.location.href = `admin-order-pending.html`;
+        }
+        function OrderAktif() {
+            window.location.href = `admin-order-aktif.html`;
+        }
+        // function closeModal() {
+        //     window.location.href = `admin-menu.html`;
+        // }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Orders</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Orders</h2>
+        <div>
+            <h3>Active Orders</h3>
+            <div id="active-orders">
+                <!-- Active orders will appear here -->
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        async function fetchOrders() {
+            const token = localStorage.getItem('token');
+            const responseActive = await fetch('http://127.0.0.1:8000/api/admin/pesanan/aktif', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const activeOrders = await responseActive.json();
+            const activeOrdersContainer = document.getElementById('active-orders');
+
+            activeOrders.forEach(order => {
+                const orderDiv = document.createElement('div');
+                orderDiv.innerHTML = `<p>Order #${order.id}</p>`;
+                activeOrdersContainer.appendChild(orderDiv);
+            });
+        }
+
+        fetchOrders();
+    </script>
+</body>
+</html>

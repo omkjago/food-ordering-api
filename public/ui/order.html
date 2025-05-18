@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Summary</title>
+  <style>
+    body { font-family: Arial; background: #f9f9f9; }
+    .container { max-width: 700px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; }
+    .order-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .order-actions button { margin: 0 5px; }
+    .total { text-align: right; font-weight: bold; margin-top: 20px; }
+    button.confirm { margin-top: 20px; width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+    .favorites { margin-top: 30px; }
+    .carousel { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .menu-card { flex: 0 0 auto; width: 150px; background: #eee; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.3s; }
+    .menu-card:hover { background: #ddd; transform: translateY(-5px); }
+    .menu-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+    .menu-card .menu-name { font-weight: bold; margin-top: 10px; }
+    .menu-card .price { font-size: 14px; color: #555; margin-top: 5px; }
+    .menu-card .actions { margin-top: 10px; }
+    .menu-card .actions button { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .menu-card .actions button:hover { background-color: #45a049; }
+    .add-more {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .add-more a {
+      text-decoration: none;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Ringkasan Pesanan</h2>
+    <div id="order-details"></div>
+    <div class="total" id="order-total"></div>
+    <button class="confirm" onclick="submitOrder()">Konfirmasi & Kirim</button>
+
+    <div class="favorites">
+      <h3>Menu Favorit</h3>
+      <div class="carousel" id="favorite-menus">
+        <!-- Favorit akan ditampilkan di sini -->
+      </div>
+      <div class="add-more">
+        <p>Tidak menemukan menu? <a id="add-menu-link">Tambahkan dari Menu</a></p>
+    </div>
+    </div>
+  </div>
+
+  <script>
+    let order = JSON.parse(localStorage.getItem('order_temp')) || [];
+    const mejaId = localStorage.getItem('id_meja');
+    const orderToken = localStorage.getItem('order_token');
+
+    const orderContainer = document.getElementById('order-details');
+    const totalContainer = document.getElementById('order-total');
+    const favoritesContainer = document.getElementById('favorite-menus');
+    document.getElementById('add-menu-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    const kode = localStorage.getItem('kode_barcode');
+    if (kode) {
+        window.location.href = `menu.html?=${kode}`;
+    } else {
+        alert("Barcode tidak ditemukan, silakan scan ulang.");
+        window.location.href = "index.html";
+    }
+});
+
+
+    if (!mejaId) {
+      alert("Nomor meja tidak ditemukan.");
+      window.location.href = 'menu.html';
+    }
+
+    // Hitung total
+    function calculateTotal() {
+      let total = 0;
+      order.forEach(item => total += item.harga * item.jumlah);
+      totalContainer.innerText = `Total: Rp ${total}`;
+    }
+
+    // Render pesanan
+    function renderOrder() {
+      orderContainer.innerHTML = '';
+      order.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = `
+          <div><strong>${item.nama}</strong><br>Rp ${item.harga} x ${item.jumlah}</div>
+          <div class="order-actions">
+            <button onclick="changeQty(${index}, -1)">-</button>
+            <button onclick="changeQty(${index}, 1)">+</button>
+            <button onclick="removeItem(${index})">🗑️</button>
+          </div>
+        `;
+        orderContainer.appendChild(div);
+      });
+      calculateTotal();
+      localStorage.setItem('order_temp', JSON.stringify(order));
+    }
+
+    // Tambah/kurangi jumlah item
+    function changeQty(index, delta) {
+      order[index].jumlah += delta;
+      if (order[index].jumlah <= 0) {
+        order.splice(index, 1);
+      }
+      renderOrder();
+    }
+
+    
+
+    
+
+    // Render favorit
+    // Render favorit
+function renderFavorites(menus) {
+  favoriteMenus = menus;
+  favoritesContainer.innerHTML = '';
+  menus.forEach(menu => {
+    const existing = order.find(item => item.menu_id === menu.menu_id);
+    
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.innerHTML = `
+      <img src="http://127.0.0.1:8000/storage/${menu.image_path}" alt="${menu.nama}">
+      <div class="menu-name">${menu.nama}</div>
+      <div class="">${menu.diskripsi}</div>
+      <div class="harga">Rp ${menu.harga}</div>
+      <div class="actions">
+        ${existing ? ` 
+          <button onclick="changeQtyInFavorites(${menu.menu_id}, -1)">-</button>
+          <span>${existing.jumlah}</span>
+          <button onclick="changeQtyInFavorites(${menu.menu_id}, 1)">+</button>
+        ` : ` 
+<button onclick="addMenuFromFavorite(decodeURIComponent('${encodeURIComponent(JSON.stringify(menu))}'))">+</button>
+        `}
+      </div>
+    `;
+    favoritesContainer.appendChild(card);
+  });
+}
+
+
+
+    // Menambah atau mengurangi jumlah menu di favorit
+    function changeQtyInFavorites(menuId, delta) {
+      const menu = order.find(item => item.menu_id === menuId);
+      
+      if (menu) {
+        menu.jumlah += delta;
+        if (menu.jumlah <= 0) {
+          removeItemFromOrder(menuId);
+        }
+      }
+      renderOrder();
+      fetchFavorites(); // Untuk memperbarui tampilan favorit setelah perubahan
+    }
+
+    // Menambah menu ke pesanan
+    // Menambah menu dari favorit
+    function addMenuFromFavorite(menuJson) {
+  const menu = JSON.parse(menuJson);
+  const existing = order.find(item => item.menu_id === menu.menu_id);
+  
+  if (existing) {
+    existing.jumlah += 1;
+  } else {
+    order.push({ ...menu, jumlah: 1 });
+  }
+
+  renderOrder();
+  fetchFavorites();
+}
+
+
+
+    // Hapus item dari pesanan
+    function removeItemFromOrder(menuId) {
+      order = order.filter(item => item.menu_id !== menuId);
+      renderOrder();
+      fetchFavorites(); // Untuk memperbarui tampilan favorit setelah penghapusan
+    }
+
+    // Kirim pesanan
+    function submitOrder() {
+      if (order.length === 0) {
+        alert("Pesanan kosong.");
+        return;
+      }
+
+      const payload = {
+        meja_id: mejaId,
+        order_token: orderToken ?? null,
+        items: order.map(item => ({
+          menu_id: item.menu_id,
+          jumlah: item.jumlah
+        }))
+      };
+
+      fetch('http://127.0.0.1:8000/api/pesanan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+            const token = data.data.order_token;
+            localStorage.removeItem('order_temp');
+          alert("Pesanan berhasil dikirim!");
+          order = [];
+          renderOrder();
+          window.location.href = `payment.html?order_token=${token}`;
+        } else {
+          alert("Gagal mengirim pesanan: " + (data.message || 'Unknown error'));
+        }
+      })
+      .catch(err => alert("Terjadi kesalahan: " + err));
+    }
+
+    // Ambil menu favorit dari API
+    function fetchFavorites() {
+      fetch('http://127.0.0.1:8000/api/menu/favorit')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            renderFavorites(data);
+          } else {
+            console.warn("Format favorit tidak dikenali", data);
+          }
+        })
+        .catch(err => {
+          console.error("Gagal memuat menu favorit", err);
+        });
+    }
+
+    // Inisialisasi
+    fetchFavorites();
+    renderOrder();
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Metode Pembayaran</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .total { font-size: 24px; margin-bottom: 20px; font-weight: bold; }
+    .button-group button {
+      width: 200px; margin: 10px; padding: 15px;
+      font-size: 16px; border: none;
+      border-radius: 8px; cursor: pointer;
+    }
+    .tunai { background-color: #4CAF50; color: white; }
+    .non-tunai { background-color: #2196F3; color: white; }
+    #barcode-container { margin-top: 30px; }
+    #barcode { width: 300px; }
+    .order-summary {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 16px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .item img {
+        width: 20%; height: 20%; object-fit: cover; border-radius: 8px;
+    }
+    .item-details {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Pilih Metode Pembayaran</h2>
+  <div class="total" id="totalDisplay">Total: Rp 0</div>
+
+  <div class="summary" id="orderSummary">
+    <h4>Ringkasan Pesanan:</h4>
+    <ul id="itemList"></ul>
+  </div>
+  <div>
+    <label for="customer_name">Nama Pelanggan</label>
+    <input type="text" id="customer_name" name="customer_name" required placeholder="Masukkan nama pelanggan">
+  </div>
+  
+  <div>
+    <label for="customer_phone">Nomor Telepon</label>
+    <input type="text" id="customer_phone" name="customer_phone" required placeholder="Masukkan nomor telepon pelanggan">
+  </div>
+  <div>
+    <label for="customer_email">Email</label>
+    <input type="email" id="customer_email" name="customer_email" required placeholder="Masukkan email pelanggan">
+  </div>
+  
+  
+  <div class="button-group">
+    <button class="tunai" onclick="bayarTunai()">Bayar Tunai</button>
+    <button class="non-tunai" onclick="bayarNonTunai()">Bayar Non-Tunai</button>
+  </div>
+
+  <div id="barcode-container" style="display:none;">
+    <h3>Barcode untuk Pembayaran Tunai</h3>
+    <img id="barcode" src="" alt="Barcode">
+    <p>Tunjukkan barcode ini ke kasir</p>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderToken = urlParams.get("order_token");
+
+  if (!orderToken) {
+    alert("Order token tidak ditemukan.");
+    throw new Error("No order token provided.");
+  }
+
+  // Ambil data pesanan dari backend
+  fetch('http://127.0.0.1:8000/api/tripay/order-summary', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  body: JSON.stringify({ order_token: orderToken })
+})
+.then(res => res.json())
+.then(data => {
+    if (data.items) {
+      let total = data.total;
+      document.getElementById('totalDisplay').innerText = `Total: Rp ${total}`;
+
+      // Tampilkan summary pesanan
+      let itemsList = document.getElementById('itemList');
+      data.items.forEach(item => {
+        let listItem = document.createElement('li');
+        listItem.classList.add('item');
+
+        // Gambar menu
+        let imageElement = document.createElement('img');
+        imageElement.src = `http://127.0.0.1:8000/storage/${item.image_path}`;
+        imageElement.alt = item.nama_menu;
+
+        // Detail item
+        let itemDetails = document.createElement('div');
+        itemDetails.classList.add('item-details');
+        itemDetails.textContent = `${item.nama_menu} - Rp ${item.harga} x ${item.jumlah} = Rp ${item.subtotal}`;
+
+        // Gabungkan gambar dan detail
+        listItem.appendChild(imageElement);
+        listItem.appendChild(itemDetails);
+        itemsList.appendChild(listItem);
+      
+      });
+    } else {
+      alert('Pesanan tidak ditemukan.');
+    }
+});
+
+  // Bayar Tunai
+  function bayarTunai() {
+    const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
+    document.getElementById('barcode').src = barcodeUrl;
+    document.getElementById('barcode-container').style.display = 'block';
+  }
+
+  // Bayar Non-Tunai via Tripay
+  function bayarNonTunai() {
+    const customerName = document.getElementById('customer_name').value;
+  const customerPhone = document.getElementById('customer_phone').value;
+  const customerEmail = document.getElementById('customer_email').value;
+
+
+  if (!customerName || !customerPhone || !customerEmail) {
+    alert('Nama, Email, dan nomor telepon harus diisi.');
+    return;
+  }
+    fetch('http://127.0.0.1:8000/api/tripay/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        order_token: orderToken,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail
+    })
+
+    })
+    .then(res => res.json())
+    .then(data => {
+  console.log("Respon dari backend:", data); // Tambahkan ini
+
+  if (data.success && data.payment_url) {
+    window.location.href = data.payment_url;
+  } else {
+    alert("Gagal mendapatkan link pembayaran.");
+  }
+})
+
+    .catch(err => {
+      console.error(err);
+      alert("Terjadi kesalahan saat memproses pembayaran.");
+    });
+  }
+</script>
+</body>
+</html>

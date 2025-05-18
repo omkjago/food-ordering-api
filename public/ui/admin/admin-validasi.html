@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Validasi Pesanan</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    #message.success { color: green; }
+    #message.error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Scan Barcode Pesanan</h1>
+  <div id="reader" style="width: 300px;"></div>
+  <p id="message"></p>
+
+  <script>
+    const message = document.getElementById('message');
+    const token = localStorage.getItem('token'); // Harus sudah login
+
+    if (!token) {
+      message.textContent = 'Token tidak ditemukan. Silakan login sebagai admin.';
+      message.classList.add('error');
+    } else {
+      const html5QrCode = new Html5Qrcode("reader");
+
+      const qrCodeSuccessCallback = async (decodedText) => {
+        html5QrCode.stop(); // Stop scan setelah 1 hasil sukses
+
+        message.textContent = 'Memvalidasi pesanan...';
+        message.classList.remove('error', 'success');
+
+        try {
+          const res = await fetch("http://127.0.0.1:8000/api/admin/validasi", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({
+              order_token: decodedText // QR harus berisi order_token
+            })
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            message.textContent = data.message || 'Gagal validasi pesanan.';
+            message.classList.add('error');
+          } else {
+            message.textContent = data.message || 'Pesanan berhasil divalidasi.';
+            message.classList.add('success');
+          }
+
+        } catch (error) {
+          console.error(error);
+          message.textContent = 'Terjadi kesalahan.';
+          message.classList.add('error');
+        }
+      };
+
+      const config = { fps: 10, qrbox: 250 };
+      html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+    }
+  </script>
+</body>
+</html>

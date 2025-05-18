@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard Admin</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <div>
+            <button onclick="AddMenu()">Add New Menu</button>
+        </div>
+        <div>
+            <button onclick="AdminOrder()">Go to Order</button>
+        </div>
+        <div>
+            <button onclick="AdminValidasi()">Scan Non - Tunai</button>
+        </div>
+    </body>
+    <script>
+    const token = localStorage.getItem('token'); // Harus sudah login
+    const message = document.getElementById('message');
+
+        function AddMenu() {
+            window.location.href = `admin/admin-menu.html`;
+        }
+        function AdminOrder() {
+            window.location.href = `admin/admin-orders.html`;
+        }
+        function AdminValidasi() {
+            window.location.href = `admin/admin-validasi.html`;
+        }
+    </script>
+</html>

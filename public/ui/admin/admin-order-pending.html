@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Orders</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Orders</h2>
+        
+        <div>
+            <h3>Pending Orders</h3>
+            <div id="pending-orders">
+                <!-- Pending orders will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchOrders() {
+            const token = localStorage.getItem('token');
+            const responsePending = await fetch('http://127.0.0.1:8000/api/admin/pesanan/pending', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const pendingOrders = await responsePending.json();
+            const pendingOrdersContainer = document.getElementById('pending-orders');
+
+            pendingOrders.forEach(order => {
+                const orderDiv = document.createElement('div');
+                orderDiv.innerHTML = `<p>Order #${order.id}</p>`;
+                pendingOrdersContainer.appendChild(orderDiv);
+            });
+        }
+
+        fetchOrders();
+    </script>
+</body>
+</html>
