@@ -60,7 +60,8 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::get('/admin/pesanan/pending', [AdminController::class, 'pending']);
     Route::get('/admin/menu', [AdminController::class, 'menu']);
     Route::post('/admin/menu', [AdminController::class, 'storeMenu']);
-    Route::put('/admin/menu/{id}', [AdminController::class, 'updateMenu']);
+    Route::post('/admin/menu/{id}', [AdminController::class, 'updateMenu']);
+    Route::get('/admin/menu/{id}', [AdminController::class, 'menuId']);
     Route::delete('/admin/menu/{id}', [AdminController::class, 'deleteMenu']);
     Route::post('/admin/validasi', [AdminController::class, 'validasiPesanan']);
 

@@ -43,6 +43,10 @@ class AdminController extends Controller
     {
         return response()->json(Menu::all());
     }
+    public function menuId($id)
+    {
+        return Menu::findOrFail($id);
+    }
 
     public function storeMenu(Request $request)
 {
@@ -75,13 +79,29 @@ class AdminController extends Controller
 
 
 
-    public function updateMenu(Request $request, $id)
-    {
-        $menu = Menu::findOrFail($id);
-        $menu->update($request->only(['nama', 'harga','diskripsi','stok','kategori', 'image']));
+public function updateMenu(Request $request, $id)
+{
+    $menu = Menu::findOrFail($id);
 
-        return response()->json(['message' => 'Menu diperbarui', 'data' => $menu]);
+    $menu->nama = $request->nama;
+    $menu->kategori = $request->kategori;
+    $menu->harga = $request->harga;
+    $menu->stok = $request->stok;
+    $menu->diskripsi = $request->diskripsi;
+
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $fileName = 'menu_images/' . str_replace(' ', '_', strtolower($request->nama)) . '.' . $image->getClientOriginalExtension();
+        $image->storeAs('public', $fileName); // disimpan di storage/app/public/menu_images/
+        $menu->image_path = $fileName; // ⬅️ gunakan image_path sesuai field Anda
     }
+
+
+    $menu->save();
+
+    return response()->json(['message' => 'Menu updated successfully']);
+}
 
     public function deleteMenu($id)
     {
