@@ -17,6 +17,8 @@ protected $fillable = [
     'harga',
     'diskripsi',
     'image_path',
+    'kategori',
+    'stok',
 ];
 
     public function pesananItems()

@@ -78,7 +78,7 @@ class AdminController extends Controller
     public function updateMenu(Request $request, $id)
     {
         $menu = Menu::findOrFail($id);
-        $menu->update($request->only(['nama', 'harga','diskripsi', 'image']));
+        $menu->update($request->only(['nama', 'harga','diskripsi','stok','kategori', 'image']));
 
         return response()->json(['message' => 'Menu diperbarui', 'data' => $menu]);
     }

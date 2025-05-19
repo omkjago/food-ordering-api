@@ -1,23 +1,155 @@
 <!DOCTYPE html>
 <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashboard Admin</title>
-        <link rel="stylesheet" href="css/style.css">
-    </head>
-    <body>
-        <div>
-            <button onclick="AddMenu()">Add New Menu</button>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Restoran - FoodOrder</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow p-4 flex flex-col">
+      <div class="text-orange-600 font-bold text-xl mb-4">🍴 FoodOrder</div>
+      <nav class="flex-1 space-y-2">
+        <button onclick="AddMenu()">Add New Menu</button>
+        <button onclick="AddMenu()" class="block py-2 px-3 rounded hover:bg-gray-200">Dashboard</button>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Produk</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Kategori</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pelanggan</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pesanan</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pembayaran</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Notifikasi</a>
+        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pengaturan</a>
+      </nav>
+      <div class="mt-4 text-sm text-gray-500">
+        <div class="font-bold">Admin</div>
+        <div>admin@foodorder.com</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Dashboard Restoran</h1>
+        <div class="relative">
+          <input type="text" placeholder="Cari..." class="border rounded px-3 py-1">
         </div>
-        <div>
-            <button onclick="AdminOrder()">Go to Order</button>
+      </div>
+
+      <!-- Statistik Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-4 rounded shadow">
+          <div class="text-gray-500">Total Pendapatan</div>
+          <div class="text-2xl font-bold">Rp 15.250.000</div>
+          <div class="text-green-500 text-sm">+20.1% dari bulan lalu</div>
         </div>
-        <div>
-            <button onclick="AdminValidasi()">Scan Non - Tunai</button>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="text-gray-500">Pesanan Baru</div>
+          <div class="text-2xl font-bold">+278</div>
+          <div class="text-green-500 text-sm">+18% dari bulan lalu</div>
         </div>
-    </body>
-    <script>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="text-gray-500">Pelanggan Baru</div>
+          <div class="text-2xl font-bold">+573</div>
+          <div class="text-green-500 text-sm">+12% dari bulan lalu</div>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+          <div class="text-gray-500">Produk Terjual</div>
+          <div class="text-2xl font-bold">1,324</div>
+          <div class="text-green-500 text-sm">+14% dari bulan lalu</div>
+        </div>
+      </div>
+
+      <!-- Produk Populer -->
+      <div class="bg-white p-4 rounded shadow mb-6">
+        <h2 class="text-lg font-bold mb-4">Produk Populer</h2>
+        <ul class="space-y-2">
+          <li class="flex justify-between">
+            <span>Nasi Goreng Spesial <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
+            <span>256 <span class="text-green-500">↑</span></span>
+          </li>
+          <li class="flex justify-between">
+            <span>Ayam Bakar Madu <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
+            <span>198 <span class="text-green-500">↑</span></span>
+          </li>
+          <li class="flex justify-between">
+            <span>Es Teh Manis <span class="text-sm text-gray-500">(Minuman)</span></span>
+            <span>312 <span class="text-green-500">↑</span></span>
+          </li>
+          <li class="flex justify-between">
+            <span>Sate Ayam <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
+            <span>176 <span class="text-red-500">↓</span></span>
+          </li>
+          <li class="flex justify-between">
+            <span>Jus Alpukat <span class="text-sm text-gray-500">(Minuman)</span></span>
+            <span>134 <span class="text-green-500">↑</span></span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pesanan Terbaru -->
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-lg font-bold mb-4">Pesanan Terbaru</h2>
+        <table class="w-full table-auto text-left">
+          <thead>
+            <tr class="text-gray-600">
+              <th class="py-2">ID Pesanan</th>
+              <th>Pelanggan</th>
+              <th>Tanggal</th>
+              <th>Jumlah Produk</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t">
+              <td>#ORD-1234</td>
+              <td>Johan Susanto</td>
+              <td>18 Mei 2025</td>
+              <td>4</td>
+              <td>Rp 125.000</td>
+              <td><span class="text-green-600 font-semibold">Selesai</span></td>
+            </tr>
+            <tr class="border-t">
+              <td>#ORD-1235</td>
+              <td>Ayu Pratiwi</td>
+              <td>18 Mei 2025</td>
+              <td>2</td>
+              <td>Rp 75.000</td>
+              <td><span class="text-blue-600 font-semibold">Diproses</span></td>
+            </tr>
+            <tr class="border-t">
+              <td>#ORD-1236</td>
+              <td>Budi Santoso</td>
+              <td>17 Mei 2025</td>
+              <td>3</td>
+              <td>Rp 105.000</td>
+              <td><span class="text-green-600 font-semibold">Selesai</span></td>
+            </tr>
+            <tr class="border-t">
+              <td>#ORD-1237</td>
+              <td>Dewi Cahya</td>
+              <td>17 Mei 2025</td>
+              <td>1</td>
+              <td>Rp 45.000</td>
+              <td><span class="text-green-600 font-semibold">Selesai</span></td>
+            </tr>
+            <tr class="border-t">
+              <td>#ORD-1238</td>
+              <td>Eko Widodo</td>
+              <td>16 Mei 2025</td>
+              <td>5</td>
+              <td>Rp 185.000</td>
+              <td><span class="text-yellow-600 font-semibold">Tertunda</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</body>
+<script>
     const token = localStorage.getItem('token'); // Harus sudah login
     const message = document.getElementById('message');
 

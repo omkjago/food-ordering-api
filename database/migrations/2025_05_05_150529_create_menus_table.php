@@ -18,6 +18,8 @@ public function up()
         $table->text('diskripsi')->nullable();
         $table->string('image_path')->nullable();
         $table->decimal('harga', 10, 2);
+        $table->string('kategori');
+        $table->enum('stok', ['tersedia', 'kosong']);
         $table->timestamps();
     });
 }

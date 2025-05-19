@@ -1,112 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tambah Menu</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      max-width: 400px;
-    }
-
-    label {
-      margin-top: 1rem;
-    }
-
-    input, textarea {
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-    }
-
-    button {
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      background: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #message {
-      margin-top: 1rem;
-      color: green;
-    }
-
-    .error {
-      color: red;
-    }
-  </style>
+  <title>Manajemen Produk - FoodOrder</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body>
-  <h2>Tambah Menu</h2>
-  <form id="menuForm">
-    <label>Nama Menu
-      <input type="text" name="nama" required />
-    </label>
-    <label>Harga
-      <input type="number" name="harga" required />
-    </label>
-    <label>Deskripsi
-      <textarea name="diskripsi"></textarea>
-    </label>
-    <label>Gambar Menu
-      <input type="file" name="image" accept="image/*" />
-    </label>
-    <button type="submit">Kirim</button>
-</form>
+<body class="bg-gray-100 font-sans">
+  <div class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Manajemen Produk</h1>
 
-  <div id="message"></div>
+    <!-- Form Tambah Produk -->
+    <form id="formProduk" class="bg-white p-4 rounded shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Tambah / Update Produk</h2>
+      <input type="hidden" id="menuItem" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium">Nama Produk</label>
+          <input type="text" id="nama" class="w-full border p-2 rounded mt-1" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Kategori</label>
+          <input type="text" id="kategori" class="w-full border p-2 rounded mt-1" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Harga</label>
+          <input type="number" id="harga" class="w-full border p-2 rounded mt-1" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Stok</label>
+          <input type="number" id="stok" class="w-full border p-2 rounded mt-1" required />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium">URL Gambar</label>
+          <input type="text" id="gambar" class="w-full border p-2 rounded mt-1" placeholder="http://127.0.0.1:8000/storage/..." />
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">Simpan</button>
+        <button type="reset" id="resetBtn" class="ml-2 bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Reset</button>
+      </div>
+    </form>
+
+    <!-- Tabel Produk -->
+    <div class="bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-4">Daftar Produk</h2>
+      <table class="w-full table-auto text-left">
+        <thead>
+          <tr class="text-gray-600 border-b">
+            <th class="py-2">Gambar</th>
+            <th>Nama</th>
+            <th>Kategori</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="produkList">
+          <!-- Baris data diisi lewat JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <script>
-    const form = document.getElementById('menuForm');
-    const message = document.getElementById('message');
+    const apiUrl = 'http://127.0.0.1:8000/api/admin/menu';
+    const token = localStorage.getItem('token');
 
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
+    const form = document.getElementById('formProduk');
+    const produkList = document.getElementById('produkList');
 
-      const formData = new FormData(form);
+    // Ambil data produk
+    async function fetchProduk() {
+      try {
+        const res = await axios.get(apiUrl, {
+          headers: {
+  Authorization: `Bearer ${token}`
+}
+        });
+        const produk = res.data;
 
-      const token = localStorage.getItem('token'); // Simpan token setelah login
-
-      if (!token) {
-        message.textContent = 'Token tidak ditemukan. Silakan login.';
-        message.classList.add('error');
-        return;
+        produkList.innerHTML = '';
+        produk.forEach(p => {
+          produkList.innerHTML += `
+  <tr class="border-t">
+    <td class="py-2">
+      <img src="http://127.0.0.1:8000/storage/${p.image_path ?? 'default.jpg'}" alt="${p.nama}" class="w-16 h-16 object-cover rounded" />
+    </td>
+    <td>${p.nama}</td>
+    <td>${p.kategori}</td>
+    <td>Rp ${p.harga}</td>
+    <td>${p.stok}</td>
+    <td>
+      <button onclick="editProduk(${p.id})" class="text-blue-600 hover:underline mr-2">Edit</button>
+      <button onclick="hapusProduk(${p.id})" class="text-red-600 hover:underline">Hapus</button>
+    </td>
+  </tr>`;
+        });
+      } catch (error) {
+        console.error('Gagal memuat produk:', error);
       }
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('menuItem').value;
+      const data = {
+        gambar: document.getElementById('gambar').value,
+        nama: document.getElementById('nama').value,
+        kategori: document.getElementById('kategori').value,
+        harga: document.getElementById('harga').value,
+        stok: document.getElementById('stok').value
+      };
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/admin/menu', {
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer ' + token,
-            Accept: 'application/json'
-          },
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          message.textContent = data.message || 'Gagal mengirim menu.';
-          message.classList.add('error');
+        if (id) {
+          await axios.put(`http://127.0.0.1:8000/api/menu/${id}`, data, {
+            headers: {
+  Authorization: `Bearer ${token}`
+}
+          });
         } else {
-          message.textContent = 'Menu berhasil ditambahkan.';
-          message.classList.remove('error');
-          form.reset();
+          await axios.post(apiUrl, data, {
+            headers: {
+  Authorization: `Bearer ${token}`
+}
+          });
         }
+
+        form.reset();
+        document.getElementById('menuItem').value = '';
+        fetchProduk();
       } catch (error) {
+        alert('Gagal menyimpan data');
         console.error(error);
-        message.textContent = 'Terjadi kesalahan.';
-        message.classList.add('error');
       }
     });
+
+    async function editProduk(id) {
+      try {
+        const res = await axios.put(`${apiUrl}/${id}`, {
+          headers: {
+  Authorization: `Bearer ${token}`
+}
+        });
+        const p = res.data;
+        document.getElementById('menuItem').value = p.id;
+        document.getElementById('nama').value = p.nama;
+        document.getElementById('kategori').value = p.kategori;
+        document.getElementById('harga').value = p.harga;
+        document.getElementById('stok').value = p.stok;
+        document.getElementById('gambar').value = image_path;
+      } catch (error) {
+        alert('Gagal memuat data produk');
+        console.error(error);
+      }
+    }
+
+    async function hapusProduk(id) {
+      if (confirm('Yakin ingin menghapus produk ini?')) {
+        try {
+          await axios.delete(`${apiUrl}/${id}`, {
+            headers: {
+  Authorization: `Bearer ${token}`
+}
+          });
+          fetchProduk();
+        } catch (error) {
+          alert('Gagal menghapus produk');
+          console.error(error);
+        }
+      }
+    }
+
+    fetchProduk();
   </script>
 </body>
 </html>

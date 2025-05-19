@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tambah Menu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+    }
+
+    label {
+      margin-top: 1rem;
+    }
+
+    input, textarea {
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem;
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 1rem;
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h2>Tambah Menu</h2>
+  <form id="menuForm">
+    <label>Nama Menu
+      <input type="text" name="nama" required />
+    </label>
+    <label>Harga
+      <input type="number" name="harga" required />
+    </label>
+    <label>Deskripsi
+      <textarea name="diskripsi"></textarea>
+    </label>
+    <label>Deskripsi
+      <textarea name="kategori"></textarea>
+    </label>
+    <label>Gambar Menu
+      <input type="file" name="image" accept="image/*" />
+    </label>
+    <button type="submit">Kirim</button>
+</form>
+
+  <div id="message"></div>
+
+  <script>
+    const form = document.getElementById('menuForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      const token = localStorage.getItem('token'); // Simpan token setelah login
+
+      if (!token) {
+        message.textContent = 'Token tidak ditemukan. Silakan login.';
+        message.classList.add('error');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/admin/menu', {
+          method: 'POST',
+          headers: {
+            Authorization: 'Bearer ' + token,
+            Accept: 'application/json'
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          message.textContent = data.message || 'Gagal mengirim menu.';
+          message.classList.add('error');
+        } else {
+          message.textContent = 'Menu berhasil ditambahkan.';
+          message.classList.remove('error');
+          form.reset();
+        }
+      } catch (error) {
+        console.error(error);
+        message.textContent = 'Terjadi kesalahan.';
+        message.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>
