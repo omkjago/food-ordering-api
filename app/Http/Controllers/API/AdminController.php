@@ -15,7 +15,7 @@ class AdminController extends Controller
 {
     public function aktif()
     {
-        return response()->json(Pesanan::where('status', 'aktif')->with('items.menu')->get());
+        return response()->json(Pesanan::where('status', 'selesai')->with('items.menu')->get());
     }
 
     public function pending()

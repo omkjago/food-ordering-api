@@ -36,9 +36,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 
 //guest
-//meja
-Route::post('/scan/meja', [PesananController::class, 'scanMeja']);
 //menu
+
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/menu/favorit', [MenuController::class, 'getFavorit']);
 
@@ -49,9 +48,12 @@ Route::post('/pesanan/{id}/bayar', [PesananController::class, 'bayar']);
 Route::get('/pesanan/detail', [PesananController::class, 'detail']);
 
 //payment gatway
-Route::post('/tripay/checkout', [TripayController::class, 'checkout']);
-Route::post('/tripay/callback', [TripayController::class, 'handleCallback'])->name('tripay.callback');
-Route::post('/tripay/order-summary', [TripayController::class, 'orderSummary']);
+Route::prefix('tripay')->group(function () {
+    Route::post('/checkout', [TripayController::class, 'checkout']);
+    Route::post('/callback', [TripayController::class, 'handleCallback'])->name('tripay.callback');
+    Route::post('/order-summary', [TripayController::class, 'orderSummary']);
+});
+Route::get('/payment/return', [TripayController::class, 'paymentReturn'])->name('tripay.return');
 
 
 //admin

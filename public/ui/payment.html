@@ -32,6 +32,45 @@
     .item-details {
       flex: 1;
     }
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .loading {
+      display: none;
+      margin: 20px auto;
+      text-align: center;
+    }
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 2s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error-message {
+      color: red;
+      display: none;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -44,24 +83,32 @@
     <h4>Ringkasan Pesanan:</h4>
     <ul id="itemList"></ul>
   </div>
-  <div>
+  
+  <div class="form-group">
     <label for="customer_name">Nama Pelanggan</label>
     <input type="text" id="customer_name" name="customer_name" required placeholder="Masukkan nama pelanggan">
   </div>
   
-  <div>
+  <div class="form-group">
     <label for="customer_phone">Nomor Telepon</label>
     <input type="text" id="customer_phone" name="customer_phone" required placeholder="Masukkan nomor telepon pelanggan">
   </div>
-  <div>
+  
+  <div class="form-group">
     <label for="customer_email">Email</label>
     <input type="email" id="customer_email" name="customer_email" required placeholder="Masukkan email pelanggan">
   </div>
   
+  <div class="error-message" id="error-message"></div>
   
   <div class="button-group">
     <button class="tunai" onclick="bayarTunai()">Bayar Tunai</button>
     <button class="non-tunai" onclick="bayarNonTunai()">Bayar Non-Tunai</button>
+  </div>
+
+  <div class="loading" id="payment-loading">
+    <div class="loading-spinner"></div>
+    <p>Memproses pembayaran...</p>
   </div>
 
   <div id="barcode-container" style="display:none;">
@@ -76,21 +123,27 @@
   const orderToken = urlParams.get("order_token");
 
   if (!orderToken) {
-    alert("Order token tidak ditemukan.");
+    document.getElementById("error-message").innerText = "Order token tidak ditemukan.";
+    document.getElementById("error-message").style.display = "block";
     throw new Error("No order token provided.");
   }
 
   // Ambil data pesanan dari backend
   fetch('http://127.0.0.1:8000/api/tripay/order-summary', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-  body: JSON.stringify({ order_token: orderToken })
-})
-.then(res => res.json())
-.then(data => {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ order_token: orderToken })
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return res.json();
+  })
+  .then(data => {
     if (data.items) {
       let total = data.total;
-      document.getElementById('totalDisplay').innerText = `Total: Rp ${total}`;
+      document.getElementById('totalDisplay').innerText = `Total: Rp ${formatNumber(total)}`;
 
       // Tampilkan summary pesanan
       let itemsList = document.getElementById('itemList');
@@ -102,41 +155,73 @@
         let imageElement = document.createElement('img');
         imageElement.src = `http://127.0.0.1:8000/storage/${item.image_path}`;
         imageElement.alt = item.nama_menu;
+        imageElement.onerror = function() {
+          this.src = 'http://127.0.0.1:8000/images/no-image.png';
+        };
 
         // Detail item
         let itemDetails = document.createElement('div');
         itemDetails.classList.add('item-details');
-        itemDetails.textContent = `${item.nama_menu} - Rp ${item.harga} x ${item.jumlah} = Rp ${item.subtotal}`;
+        itemDetails.textContent = `${item.nama_menu} - Rp ${formatNumber(item.harga)} x ${item.jumlah} = Rp ${formatNumber(item.subtotal)}`;
 
         // Gabungkan gambar dan detail
         listItem.appendChild(imageElement);
         listItem.appendChild(itemDetails);
         itemsList.appendChild(listItem);
-      
       });
     } else {
-      alert('Pesanan tidak ditemukan.');
+      document.getElementById("error-message").innerText = "Pesanan tidak ditemukan.";
+      document.getElementById("error-message").style.display = "block";
     }
-});
+  })
+  .catch(err => {
+    console.error('Error fetching order summary:', err);
+    document.getElementById("error-message").innerText = "Gagal memuat data pesanan.";
+    document.getElementById("error-message").style.display = "block";
+  });
+
+  // Format angka dengan pemisah ribuan
+  function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
 
   // Bayar Tunai
   function bayarTunai() {
+    const customerName = document.getElementById('customer_name').value;
+    const customerPhone = document.getElementById('customer_phone').value;
+    const customerEmail = document.getElementById('customer_email').value;
+
+    if (!customerName || !customerPhone || !customerEmail) {
+      document.getElementById("error-message").innerText = "Nama, Email, dan nomor telepon harus diisi.";
+      document.getElementById("error-message").style.display = "block";
+      return;
+    }
+
+    // Simpan data customer untuk pembayaran tunai (opsional)
+    // Anda bisa membuat endpoint khusus untuk menyimpan data customer untuk pembayaran tunai
+
     const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
     document.getElementById('barcode').src = barcodeUrl;
     document.getElementById('barcode-container').style.display = 'block';
+    document.getElementById("error-message").style.display = "none";
   }
 
   // Bayar Non-Tunai via Tripay
   function bayarNonTunai() {
     const customerName = document.getElementById('customer_name').value;
-  const customerPhone = document.getElementById('customer_phone').value;
-  const customerEmail = document.getElementById('customer_email').value;
+    const customerPhone = document.getElementById('customer_phone').value;
+    const customerEmail = document.getElementById('customer_email').value;
 
+    if (!customerName || !customerPhone || !customerEmail) {
+      document.getElementById("error-message").innerText = "Nama, Email, dan nomor telepon harus diisi.";
+      document.getElementById("error-message").style.display = "block";
+      return;
+    }
 
-  if (!customerName || !customerPhone || !customerEmail) {
-    alert('Nama, Email, dan nomor telepon harus diisi.');
-    return;
-  }
+    // Tampilkan loading
+    document.getElementById('payment-loading').style.display = 'block';
+    document.getElementById("error-message").style.display = "none";
+
     fetch('http://127.0.0.1:8000/api/tripay/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -145,23 +230,33 @@
         customer_name: customerName,
         customer_phone: customerPhone,
         customer_email: customerEmail
+      })
     })
-
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
     })
-    .then(res => res.json())
     .then(data => {
-  console.log("Respon dari backend:", data); // Tambahkan ini
+      console.log("Respon dari backend:", data);
 
-  if (data.success && data.payment_url) {
-    window.location.href = data.payment_url;
-  } else {
-    alert("Gagal mendapatkan link pembayaran.");
-  }
-})
+      // Sembunyikan loading
+      document.getElementById('payment-loading').style.display = 'none';
 
+      if (data.success && data.payment_url) {
+        // Redirect ke halaman pembayaran Tripay
+        window.location.href = data.payment_url;
+      } else {
+        document.getElementById("error-message").innerText = data.message || "Gagal mendapatkan link pembayaran.";
+        document.getElementById("error-message").style.display = "block";
+      }
+    })
     .catch(err => {
-      console.error(err);
-      alert("Terjadi kesalahan saat memproses pembayaran.");
+      console.error('Error during checkout:', err);
+      document.getElementById('payment-loading').style.display = 'none';
+      document.getElementById("error-message").innerText = "Terjadi kesalahan saat memproses pembayaran.";
+      document.getElementById("error-message").style.display = "block";
     });
   }
 </script>
