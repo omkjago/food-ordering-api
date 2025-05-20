@@ -65,6 +65,9 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::delete('/admin/menu/{id}', [AdminController::class, 'deleteMenu']);
     Route::post('/admin/validasi', [AdminController::class, 'validasiPesanan']);
 
+    Route::get('/admin/statistics', [AdminController::class, 'statistics']);
+    Route::get('/admin/popular-products', [AdminController::class, 'popularProducts']);
+    Route::get('/admin/recent-orders', [AdminController::class, 'recentOrders']);
 });
 
 Route::get('/meja', [MejaController::class, 'index']);

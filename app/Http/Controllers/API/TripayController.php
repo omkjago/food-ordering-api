@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Pesanan;
+use App\Models\PemesanInfo;
+
 
 
 class TripayController extends Controller
@@ -28,6 +30,23 @@ class TripayController extends Controller
     if (!$order) {
         return response()->json(['success' => false, 'message' => 'Order tidak ditemukan'], 404);
     }
+
+
+    if (auth()->check()) {
+        $order->user_id = auth()->id(); // ubah dari $pesanan ke $order
+    } else {
+        $pemesanInfo = PemesanInfo::create([
+            'pesanan_id'     => $order->id,
+            'nama_pemesan'   => $customerName,
+            'email_pemesan'  => $customerEmail,
+            'no_hp'          => $customerPhone,
+        ]);
+    
+        $order->pemesan_info_id = $pemesanInfo->id; // ubah dari $pesanan ke $order
+    }
+    
+    $order->save();
+
      // Data signature
      $merchantCode = env('TRIPAY_MERCHANT_CODE');
      $merchantRef  = $order->order_token;
@@ -99,6 +118,15 @@ if ($response->successful()) {
     // Jika pembayaran sukses, update status jadi aktif
     if ($request->status === 'PAID') {
         $order->status = 'aktif';
+        
+        // Cek jika email pemesan terdaftar di users
+        if (!empty($order->email_pemesan)) {
+            $user = \App\Models\User::where('email', $order->email_pemesan)->first();
+            if ($user) {
+                $order->user_id = $user->id;
+            }
+        }
+        
         $order->save();
     }
 

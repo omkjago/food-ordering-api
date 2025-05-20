@@ -12,7 +12,7 @@
     <aside class="w-64 bg-white shadow p-4 flex flex-col">
       <div class="text-orange-600 font-bold text-xl mb-4">🍴 FoodOrder</div>
       <nav class="flex-1 space-y-2">
-        <button onclick="Dashboard()" class="block py-2 px-3 rounded hover:bg-gray-200">Dashboard</button>
+        <button onclick="Dashboard()" class="block py-2 px-3 rounded bg-gray-200">Dashboard</button>
         <button onclick="Produk()" class="block py-2 px-3 rounded hover:bg-gray-200">Produk</button>
         <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Kategori</a>
         <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pelanggan</a>
@@ -22,8 +22,8 @@
         <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pengaturan</a>
       </nav>
       <div class="mt-4 text-sm text-gray-500">
-        <div class="font-bold">Admin</div>
-        <div>admin@foodorder.com</div>
+        <div class="font-bold" id="admin-name">Admin</div>
+        <div id="admin-email">admin@foodorder.com</div>
       </div>
     </aside>
 
@@ -40,50 +40,31 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-4 rounded shadow">
           <div class="text-gray-500">Total Pendapatan</div>
-          <div class="text-2xl font-bold">Rp 15.250.000</div>
-          <div class="text-green-500 text-sm">+20.1% dari bulan lalu</div>
+          <div class="text-2xl font-bold" id="total-pendapatan">Loading...</div>
+          <div class="text-sm" id="pendapatan-persentase">Menghitung...</div>
         </div>
         <div class="bg-white p-4 rounded shadow">
           <div class="text-gray-500">Pesanan Baru</div>
-          <div class="text-2xl font-bold">+278</div>
-          <div class="text-green-500 text-sm">+18% dari bulan lalu</div>
+          <div class="text-2xl font-bold" id="pesanan-baru">Loading...</div>
+          <div class="text-sm" id="pesanan-persentase">Menghitung...</div>
         </div>
         <div class="bg-white p-4 rounded shadow">
           <div class="text-gray-500">Pelanggan Baru</div>
-          <div class="text-2xl font-bold">+573</div>
-          <div class="text-green-500 text-sm">+12% dari bulan lalu</div>
+          <div class="text-2xl font-bold" id="pelanggan-baru">Loading...</div>
+          <div class="text-sm" id="pelanggan-persentase">Menghitung...</div>
         </div>
         <div class="bg-white p-4 rounded shadow">
           <div class="text-gray-500">Produk Terjual</div>
-          <div class="text-2xl font-bold">1,324</div>
-          <div class="text-green-500 text-sm">+14% dari bulan lalu</div>
+          <div class="text-2xl font-bold" id="produk-terjual">Loading...</div>
+          <div class="text-sm" id="produk-persentase">Menghitung...</div>
         </div>
       </div>
 
       <!-- Produk Populer -->
       <div class="bg-white p-4 rounded shadow mb-6">
         <h2 class="text-lg font-bold mb-4">Produk Populer</h2>
-        <ul class="space-y-2">
-          <li class="flex justify-between">
-            <span>Nasi Goreng Spesial <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
-            <span>256 <span class="text-green-500">↑</span></span>
-          </li>
-          <li class="flex justify-between">
-            <span>Ayam Bakar Madu <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
-            <span>198 <span class="text-green-500">↑</span></span>
-          </li>
-          <li class="flex justify-between">
-            <span>Es Teh Manis <span class="text-sm text-gray-500">(Minuman)</span></span>
-            <span>312 <span class="text-green-500">↑</span></span>
-          </li>
-          <li class="flex justify-between">
-            <span>Sate Ayam <span class="text-sm text-gray-500">(Makanan Utama)</span></span>
-            <span>176 <span class="text-red-500">↓</span></span>
-          </li>
-          <li class="flex justify-between">
-            <span>Jus Alpukat <span class="text-sm text-gray-500">(Minuman)</span></span>
-            <span>134 <span class="text-green-500">↑</span></span>
-          </li>
+        <ul class="space-y-2" id="produk-populer-list">
+          <li class="text-center py-4">Loading produk populer...</li>
         </ul>
       </div>
 
@@ -101,65 +82,228 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody>
-            <tr class="border-t">
-              <td>#ORD-1234</td>
-              <td>Johan Susanto</td>
-              <td>18 Mei 2025</td>
-              <td>4</td>
-              <td>Rp 125.000</td>
-              <td><span class="text-green-600 font-semibold">Selesai</span></td>
-            </tr>
-            <tr class="border-t">
-              <td>#ORD-1235</td>
-              <td>Ayu Pratiwi</td>
-              <td>18 Mei 2025</td>
-              <td>2</td>
-              <td>Rp 75.000</td>
-              <td><span class="text-blue-600 font-semibold">Diproses</span></td>
-            </tr>
-            <tr class="border-t">
-              <td>#ORD-1236</td>
-              <td>Budi Santoso</td>
-              <td>17 Mei 2025</td>
-              <td>3</td>
-              <td>Rp 105.000</td>
-              <td><span class="text-green-600 font-semibold">Selesai</span></td>
-            </tr>
-            <tr class="border-t">
-              <td>#ORD-1237</td>
-              <td>Dewi Cahya</td>
-              <td>17 Mei 2025</td>
-              <td>1</td>
-              <td>Rp 45.000</td>
-              <td><span class="text-green-600 font-semibold">Selesai</span></td>
-            </tr>
-            <tr class="border-t">
-              <td>#ORD-1238</td>
-              <td>Eko Widodo</td>
-              <td>16 Mei 2025</td>
-              <td>5</td>
-              <td>Rp 185.000</td>
-              <td><span class="text-yellow-600 font-semibold">Tertunda</span></td>
+          <tbody id="pesanan-terbaru-table">
+            <tr>
+              <td colspan="6" class="text-center py-4">Loading data pesanan...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </main>
   </div>
-</body>
-<script>
-    const token = localStorage.getItem('token'); // Harus sudah login
-    const message = document.getElementById('message');
 
-        function Dashboard() {
-            window.location.href = `dashboard_admin.html`;
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Fungsi untuk format mata uang Rupiah
+      function formatRupiah(angka) {
+        return 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
+      }
+      
+      // Fungsi untuk format tanggal Indonesia
+      function formatTanggal(dateString) {
+        const date = new Date(dateString);
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('id-ID', options);
+      }
+      
+      // Dapatkan data admin
+      fetch('/api/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        function Produk() {
-            window.location.href = `admin/admin-menu.html`;
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch admin data');
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById('admin-name').textContent = data.name;
+        document.getElementById('admin-email').textContent = data.email;
+      })
+      .catch(error => {
+        console.error('Error fetching admin data:', error);
+      });
+      
+      // Dapatkan statistik dashboard
+      fetch('/api/admin/statistics', {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        function AdminValidasi() {
-            window.location.href = `admin/admin-validasi.html`;
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch statistics');
+        return response.json();
+      })
+      .then(data => {
+        // Total Pendapatan
+        document.getElementById('total-pendapatan').textContent = formatRupiah(data.pendapatan.current);
+        const persentasePendapatan = ((data.pendapatan.current - data.pendapatan.previous) / data.pendapatan.previous * 100).toFixed(1);
+        const pendapatanElement = document.getElementById('pendapatan-persentase');
+        pendapatanElement.textContent = `${persentasePendapatan}% dari bulan lalu`;
+        if (persentasePendapatan > 0) {
+          pendapatanElement.classList.add('text-green-500');
+        } else {
+          pendapatanElement.classList.add('text-red-500');
         }
-    </script>
+        
+        // Pesanan Baru
+        document.getElementById('pesanan-baru').textContent = `+${data.pesanan.current}`;
+        const persentasePesanan = ((data.pesanan.current - data.pesanan.previous) / data.pesanan.previous * 100).toFixed(1);
+        const pesananElement = document.getElementById('pesanan-persentase');
+        pesananElement.textContent = `${persentasePesanan}% dari bulan lalu`;
+        if (persentasePesanan > 0) {
+          pesananElement.classList.add('text-green-500');
+        } else {
+          pesananElement.classList.add('text-red-500');
+        }
+        
+        // Pelanggan Baru
+        document.getElementById('pelanggan-baru').textContent = `+${data.pelanggan.current}`;
+        const persentasePelanggan = ((data.pelanggan.current - data.pelanggan.previous) / data.pelanggan.previous * 100).toFixed(1);
+        const pelangganElement = document.getElementById('pelanggan-persentase');
+        pelangganElement.textContent = `${persentasePelanggan}% dari bulan lalu`;
+        if (persentasePelanggan > 0) {
+          pelangganElement.classList.add('text-green-500');
+        } else {
+          pelangganElement.classList.add('text-red-500');
+        }
+        
+        // Produk Terjual
+        document.getElementById('produk-terjual').textContent = data.produk.current;
+        const persentaseProduk = ((data.produk.current - data.produk.previous) / data.produk.previous * 100).toFixed(1);
+        const produkElement = document.getElementById('produk-persentase');
+        produkElement.textContent = `${persentaseProduk}% dari bulan lalu`;
+        if (persentaseProduk > 0) {
+          produkElement.classList.add('text-green-500');
+        } else {
+          produkElement.classList.add('text-red-500');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching statistics:', error);
+        document.getElementById('total-pendapatan').textContent = 'Error';
+        document.getElementById('pesanan-baru').textContent = 'Error';
+        document.getElementById('pelanggan-baru').textContent = 'Error';
+        document.getElementById('produk-terjual').textContent = 'Error';
+      });
+      
+       // Dapatkan produk populer
+       fetch('/api/admin/popular-products', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch popular products');
+        return response.json();
+      })
+      .then(data => {
+        const productsContainer = document.getElementById('produk-populer-list');
+        productsContainer.innerHTML = '';
+        
+        data.forEach(product => {
+          const trendIcon = product.trend > 0 ? 
+            '<span class="text-green-500">↑</span>' : 
+            '<span class="text-red-500">↓</span>';
+          
+          const listItem = document.createElement('li');
+          listItem.className = 'flex justify-between';
+          listItem.innerHTML = `
+            <span>${product.nama} <span class="text-sm text-gray-500">(${product.kategori})</span></span>
+            <span>${product.jumlah_terjual} ${trendIcon}</span>
+          `;
+          
+          productsContainer.appendChild(listItem);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching popular products:', error);
+        document.getElementById('produk-populer-list').innerHTML = 
+          '<li class="text-center py-2 text-red-500">Gagal memuat produk populer</li>';
+      });
+      
+      // Dapatkan pesanan terbaru
+fetch('/api/admin/recent-orders', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+})
+.then(response => {
+  if (!response.ok) throw new Error('Failed to fetch recent orders');
+  return response.json();
+})
+.then(data => {
+  const tableBody = document.getElementById('pesanan-terbaru-table');
+  tableBody.innerHTML = '';
+  
+  if (data.length === 0) {
+    const emptyRow = document.createElement('tr');
+    emptyRow.className = 'border-t';
+    emptyRow.innerHTML = `
+      <td colspan="6" class="text-center py-4">Tidak ada pesanan terbaru</td>
+    `;
+    tableBody.appendChild(emptyRow);
+    return;
+  }
+  
+  data.forEach(order => {
+    let statusClass = '';
+    switch (order.status.toLowerCase()) {
+      case 'selesai':
+        statusClass = 'text-green-600';
+        break;
+      case 'aktif':
+        statusClass = 'text-blue-600';
+        break;
+      case 'pending':
+        statusClass = 'text-yellow-600';
+        break;
+      default:
+        statusClass = 'text-gray-600';
+    }
+    
+    const row = document.createElement('tr');
+    row.className = 'border-t';
+    row.innerHTML = `
+      <td>#ORD-${order.id}</td>
+      <td>${order.pelanggan_nama}</td>
+      <td>${formatTanggal(order.tanggal)}</td>
+      <td>${order.jumlah_produk}</td>
+      <td>${formatRupiah(order.total)}</td>
+      <td><span class="${statusClass} font-semibold">${order.status}</span></td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
+})
+.catch(error => {
+  console.error('Error fetching recent orders:', error);
+  document.getElementById('pesanan-terbaru-table').innerHTML = `
+    <tr class="border-t">
+      <td colspan="6" class="text-center py-2 text-red-500">Gagal memuat data pesanan</td>
+    </tr>
+  `;
+});
+    });
+
+    function Dashboard() {
+      window.location.href = `dashboard_admin.html`;
+    }
+    
+    function Produk() {
+      window.location.href = `admin/admin-menu.html`;
+    }
+    
+    function AdminValidasi() {
+      window.location.href = `admin/admin-validasi.html`;
+    }
+  </script>
+</body>
 </html>

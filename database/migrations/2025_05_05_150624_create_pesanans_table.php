@@ -14,7 +14,8 @@ public function up()
 {
     Schema::create('pesanans', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained('users');
+        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+        $table->foreignId('pemesan_info_id')->nullable()->constrained('pemesan_infos')->onDelete('cascade');
         $table->foreignId('meja_id')->constrained('mejas');
         $table->enum('status', ['pending', 'aktif', 'selesai']);
         $table->decimal('total_harga', 10, 2);
