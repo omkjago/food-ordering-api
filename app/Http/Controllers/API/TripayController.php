@@ -144,7 +144,7 @@ class TripayController extends Controller
 
         // Jika pembayaran sukses, update status jadi aktif dan simpan pemesan_info
         if (($data['status'] ?? '') === 'PAID') {
-            $order->status = 'aktif';
+            $order->status = 'selesai';
             
             // Ambil data pelanggan dari cache
             $customerData = Cache::get('customer_data_' . $orderToken);

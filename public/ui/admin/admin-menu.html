@@ -12,14 +12,14 @@
     <aside class="w-64 bg-white shadow p-4 flex flex-col">
       <div class="text-orange-600 font-bold text-xl mb-4">🍴 FoodOrder</div>
       <nav class="flex-1 space-y-2">
-        <button onclick="Dashboard()" class="block py-2 px-3 rounded hover:bg-gray-200">Dashboard</button>
-        <button onclick="Produk()" class="block py-2 px-3 rounded hover:bg-gray-200">Produk</button>
-        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Kategori</a>
-        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pelanggan</a>
-        <button onclick="Pesanan()" class="block py-2 px-3 rounded hover:bg-gray-200">Pesanan</button>
-        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pembayaran</a>
-        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Notifikasi</a>
-        <a href="#" class="block py-2 px-3 rounded hover:bg-gray-200">Pengaturan</a>
+        <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
+        <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kategori</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pelanggan</a>
+        <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pembayaran</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Notifikasi</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
       </nav>
       <div class="mt-4 text-sm text-gray-500">
         <div class="font-bold">Admin</div>
@@ -67,9 +67,9 @@
         function Pesanan() {
             window.location.href = `admin-order-aktif.html`;
         }
-        function AdminValidasi() {
-            window.location.href = `admin/admin-validasi.html`;
-        }
+        function Kasir() {
+      window.location.href = `admin/admin-validasi.html`;
+    }
 
     // Ambil data produk
     async function fetchProduk() {

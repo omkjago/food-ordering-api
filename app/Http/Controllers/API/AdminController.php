@@ -10,13 +10,27 @@ use Carbon\Carbon;
 use DB;
 use App\Models\Menu;
 use Illuminate\Http\Request;
+use App\Models\PemesanInfo;
+
 
 class AdminController extends Controller
 {
     public function aktif()
-    {
-        return response()->json(Pesanan::where('status', 'selesai')->with('items.menu')->get());
-    }
+{
+    $pesanans = Pesanan::whereIn('status', ['aktif', 'selesai'])
+        ->with(['items.menu', 'user', 'pemesanInfo'])
+        ->get()
+        ->map(function ($pesanan) {
+            $pesanan->pelanggan_nama = $pesanan->user->name 
+                ?? $pesanan->pemesanInfo->nama_pemesan 
+                ?? 'Tamu';
+            return $pesanan;
+        });
+
+    return response()->json($pesanans);
+}
+
+
 
     public function pending()
     {
