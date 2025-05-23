@@ -35,4 +35,8 @@ class Pesanan extends Model
     {
         return $this->hasOne(Pembayaran::class);
     }
+    public function pemesanInfo()
+{
+    return $this->belongsTo(PemesanInfo::class);
+}
 }
