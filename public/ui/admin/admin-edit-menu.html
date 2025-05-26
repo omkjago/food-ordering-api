@@ -58,7 +58,7 @@
     const token = localStorage.getItem("token");
 
     // Load data menu
-    fetch(`http://127.0.0.1:8000/api/admin/menu/${id}`, {
+    fetch(`/api/admin/menu/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then(res => res.json())
@@ -86,7 +86,7 @@
         formData.append("image", image);
       }
 
-      fetch(`http://127.0.0.1:8000/api/admin/menu/${id}`, {
+      fetch(`/api/admin/menu/${id}`, {
         method: "POST", // Gunakan PUT jika backend support multipart PUT
         headers: {
             Authorization: `Bearer ${token}`,

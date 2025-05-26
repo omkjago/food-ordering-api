@@ -281,7 +281,7 @@
                     messageElement.classList.remove('error', 'success');
 
                     try {
-                        const res = await fetch(`http://127.0.0.1:8000/api/pesanan/by-order-token/${decodedToken}`, {
+                        const res = await fetch(`/api/pesanan/by-order-token/${decodedToken}`, {
                             method: "GET",
                             headers: {
                                 "Authorization": "Bearer " + token,
@@ -366,7 +366,7 @@
                     confirmButton.disabled = true;
 
                     try {
-                        const res = await fetch("http://127.0.0.1:8000/api/admin/confirm-payment", {
+                        const res = await fetch("/api/admin/confirm-payment", {
                             method: "POST",
                             headers: {
                                 "Authorization": "Bearer " + token,

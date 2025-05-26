@@ -126,7 +126,7 @@ function renderFavorites(menus) {
     const card = document.createElement('div');
     card.className = 'menu-card';
     card.innerHTML = `
-      <img src="http://127.0.0.1:8000/storage/${menu.image_path}" alt="${menu.nama}">
+      <img src="/storage/${menu.image_path}" alt="${menu.nama}">
       <div class="menu-name">${menu.nama}</div>
       <div class="">${menu.diskripsi}</div>
       <div class="harga">Rp ${menu.harga}</div>
@@ -201,7 +201,7 @@ function renderFavorites(menus) {
         }))
       };
 
-      fetch('http://127.0.0.1:8000/api/pesanan', {
+      fetch('/api/pesanan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
@@ -224,7 +224,7 @@ function renderFavorites(menus) {
 
     // Ambil menu favorit dari API
     function fetchFavorites() {
-      fetch('http://127.0.0.1:8000/api/menu/favorit')
+      fetch('/api/menu/favorit')
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {

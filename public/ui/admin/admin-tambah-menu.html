@@ -1,95 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tambah Menu</title>
+  <title>Tambah Menu - FoodOrder Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      max-width: 400px;
-    }
-
-    label {
-      margin-top: 1rem;
-    }
-
-    input, textarea {
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-    }
-
-    button {
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      background: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #message {
-      margin-top: 1rem;
-      color: green;
-    }
-
-    .error {
-      color: red;
-    }
+    /* Jika ada CSS kustom lain yang mungkin menimpa, bisa diletakkan di sini.
+       Namun, dengan Tailwind, ini jarang diperlukan. */
   </style>
 </head>
-<body>
-  <h2>Tambah Menu</h2>
-  <form id="menuForm">
-    <label>Nama Menu
-      <input type="text" name="nama" required />
-    </label>
-    <label>Harga
-      <input type="number" name="harga" required />
-    </label>
-    <label>Deskripsi
-      <textarea name="diskripsi"></textarea>
-    </label>
-    <label>Kategori
-      <textarea name="kategori"></textarea>
-    </label>
-    <label>Gambar Menu
-      <input type="file" name="image" accept="image/*" />
-    </label>
-    <button type="submit">Kirim</button>
-</form>
+<body class="bg-gray-100 font-sans">
+  <div class="flex h-screen">
+    <aside class="w-64 bg-white shadow p-4 flex flex-col">
+      <div class="text-orange-600 font-bold text-xl mb-4">🍴 FoodOrder</div>
+      <nav class="flex-1 space-y-2">
+        <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
+        <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kategori</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pelanggan</a>
+        <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pembayaran</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Notifikasi</a>
+        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
+      </nav>
+      <div class="mt-4 text-sm text-gray-500">
+        <div class="font-bold">Admin</div>
+        <div>admin@foodorder.com</div>
+      </div>
+    </aside>
 
-  <div id="message"></div>
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h1 class="text-2xl font-bold mb-6">Tambah Menu Baru</h1>
+
+      <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+        <form id="menuForm" class="space-y-4">
+          <div>
+            <label for="nama" class="block text-gray-700 text-sm font-bold mb-2">Nama Menu</label>
+            <input type="text" id="nama" name="nama" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div>
+            <label for="harga" class="block text-gray-700 text-sm font-bold mb-2">Harga</label>
+            <input type="number" id="harga" name="harga" required step="0.01" min="0"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div>
+            <label for="diskripsi" class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
+            <textarea id="diskripsi" name="diskripsi" rows="3"
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+          </div>
+          <div>
+            <label for="kategori" class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
+            <input type="text" id="kategori" name="kategori"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div>
+            <label for="stok" class="block text-gray-700 text-sm font-bold mb-2">Stok</label>
+            <select id="stok" name="stok"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              <option value="tersedia">Tersedia</option>
+              <option value="kosong">Kosong</option>
+            </select>
+          </div>
+          <div>
+            <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Gambar Menu</label>
+            <input type="file" id="image" name="image" accept="image/*"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+          <div class="pt-4"> <button type="submit"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200">
+              Tambah Menu Baru
+            </button>
+          </div>
+        </form>
+
+        <div id="message" class="mt-4 text-center text-sm font-semibold"></div>
+      </div>
+    </main>
+  </div>
 
   <script>
     const form = document.getElementById('menuForm');
-    const message = document.getElementById('message');
+    const messageDiv = document.getElementById('message');
+
+    // Fungsi navigasi sidebar
+    function Dashboard() {
+      window.location.href = `../dashboard_admin.html`;
+    }
+
+    function Produk() {
+      window.location.href = `admin-menu.html`;
+    }
+
+    function Pesanan() {
+      window.location.href = `admin-order-aktif.html`;
+    }
+
+    function Kasir() {
+      window.location.href = `admin/admin-validasi.html`;
+    }
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const formData = new FormData(form);
 
-      const token = localStorage.getItem('token'); // Simpan token setelah login
+      // Pastikan nilai stok terkirim dengan benar
+      const stokValue = document.getElementById('stok').value;
+      formData.set('stok', stokValue);
+
+      const token = localStorage.getItem('token');
 
       if (!token) {
-        message.textContent = 'Token tidak ditemukan. Silakan login.';
-        message.classList.add('error');
+        messageDiv.textContent = 'Token tidak ditemukan. Silakan login.';
+        messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
+        // setTimeout(() => window.location.href = 'login.html', 2000); // Mungkin jangan redirect otomatis dulu
         return;
       }
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/admin/menu', {
+        const res = await fetch('/api/admin/menu', {
           method: 'POST',
           headers: {
-            Authorization: 'Bearer ' + token,
-            Accept: 'application/json'
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
           },
           body: formData
         });
@@ -97,17 +132,28 @@
         const data = await res.json();
 
         if (!res.ok) {
-          message.textContent = data.message || 'Gagal mengirim menu.';
-          message.classList.add('error');
+          let errorMessage = data.message || 'Gagal menambahkan menu.';
+          if (res.status === 401) { // Periksa jika status 401 (Unauthenticated)
+              errorMessage = 'Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.';
+              // setTimeout(() => window.location.href = 'login.html', 2000); // Redirect ke halaman login
+          } else if (data.errors) {
+            for (const key in data.errors) {
+              errorMessage += `\n${key}: ${data.errors[key].join(', ')}`;
+            }
+          }
+          messageDiv.textContent = errorMessage;
+          messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
         } else {
-          message.textContent = 'Menu berhasil ditambahkan.';
-          message.classList.remove('error');
+          messageDiv.textContent = 'Menu berhasil ditambahkan!';
+          messageDiv.className = 'mt-4 text-center text-green-500 font-semibold';
           form.reset();
+          // Opsional: Redirect atau update daftar produk setelah berhasil
+          // setTimeout(() => window.location.href = 'admin-menu.html', 1500);
         }
       } catch (error) {
-        console.error(error);
-        message.textContent = 'Terjadi kesalahan.';
-        message.classList.add('error');
+        console.error('Terjadi kesalahan:', error);
+        messageDiv.textContent = 'Terjadi kesalahan saat menghubungi server.';
+        messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
       }
     });
   </script>

@@ -47,7 +47,7 @@
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/meja'); // Ganti sesuai endpoint API kamu
+        const response = await fetch('/api/meja'); // Ganti sesuai endpoint API kamu
         const data = await response.json();
 
         // Cari meja berdasarkan kode_barcode
@@ -55,7 +55,7 @@
 
         if (!meja) {
             alert('Meja tidak terdaftar di sistem. Silakan hubungi petugas.');
-            window.location.href = 'index.html';
+            window.location.href = '#';
             return;
         }
 
@@ -65,40 +65,48 @@
     } catch (error) {
         alert('Gagal memuat data meja. Coba lagi nanti.');
         console.error(error);
-        window.location.href = 'index.html';
+        window.location.href = '#';
     }
 }
 
 
 
         async function fetchMenu() {
-            try {
-                const response = await fetch('http://127.0.0.1:8000/api/menu');
-                if (!response.ok) throw new Error('Failed to fetch menu');
+    try {
+        const response = await fetch('/api/menu');
+        if (!response.ok) throw new Error('Failed to fetch menu');
 
-                const menuData = await response.json();
-                if (!Array.isArray(menuData)) throw new Error('Invalid menu data');
+        const menuData = await response.json();
+        if (!Array.isArray(menuData)) throw new Error('Invalid menu data');
 
-                const menuContainer = document.getElementById('menu-list');
-                menuContainer.innerHTML = '';
+        const menuContainer = document.getElementById('menu-list');
+        menuContainer.innerHTML = '';
 
-                menuData.forEach(menuItem => {
-                    const menuDiv = document.createElement('div');
-                    menuDiv.classList.add('menu-item');
-                    menuDiv.innerHTML = `
-                        <img src="http://127.0.0.1:8000/storage/${menuItem.image_path ?? 'default.jpg'}" alt="${menuItem.nama}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;">
-                        <h3>${menuItem.nama}</h3>
-                        <p>${menuItem.diskripsi}</p>
-                        <p>Harga: Rp ${menuItem.harga}</p>
-                        <button onclick="addToOrder(${menuItem.id}, '${menuItem.nama}', ${menuItem.harga})">Add to Order</button>
-                    `;
-                    menuContainer.appendChild(menuDiv);
-                });
-            } catch (error) {
-                console.error('Error fetching menu:', error);
-                alert('Gagal memuat menu');
-            }
+        // Filter hanya menu dengan stok tersedia
+        const availableMenus = menuData.filter(menuItem => menuItem.stok?.toLowerCase() === 'tersedia');
+
+        if (availableMenus.length === 0) {
+            menuContainer.innerHTML = '<p>Tidak ada menu tersedia saat ini.</p>';
+            return;
         }
+
+        availableMenus.forEach(menuItem => {
+            const menuDiv = document.createElement('div');
+            menuDiv.classList.add('menu-item');
+            menuDiv.innerHTML = `
+                <img src="/storage/${menuItem.image_path ?? 'default.jpg'}" alt="${menuItem.nama}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;">
+                <h3>${menuItem.nama}</h3>
+                <p>${menuItem.diskripsi}</p>
+                <p>Harga: Rp ${menuItem.harga}</p>
+                <button onclick="addToOrder(${menuItem.id}, '${menuItem.nama}', ${menuItem.harga})">Add to Order</button>
+            `;
+            menuContainer.appendChild(menuDiv);
+        });
+    } catch (error) {
+        console.error('Error fetching menu:', error);
+        alert('Gagal memuat menu');
+    }
+}
 
         function addToOrder(menuId, nama, harga) {
             const existingItem = order.find(item => item.menu_id === menuId);

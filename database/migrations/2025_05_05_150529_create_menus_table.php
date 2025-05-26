@@ -9,21 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // database/migrations/xxxx_xx_xx_create_menus_table.php
-public function up()
-{
-    Schema::create('menus', function (Blueprint $table) {
-        $table->id();
-        $table->string('nama');
-        $table->text('diskripsi')->nullable();
-        $table->string('image_path')->nullable();
-        $table->decimal('harga', 10, 2);
-        $table->string('kategori');
-        $table->enum('stok', ['tersedia', 'kosong']);
-        $table->timestamps();
-    });
-}
-
+    public function up(): void
+    {
+        Schema::create('menus', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama');
+            $table->text('diskripsi')->nullable();
+            $table->string('image_path', 50)->nullable();
+            $table->decimal('harga', 10, 2);
+            $table->string('kategori')->nullable();
+            $table->enum('stok', ['tersedia', 'kosong'])->nullable();
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

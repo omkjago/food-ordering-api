@@ -8,7 +8,6 @@
 </head>
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen">
-    <!-- Sidebar -->
     <aside class="w-64 bg-white shadow p-4 flex flex-col">
       <div class="text-orange-600 font-bold text-xl mb-4">🍴 FoodOrder</div>
       <nav class="flex-1 space-y-2">
@@ -26,49 +25,60 @@
         <div>admin@foodorder.com</div>
       </div>
     </aside>
+
     <main class="flex-1 p-6 overflow-y-auto">
-          <h1 class="text-2xl font-bold mb-4">Manajemen Produk</h1>
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Manajemen Produk</h1>
+        <button onclick="tambahMenu()" class="bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded-md transition-colors duration-200">
+          Tambah Menu
+        </button>
+      </div>
 
-    
-
-    <!-- Tabel Produk -->
-    <div class="bg-white p-4 rounded shadow">
-      <h2 class="text-lg font-semibold mb-4">Daftar Produk</h2>
-      <table class="w-full table-auto text-left">
-        <thead>
-          <tr class="text-gray-600 border-b">
-            <th class="py-2">Gambar</th>
-            <th>Nama</th>
-            <th>Kategori</th>
-            <th>Harga</th>
-            <th>Stok</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="produkList">
-          <!-- Baris data diisi lewat JS -->
-        </tbody>
-      </table>
+      <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-lg font-semibold mb-4">Daftar Produk</h2>
+        <table class="w-full table-auto text-left">
+          <thead>
+            <tr class="text-gray-600 border-b">
+              <th class="py-2">Gambar</th>
+              <th>Nama</th>
+              <th>Kategori</th>
+              <th>Harga</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="produkList">
+            </tbody>
+        </table>
+      </div>
     </main>
-  </div>
   </div>
 
   <script>
-    const apiUrl = 'http://127.0.0.1:8000/api/admin/menu';
+    const apiUrl = '/api/admin/menu';
     const token = localStorage.getItem('token');
-    const form = document.getElementById('formProduk');
     const produkList = document.getElementById('produkList');
+
+    // Fungsi navigasi sidebar
     function Dashboard() {
-            window.location.href = `../dashboard_admin.html`;
-        }
-        function Produk() {
-            window.location.href = `admin-menu.html`;
-        }
-        function Pesanan() {
-            window.location.href = `admin-order-aktif.html`;
-        }
-        function Kasir() {
+      window.location.href = `../dashboard_admin.html`;
+    }
+
+    function Produk() {
+      window.location.href = `admin-menu.html`;
+    }
+
+    function Pesanan() {
+      window.location.href = `admin-order-aktif.html`;
+    }
+
+    function Kasir() {
       window.location.href = `admin/admin-validasi.html`;
+    }
+
+    // Fungsi untuk tombol "Tambah Menu"
+    function tambahMenu() {
+      window.location.href = `admin-tambah-menu.html`; // Mengarahkan ke halaman tambah menu
     }
 
     // Ambil data produk
@@ -85,14 +95,14 @@
           produkList.innerHTML += `
             <tr class="border-t">
               <td class="py-2">
-                <img src="http://127.0.0.1:8000/storage/${p.image_path ?? 'default.jpg'}" alt="${p.nama}" class="w-16 h-16 object-cover rounded" />
+                <img src="/storage/${p.image_path ?? 'default.jpg'}" alt="${p.nama}" class="w-16 h-16 object-cover rounded" />
               </td>
               <td>${p.nama}</td>
               <td>${p.kategori}</td>
               <td>Rp ${p.harga}</td>
               <td>${p.stok}</td>
               <td>
-<button onclick="window.location.href='/ui/admin/admin-edit-menu.html?id=${p.id}'">Edit</button>
+                <button onclick="window.location.href='/ui/admin/admin-edit-menu.html?id=${p.id}'" class="text-blue-600 hover:underline mr-2">Edit</button>
                 <button onclick="hapusProduk(${p.id})" class="text-red-600 hover:underline">Hapus</button>
               </td>
             </tr>`;
@@ -101,8 +111,6 @@
         console.error('Gagal memuat produk:', error);
       }
     }
-
-    
 
     // Hapus Produk
     async function hapusProduk(id) {
@@ -126,7 +134,6 @@
     }
 
     fetchProduk();
-    
   </script>
 </body>
 </html>

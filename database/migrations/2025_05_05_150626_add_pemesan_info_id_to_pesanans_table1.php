@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mejas', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode_barcode')->unique();
-            $table->timestamps();
+        Schema::table('pesanans', function (Blueprint $table) {
+            $table->foreignId('pemesan_info_id')->nullable()->constrained('pemesan_infos')->onDelete('cascade');
         });
     }
 
@@ -23,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mejas');
+        Schema::table('pesanans', function (Blueprint $table) {
+            $table->dropForeign(['pemesan_info_id']);
+            $table->dropColumn('pemesan_info_id');
+        });
     }
 };

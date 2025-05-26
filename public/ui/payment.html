@@ -129,7 +129,7 @@
   }
 
   // Ambil data pesanan dari backend
-  fetch('http://127.0.0.1:8000/api/tripay/order-summary', {
+  fetch('/api/tripay/order-summary', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ order_token: orderToken })
@@ -153,10 +153,10 @@
 
         // Gambar menu
         let imageElement = document.createElement('img');
-        imageElement.src = `http://127.0.0.1:8000/storage/${item.image_path}`;
+        imageElement.src = `/storage/${item.image_path}`;
         imageElement.alt = item.nama_menu;
         imageElement.onerror = function() {
-          this.src = 'http://127.0.0.1:8000/images/no-image.png';
+          this.src = '/images/no-image.png';
         };
 
         // Detail item
@@ -222,7 +222,7 @@
     document.getElementById('payment-loading').style.display = 'block';
     document.getElementById("error-message").style.display = "none";
 
-    fetch('http://127.0.0.1:8000/api/tripay/checkout', {
+    fetch('/api/tripay/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
