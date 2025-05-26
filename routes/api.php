@@ -46,6 +46,7 @@ Route::post('/pesanan', [PesananController::class, 'store']);
 Route::get('/pesanan/{kode_barcode}', [PesananController::class, 'getByBarcode']);
 Route::post('/pesanan/{id}/bayar', [PesananController::class, 'bayar']);
 Route::get('/pesanan/detail', [PesananController::class, 'detail']);
+Route::post('/pesanan/status', [PesananController::class, 'getStatus']);
 
 //payment gatway
 Route::prefix('tripay')->group(function () {

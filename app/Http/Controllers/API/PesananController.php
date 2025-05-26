@@ -159,4 +159,37 @@ class PesananController extends Controller
             'pesanan' => $pesanan->load('pembayaran')
         ]);
     }
+    public function getStatus(Request $request)
+    {
+        $request->validate([
+            'order_token' => 'required|string',
+        ]);
+
+        $orderToken = $request->input('order_token');
+
+        try {
+            // Find the order by order_token
+            $order = Pesanan::where('order_token', $orderToken)->first();
+
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Order not found.'
+                ], 404);
+            }
+
+            // Return the order status
+            return response()->json([
+                'success' => true,
+                'status' => $order->status // Assuming 'status' is a column in your orders table
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error fetching order status: " . $e->getMessage(), ['order_token' => $orderToken]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal server error.'
+            ], 500);
+        }
+    }
 }
