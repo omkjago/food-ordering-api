@@ -5,29 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Restoran - FoodOrder</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    /* Styling untuk overlay saat sidebar terbuka di mobile */
-    .sidebar-overlay {
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 40; /* Di bawah sidebar tapi di atas konten lain */
-    }
-
-    /* Transisi untuk sidebar */
-    .sidebar-transition {
-      transition: transform 0.3s ease-out;
-    }
-    .sidebar-closed {
-      transform: translateX(-100%);
-    }
-    .sidebar-open {
-      transform: translateX(0);
-    }
-
-    /* Tambahan untuk scrollbar jika konten sidebar panjang */
-    .sidebar-scroll {
-      overflow-y: auto;
-    }
-  </style>
+  <link href="css/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 font-sans">
   <div class="flex h-screen">
