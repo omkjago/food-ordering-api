@@ -89,6 +89,8 @@ class AdminController extends Controller
         'nama' => $request->nama,
         'harga' => $request->harga,
         'diskripsi' => $request->diskripsi,
+        'kategori' => $request->kategori,
+        'stok' => $request->stok,
         'image_path' => $imagePath,
     ]);
 

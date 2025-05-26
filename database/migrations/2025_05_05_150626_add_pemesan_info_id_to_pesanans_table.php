@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mejas', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode_barcode')->unique();
-            $table->timestamps();
+        Schema::table('pesanans', function (Blueprint $table) {
+            //
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mejas');
+        Schema::table('pesanans', function (Blueprint $table) {
+            //
+        });
     }
 };

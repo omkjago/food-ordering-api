@@ -9,20 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // database/migrations/xxxx_xx_xx_create_pesanans_table.php
-public function up()
-{
-    Schema::create('pesanans', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-        $table->foreignId('pemesan_info_id')->nullable()->constrained('pemesan_infos')->onDelete('cascade');
-        $table->foreignId('meja_id')->constrained('mejas');
-        $table->enum('status', ['pending', 'aktif', 'selesai']);
-        $table->decimal('total_harga', 10, 2);
-        $table->timestamps();
-    });
-}
-
+    public function up(): void
+    {
+        Schema::create('pesanans', function (Blueprint $table) {
+            $table->id();
+            $table->char('order_token', 36)->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('meja_id')->constrained('mejas');
+            $table->enum('status', ['pending', 'aktif', 'selesai']);
+            $table->decimal('total_harga', 10, 2);
+            $table->timestamps();
+            // $table->foreignId('pemesan_info_id')->nullable()->constrained('pemesan_infos')->onDelete('cascade'); // HAPUS BARIS INI DULU
+        });
+    }
 
     /**
      * Reverse the migrations.

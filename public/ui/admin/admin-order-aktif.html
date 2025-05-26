@@ -4,8 +4,9 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Manajemen Produk - FoodOrder</title>
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-      </head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
       <body class="bg-gray-100 font-sans">
         <div class="flex h-screen">
           <!-- Sidebar -->
@@ -75,7 +76,7 @@
               
               async function fetchOrders() {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/admin/pesanan/aktif', {
+      const res = await fetch('/api/admin/pesanan/aktif', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

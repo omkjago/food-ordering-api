@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Edit Menu</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-
   <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-700">Edit Menu</h2>
     
@@ -58,7 +58,7 @@
     const token = localStorage.getItem("token");
 
     // Load data menu
-    fetch(`http://127.0.0.1:8000/api/admin/menu/${id}`, {
+    fetch(`/api/admin/menu/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then(res => res.json())
@@ -86,7 +86,7 @@
         formData.append("image", image);
       }
 
-      fetch(`http://127.0.0.1:8000/api/admin/menu/${id}`, {
+      fetch(`/api/admin/menu/${id}`, {
         method: "POST", // Gunakan PUT jika backend support multipart PUT
         headers: {
             Authorization: `Bearer ${token}`,
