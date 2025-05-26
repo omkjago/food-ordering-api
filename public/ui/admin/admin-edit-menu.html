@@ -104,6 +104,13 @@
         alert("Gagal update menu");
       });
     });
+    // Fungsi Logout
+    function logout() {
+        // Hapus token dari localStorage
+        localStorage.removeItem('token');
+        // Arahkan pengguna ke halaman login
+        window.location.href = '../login.html'; // Sesuaikan path jika halaman login ada di lokasi lain
+    }
   </script>
 
 </body>
