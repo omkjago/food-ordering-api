@@ -29,9 +29,12 @@
                 <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
             </nav>
             <div class="mt-4 text-sm text-gray-500">
-                <div class="font-bold">Admin</div>
-                <div>admin@foodorder.com</div>
-            </div>
+                <div class="font-bold" id="admin-name">Admin</div>
+                <div id="admin-email">admin@admin.com</div>
+                <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                    Logout
+                </button>
+              </div>
         </aside>
 
         <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
@@ -84,19 +87,21 @@
     </div>
 
     <script>
+        
         // Navigation functions
         function Dashboard() {
-            window.location.href = `../dashboard_admin.html`;
-        }
-        function Produk() {
-            window.location.href = `admin-menu.html`;
-        }
-        function Kasir() {
-            window.location.href = `admin-validasi.html`; // Current page, could reload or just stay
-        }
-        function Pesanan() {
-            window.location.href = `admin-order-aktif.html`;
-        }
+      window.location.href = `../dashboard_admin.html`;
+    }
+    
+    function Produk() {
+      window.location.href = `admin-menu.html`;
+    }
+    function Pesanan() {
+      window.location.href = `admin-order-aktif.html`;
+    }      
+    function Kasir() {
+      window.location.href = `admin-validasi.html`;
+    }
 
         // DOM Elements
         const messageElement = document.getElementById('message');
@@ -114,7 +119,36 @@
         const token = localStorage.getItem('token');
 
         let currentOrderId = null; // Stores the ID of the currently displayed order
-
+        document.addEventListener('DOMContentLoaded', function() {
+      if (!token) {
+        window.location.href = '../login.html'; // Adjust path if needed
+        // return;
+        }
+        fetch('/api/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = '../login.html'; // Redirect to login
+              }
+              throw new Error('Failed to fetch admin data');
+            }
+            return response.json();
+          })
+          .then(data => {
+            document.getElementById('admin-name').textContent = data.name || 'Nama Tidak Tersedia';
+            document.getElementById('admin-email').textContent = data.email || 'Email Tidak Tersedia';
+          })
+          .catch(error => {
+            console.error('Error fetching admin data:', error);
+            document.getElementById('admin-name').textContent = 'Error Loading';
+            document.getElementById('admin-email').textContent = 'Error Loading';
+          });
+          fetchProduk();
+        });
         // --- Sidebar Toggle Functions ---
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -363,6 +397,13 @@
             }
             // --- End Custom Alert/Confirm Functions ---
         }
+        // Fungsi Logout
+    function logout() {
+        // Hapus token dari localStorage
+        localStorage.removeItem('token');
+        // Arahkan pengguna ke halaman login
+        window.location.href = '../login.html'; // Sesuaikan path jika halaman login ada di lokasi lain
+    }
     </script>
 </body>
 
