@@ -20,11 +20,9 @@
                 <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
                 <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
                 <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pelanggan</a>
+                <button onclick="LaporanPenjualan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Laporan Penjualan</button>
                 <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pembayaran</a>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Notifikasi</a>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
+                
             </nav>
             <div class="mt-4 text-sm text-gray-500">
                 <div class="font-bold" id="admin-name">Admin</div>
@@ -36,7 +34,7 @@
         </aside>
         <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
 
-        <main class="flex-1 p-6 overflow-y-auto lg:ml-64">
+        <main class="flex-1 p-6 overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-blue-600">Tambah Menu Baru</h1>
                 <button id="open-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
@@ -100,21 +98,11 @@
         const messageDiv = document.getElementById('message');
 
         // Fungsi navigasi sidebar
-        function Dashboard() {
-            window.location.href = `../dashboard_admin.html`;
-        }
-
-        function Produk() {
-            window.location.href = `admin-menu.html`;
-        }
-
-        function Pesanan() {
-            window.location.href = `admin-order-aktif.html`;
-        }
-
-        function Kasir() {
-            window.location.href = `admin-validasi.html`;
-        }
+        function Dashboard() { window.location.href = `../dashboard_admin.html`; }
+        function Produk() { window.location.href = `admin-menu.html`; }
+        function Kasir() { window.location.href = `admin-validasi.html`; }
+        function Pesanan() { window.location.href = `admin-order-aktif.html`; }
+        function LaporanPenjualan() { window.location.href = `admin-sales-report.html`; }
 
         // --- Sidebar Toggle Functions ---
         const sidebar = document.getElementById('sidebar');

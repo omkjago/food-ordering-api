@@ -21,9 +21,7 @@ use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\Api\PesananController;
 use App\Http\Controllers\Api\MejaController;
 use App\Http\Controllers\Api\TripayController;
-
-
-
+use App\Http\Controllers\Api\SalesReportController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -74,6 +72,10 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
     Route::get('/admin/popular-products', [AdminController::class, 'popularProducts']);
     Route::get('/admin/recent-orders', [AdminController::class, 'recentOrders']);
+    Route::get('/admin/reports/sales', [SalesReportController::class, 'generateReport']);
+    Route::get('/admin/reports/sales/download', [SalesReportController::class, 'downloadReport']);
+    Route::get('/admin/reports/sales?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD', [SalesReportController::class, 'generateReport']);
+
 });
 
 Route::get('/meja', [MejaController::class, 'index']);

@@ -19,11 +19,9 @@
                 <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
                 <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
                 <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pelanggan</a>
+                <button onclick="LaporanPenjualan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Laporan Penjualan</button>
                 <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pembayaran</a>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Notifikasi</a>
-                <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
+                
             </nav>
             <div class="mt-4 text-sm text-gray-500">
                 <div class="font-bold" id="admin-name">Admin</div>
@@ -76,21 +74,11 @@
         let allOrders = []; // Simpan semua data di sini
 
         // Fungsi navigasi sidebar
-        function Dashboard() {
-            window.location.href = `../dashboard_admin.html`;
-        }
-
-        function Produk() {
-            window.location.href = `admin-menu.html`;
-        }
-
-        function Pesanan() {
-            window.location.href = `admin-order-aktif.html`;
-        }
-
-        function Kasir() {
-            window.location.href = `admin-validasi.html`;
-        }
+        function Dashboard() { window.location.href = `../dashboard_admin.html`; }
+        function Produk() { window.location.href = `admin-menu.html`; }
+        function Kasir() { window.location.href = `admin-validasi.html`; }
+        function Pesanan() { window.location.href = `admin-order-aktif.html`; }
+        function LaporanPenjualan() { window.location.href = `admin-sales-report.html`; }
 
         // --- Sidebar Toggle Functions ---
         const sidebar = document.getElementById('sidebar');
