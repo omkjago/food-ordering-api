@@ -47,6 +47,7 @@ Route::get('/pesanan/{kode_barcode}', [PesananController::class, 'getByBarcode']
 Route::post('/pesanan/{id}/bayar', [PesananController::class, 'bayar']);
 Route::get('/pesanan/detail', [PesananController::class, 'detail']);
 Route::post('/pesanan/status', [PesananController::class, 'getStatus']);
+Route::post('/pesanan/process-cash-payment', [PesananController::class, 'processCashPayment']);
 
 //payment gatway
 Route::prefix('tripay')->group(function () {
@@ -75,6 +76,7 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::get('/admin/reports/sales', [SalesReportController::class, 'generateReport']);
     Route::get('/admin/reports/sales/download', [SalesReportController::class, 'downloadReport']);
     Route::get('/admin/reports/sales?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD', [SalesReportController::class, 'generateReport']);
+    Route::get('/admin/reports/pending-sales', [SalesReportController::class, 'getPendingSales']); // New route for pending sales
 
 });
 

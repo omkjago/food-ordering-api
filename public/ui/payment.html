@@ -186,8 +186,8 @@
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
-    // Bayar Tunai
-    function bayarTunai() {
+    // Bayar Tunai - MODIFIED
+    async function bayarTunai() {
         hideError();
         const customerName = document.getElementById('customer_name').value.trim();
         const customerPhone = document.getElementById('customer_phone').value.trim();
@@ -198,12 +198,45 @@
             return;
         }
         
-        const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
-        barcodeImg.src = barcodeUrl;
-        barcodeContainerDiv.classList.remove('hidden'); 
+        paymentLoadingDiv.classList.remove('hidden'); // Show loading
+        barcodeContainerDiv.classList.add('hidden'); // Hide barcode during processing
 
-        // Start polling for cash payment status as well
-        startStatusPolling();
+        try {
+            const response = await fetch('/api/pesanan/process-cash-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    order_token: orderToken,
+                    customer_name: customerName,
+                    customer_phone: customerPhone,
+                    customer_email: customerEmail
+                })
+            });
+
+            const data = await response.json();
+
+            paymentLoadingDiv.classList.add('hidden'); // Hide loading
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Gagal memproses pembayaran tunai');
+            }
+
+            console.log("Cash payment response:", data);
+
+            // If successful, show barcode and start polling
+            const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
+            barcodeImg.src = barcodeUrl;
+            barcodeContainerDiv.classList.remove('hidden');
+            
+            // Start polling for order status. The cashier will manually update the status
+            // on their end, and this polling will detect the change.
+            startStatusPolling();
+
+        } catch (error) {
+            console.error('Error during cash payment process:', error);
+            paymentLoadingDiv.classList.add('hidden');
+            showError("Terjadi kesalahan saat memproses pembayaran tunai: " + error.message);
+        }
     }
 
     // Bayar Non-Tunai via Tripay

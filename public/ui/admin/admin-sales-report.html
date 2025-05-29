@@ -50,11 +50,11 @@
                 <div class="flex flex-wrap items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4">
                     <label for="reportType" class="text-gray-700 font-bold">Jenis Laporan:</label>
                     <select id="reportType" onchange="toggleCustomDatesAndGenerate()" class="border rounded px-3 py-2">
+                        <option value="realtime">Realtime</option>
                         <option value="daily">Harian</option>
                         <option value="weekly">Mingguan</option>
                         <option value="monthly">Bulanan</option>
                         <option value="custom">Custom (Tanggal)</option>
-                        <option value="realtime">Realtime</option>
                     </select>
 
                     <div id="customDateRange" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hidden">
@@ -266,111 +266,130 @@
         }
 
         async function generateReport() {
-            const reportType = document.getElementById('reportType').value;
-            let startDate = null;
-            let endDate = null;
-            const salesReportTableBody = document.getElementById('salesReportTableBody');
+    const reportType = document.getElementById('reportType').value;
+    let startDate = null;
+    let endDate = null;
+    const salesReportTableBody = document.getElementById('salesReportTableBody');
 
-            // Hapus data sebelumnya dan set status loading
-            salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat laporan...</td></tr>';
-            document.getElementById('totalSales').textContent = 'Rp 0';
-            document.getElementById('totalTransactions').textContent = '0';
-            document.getElementById('averageOrderValue').textContent = 'Rp 0';
-            
-            // Hapus data chart agar tidak menunjukkan data lama
-            salesChart.data.labels = [];
-            salesChart.data.datasets[0].data = [];
-            salesChart.update();
+    // Hapus data sebelumnya dan set status loading
+    salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat laporan...</td></tr>';
+    document.getElementById('totalSales').textContent = 'Rp 0';
+    document.getElementById('totalTransactions').textContent = '0';
+    document.getElementById('averageOrderValue').textContent = 'Rp 0';
+
+    // Hapus data chart agar tidak menunjukkan data lama
+    salesChart.data.labels = [];
+    salesChart.data.datasets[0].data = [];
+    // Clear the second dataset as well, if it exists
+    if (salesChart.data.datasets.length > 1) {
+        salesChart.data.datasets.pop();
+    }
+    salesChart.update();
 
 
-            if (!token) {
+    if (!token) {
+        alert('Sesi Anda telah berakhir. Silakan login kembali.');
+        window.location.href = '../login.html';
+        return;
+    }
+
+    try {
+        const now = new Date();
+        let startTempDate = new Date(now);
+        let endTempDate = new Date(now);
+
+        switch (reportType) {
+            case 'daily':
+            case 'realtime': // Realtime akan menggunakan rentang harian
+                startTempDate.setHours(0, 0, 0, 0);
+                endTempDate.setHours(23, 59, 59, 999);
+                break;
+            case 'weekly':
+                // Set startTempDate ke hari Senin di minggu ini
+                const dayOfWeek = startTempDate.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+                const diffToMonday = startTempDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                startTempDate.setDate(diffToMonday);
+                startTempDate.setHours(0, 0, 0, 0);
+
+                // Set endTempDate ke hari Minggu di minggu ini
+                endTempDate = new Date(startTempDate);
+                endTempDate.setDate(startTempDate.getDate() + 6);
+                endTempDate.setHours(23, 59, 59, 999);
+                break;
+            case 'monthly':
+                startTempDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+                endTempDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // Hari terakhir bulan ini
+                break;
+            case 'custom':
+                startDate = document.getElementById('startDate').value;
+                endDate = document.getElementById('endDate').value;
+                if (!startDate || !endDate) {
+                    // Jangan generate jika tanggal custom belum lengkap
+                    salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Pilih tanggal mulai dan akhir untuk laporan custom.</td></tr>';
+                    return;
+                }
+                startTempDate = new Date(startDate);
+                startTempDate.setHours(0, 0, 0, 0);
+                endTempDate = new Date(endDate);
+                endTempDate.setHours(23, 59, 59, 999);
+
+                // Validasi: endDate tidak boleh lebih awal dari startDate
+                if (startTempDate > endTempDate) {
+                    alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
+                    salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Tanggal akhir tidak valid.</td></tr>';
+                    return;
+                }
+                break;
+        }
+
+        // Format tanggal ke ISO string tanpa milidetik untuk backend
+        const formattedStartDate = startTempDate.toISOString().slice(0, 19).replace('T', ' ');
+        const formattedEndDate = endTempDate.toISOString().slice(0, 19).replace('T', ' ');
+
+
+        const url = `/api/admin/reports/sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+        const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
                 alert('Sesi Anda telah berakhir. Silakan login kembali.');
                 window.location.href = '../login.html';
                 return;
             }
+            throw new Error(`Failed to fetch sales data: ${res.statusText} (${res.status})`);
+        }
 
-            try {
-                const now = new Date();
-                let startTempDate = new Date(now);
-                let endTempDate = new Date(now);
+        const data = await res.json();
+        salesData = data.sales || []; // Asumsi API mengembalikan { sales: [], total_sales: ..., etc. }
 
-                switch (reportType) {
-                    case 'daily':
-                    case 'realtime': // Realtime akan menggunakan rentang harian
-                        startTempDate.setHours(0, 0, 0, 0);
-                        endTempDate.setHours(23, 59, 59, 999);
-                        break;
-                    case 'weekly':
-                        // Set startTempDate ke hari Senin di minggu ini
-                        const dayOfWeek = startTempDate.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
-                        const diffToMonday = startTempDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-                        startTempDate.setDate(diffToMonday);
-                        startTempDate.setHours(0, 0, 0, 0);
+        let pendingSalesData = [];
+        if (reportType === 'realtime') {
+            const pendingUrl = `/api/admin/reports/pending-sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+            const pendingRes = await fetch(pendingUrl, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-                        // Set endTempDate ke hari Minggu di minggu ini
-                        endTempDate = new Date(startTempDate);
-                        endTempDate.setDate(startTempDate.getDate() + 6);
-                        endTempDate.setHours(23, 59, 59, 999);
-                        break;
-                    case 'monthly':
-                        startTempDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-                        endTempDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // Hari terakhir bulan ini
-                        break;
-                    case 'custom':
-                        startDate = document.getElementById('startDate').value;
-                        endDate = document.getElementById('endDate').value;
-                        if (!startDate || !endDate) {
-                            // Jangan generate jika tanggal custom belum lengkap
-                            salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Pilih tanggal mulai dan akhir untuk laporan custom.</td></tr>';
-                            return;
-                        }
-                        startTempDate = new Date(startDate);
-                        startTempDate.setHours(0, 0, 0, 0);
-                        endTempDate = new Date(endDate);
-                        endTempDate.setHours(23, 59, 59, 999);
-
-                        // Validasi: endDate tidak boleh lebih awal dari startDate
-                        if (startTempDate > endTempDate) {
-                            alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
-                            salesReportTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Tanggal akhir tidak valid.</td></tr>';
-                            return;
-                        }
-                        break;
-                }
-
-                // Format tanggal ke ISO string tanpa milidetik untuk backend
-                const formattedStartDate = startTempDate.toISOString().slice(0, 19).replace('T', ' ');
-                const formattedEndDate = endTempDate.toISOString().slice(0, 19).replace('T', ' ');
-
-
-                const url = `/api/admin/reports/sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
-
-                const res = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        alert('Sesi Anda telah berakhir. Silakan login kembali.');
-                        window.location.href = '../login.html';
-                        return;
-                    }
-                    throw new Error(`Failed to fetch sales data: ${res.statusText} (${res.status})`);
-                }
-
-                const data = await res.json();
-                salesData = data.sales || []; // Asumsi API mengembalikan { sales: [], total_sales: ..., etc. }
-
-                // Pass the startTempDate and endTempDate to filtering functions
-                renderReportTable(salesData, reportType, startTempDate, endTempDate);
-                updateAnalytics(salesData, reportType, startTempDate, endTempDate);
-                updateSalesChart(salesData, reportType, startTempDate, endTempDate);
-
-            } catch (error) {
-                console.error('Error generating report:', error);
-                salesReportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Error: ${error.message}. Gagal memuat laporan.</td></tr>`;
+            if (!pendingRes.ok) {
+                console.warn('Failed to fetch pending sales data, proceeding without it.');
+            } else {
+                const pendingData = await pendingRes.json();
+                pendingSalesData = pendingData.sales || [];
             }
         }
+
+
+        // Pass the startTempDate and endTempDate to filtering functions
+        renderReportTable(salesData, reportType, startTempDate, endTempDate);
+        updateAnalytics(salesData, reportType, startTempDate, endTempDate);
+        updateSalesChart(salesData, pendingSalesData, reportType, startTempDate, endTempDate);
+
+    } catch (error) {
+        console.error('Error generating report:', error);
+        salesReportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Error: ${error.message}. Gagal memuat laporan.</td></tr>`;
+    }
+}
 
         // Modified renderReportTable to filter sales
         function renderReportTable(data, reportType, startDateObj, endDateObj) {
@@ -449,160 +468,207 @@
             averageOrderValueEl.textContent = `Rp ${averageOrderValue.toLocaleString('id-ID', { maximumFractionDigits: 2 })}`;
         }
 
-        function updateSalesChart(data, reportType, startDateObj, endDateObj) {
-            let labels = [];
-            let chartData = [];
-            let aggregatedSales = {};
+function updateSalesChart(completedData, pendingData, reportType, startDateObj, endDateObj) {
+    let labels = [];
+    let completedChartData = [];
+    let pendingChartData = []; // New array for pending sales
 
-            // Inisialisasi aggregatedSales untuk memastikan semua periode muncul, bahkan jika 0 penjualan
-            if (reportType === 'daily' || reportType === 'realtime') {
-                for (let h = 0; h < 24; h++) {
-                    const hourLabel = h.toString().padStart(2, '0') + ':00';
-                    aggregatedSales[hourLabel] = 0;
-                }
-            } else if (reportType === 'weekly' || reportType === 'custom') {
-                const current = new Date(startDateObj);
-                current.setHours(0, 0, 0, 0);
-                endDateObj.setHours(23, 59, 59, 999);
+    let aggregatedCompletedSales = {};
+    let aggregatedPendingSales = {}; // New object for pending sales
 
-                while (current <= endDateObj) {
-                    const dateLabel = current.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }); // "DD/MM"
-                    aggregatedSales[dateLabel] = 0;
-                    current.setDate(current.getDate() + 1);
-                    current.setHours(0, 0, 0, 0);
-                }
-            } else if (reportType === 'monthly') {
-                let currentMonth = startDateObj.getMonth();
-                let currentYear = startDateObj.getFullYear();
-                let tempDate = new Date(currentYear, currentMonth, 1);
-
-                let weekIndex = 1;
-                while (tempDate.getMonth() === currentMonth) {
-                    let startOfWeek = new Date(tempDate);
-                    let day = startOfWeek.getDay();
-                    let diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-                    startOfWeek.setDate(diff);
-                    startOfWeek.setHours(0, 0, 0, 0);
-
-                    let endOfWeek = new Date(startOfWeek);
-                    endOfWeek.setDate(startOfWeek.getDate() + 6);
-                    endOfWeek.setHours(23, 59, 59, 999);
-
-                    if (endOfWeek.getMonth() !== currentMonth && endOfWeek.getFullYear() === currentYear) {
-                        endOfWeek = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
-                    }
-
-                    let weekStartDisplay = new Date(Math.max(startOfWeek.getTime(), new Date(currentYear, currentMonth, 1).getTime()));
-                    let weekEndDisplay = new Date(Math.min(endOfWeek.getTime(), new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999).getTime()));
-
-                    const weekLabel = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })} - ${weekEndDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })})`;
-
-                    if (startOfWeek <= new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999) && endOfWeek >= new Date(currentYear, currentMonth, 1, 0, 0, 0, 0)) {
-                        aggregatedSales[weekLabel] = 0;
-                    }
-                    weekIndex++;
-                    tempDate.setDate(tempDate.getDate() + 7);
-                }
-                labels = Object.keys(aggregatedSales).sort((a,b) => {
-                    const weekNumA = parseInt(a.match(/Minggu (\d+)/)[1]);
-                    const weekNumB = parseInt(b.match(/Minggu (\d+)/)[1]);
-                    return weekNumA - weekNumB;
-                });
-            }
-
-            // Agregasi data penjualan
-            data.forEach(sale => {
-                const saleDate = new Date(sale.created_at);
-                let label;
-
-                if (reportType === 'daily' || reportType === 'realtime') {
-                    if (saleDate.getDate() === startDateObj.getDate() &&
-                        saleDate.getMonth() === startDateObj.getMonth() &&
-                        saleDate.getFullYear() === startDateObj.getFullYear()) {
-                        label = saleDate.getHours().toString().padStart(2, '0') + ':00';
-                    } else {
-                        return;
-                    }
-                } else if (reportType === 'weekly' || reportType === 'custom') {
-                    if (saleDate >= startDateObj && saleDate <= endDateObj) { // Only aggregate data within the selected range
-                        label = saleDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
-                    } else {
-                        return;
-                    }
-                } else if (reportType === 'monthly') {
-                    let tempDate = new Date(startDateObj.getFullYear(), startDateObj.getMonth(), 1);
-                    let weekIndex = 1;
-                    let foundLabel = false;
-                    while (tempDate.getMonth() === startDateObj.getMonth() && !foundLabel) {
-                        let startOfWeek = new Date(tempDate);
-                        let day = startOfWeek.getDay();
-                        let diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-                        startOfWeek.setDate(diff);
-                        startOfWeek.setHours(0,0,0,0);
-
-                        let endOfWeek = new Date(startOfWeek);
-                        endOfWeek.setDate(startOfWeek.getDate() + 6);
-                        endOfWeek.setHours(23,59,59,999);
-
-                        if (endOfWeek.getMonth() !== startDateObj.getMonth() && endOfWeek.getFullYear() === startDateObj.getFullYear()) {
-                            endOfWeek = new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 1, 0, 23, 59, 59, 999);
-                        }
-
-                        if (saleDate >= startOfWeek && saleDate <= endOfWeek) {
-                            let weekStartDisplay = new Date(Math.max(startOfWeek.getTime(), new Date(startDateObj.getFullYear(), startDateObj.getMonth(), 1).getTime()));
-                            let weekEndDisplay = new Date(Math.min(endOfWeek.getTime(), new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 1, 0, 23, 59, 59, 999).getTime()));
-                            label = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })} - ${weekEndDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })})`;
-                            foundLabel = true;
-                        }
-                        weekIndex++;
-                        tempDate.setDate(tempDate.getDate() + 7);
-                    }
-                }
-                if (label) {
-                    aggregatedSales[label] = (aggregatedSales[label] || 0) + parseInt(sale.total_harga);
-                }
-            });
-
-            if (reportType === 'daily' || reportType === 'realtime') {
-                labels = Object.keys(aggregatedSales).sort();
-            } else if (reportType === 'weekly' || reportType === 'custom') {
-                labels = Object.keys(aggregatedSales).sort((a, b) => {
-                    const [dayA, monthA] = a.split('/').map(Number);
-                    const [dayB, monthB] = b.split('/').map(Number);
-                    // Use the correct year from startDateObj for comparison
-                    const dateA = new Date(startDateObj.getFullYear(), monthA - 1, dayA);
-                    const dateB = new Date(startDateObj.getFullYear(), monthB - 1, dayB);
-                    return dateA - dateB;
-                });
-            } else if (reportType === 'monthly') {
-                labels = Object.keys(aggregatedSales);
-                labels.sort((a, b) => {
-                    const weekNumA = parseInt(a.match(/Minggu (\d+)/)[1]);
-                    const weekNumB = parseInt(b.match(/Minggu (\d+)/)[1]);
-                    return weekNumA - weekNumB;
-                });
-            }
-
-            chartData = labels.map(label => aggregatedSales[label]);
-            
-            salesChart.data.labels = labels;
-            salesChart.data.datasets[0].data = chartData;
-
-            let xAxisTitle = 'Periode';
-            if (reportType === 'daily' || reportType === 'realtime') {
-                xAxisTitle = 'Jam';
-            } else if (reportType === 'weekly') {
-                xAxisTitle = 'Tanggal (DD/MM)';
-            } else if (reportType === 'monthly') {
-                xAxisTitle = 'Minggu dalam Bulan';
-            } else if (reportType === 'custom') {
-                xAxisTitle = 'Tanggal (DD/MM)';
-            }
-            salesChart.options.scales.x.title.text = xAxisTitle;
-
-            salesChart.update();
+    // Inisialisasi aggregatedSales untuk memastikan semua periode muncul, bahkan jika 0 penjualan
+    if (reportType === 'daily' || reportType === 'realtime') {
+        for (let h = 0; h < 24; h++) {
+            const hourLabel = h.toString().padStart(2, '0') + ':00';
+            aggregatedCompletedSales[hourLabel] = 0;
+            aggregatedPendingSales[hourLabel] = 0; // Initialize for pending as well
         }
+    } else if (reportType === 'weekly' || reportType === 'custom') {
+        const current = new Date(startDateObj);
+        current.setHours(0, 0, 0, 0);
+        endDateObj.setHours(23, 59, 59, 999);
 
+        while (current <= endDateObj) {
+            const dateLabel = current.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }); // "DD/MM"
+            aggregatedCompletedSales[dateLabel] = 0;
+            aggregatedPendingSales[dateLabel] = 0; // Initialize for pending
+            current.setDate(current.getDate() + 1);
+            current.setHours(0, 0, 0, 0);
+        }
+    } else if (reportType === 'monthly') {
+        let currentMonth = startDateObj.getMonth();
+        let currentYear = startDateObj.getFullYear();
+        let tempDate = new Date(currentYear, currentMonth, 1);
+
+        let weekIndex = 1;
+        while (tempDate.getMonth() === currentMonth) {
+            let startOfWeek = new Date(tempDate);
+            let day = startOfWeek.getDay();
+            let diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+            startOfWeek.setDate(diff);
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            let endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+
+            if (endOfWeek.getMonth() !== currentMonth && endOfWeek.getFullYear() === currentYear) {
+                endOfWeek = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
+            }
+
+            let weekStartDisplay = new Date(Math.max(startOfWeek.getTime(), new Date(currentYear, currentMonth, 1).getTime()));
+            let weekEndDisplay = new Date(Math.min(endOfWeek.getTime(), new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999).getTime()));
+
+            const weekLabel = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })} - ${weekEndDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })})`;
+
+            if (startOfWeek <= new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999) && endOfWeek >= new Date(currentYear, currentMonth, 1, 0, 0, 0, 0)) {
+                aggregatedCompletedSales[weekLabel] = 0;
+                aggregatedPendingSales[weekLabel] = 0; // Initialize for pending
+            }
+            weekIndex++;
+            tempDate.setDate(tempDate.getDate() + 7);
+        }
+        labels = Object.keys(aggregatedCompletedSales).sort((a,b) => {
+            const weekNumA = parseInt(a.match(/Minggu (\d+)/)[1]);
+            const weekNumB = parseInt(b.match(/Minggu (\d+)/)[1]);
+            return weekNumA - weekNumB;
+        });
+    }
+
+    // Agregasi data penjualan yang sudah selesai
+    completedData.forEach(sale => {
+        const saleDate = new Date(sale.created_at);
+        let label;
+
+        if (reportType === 'daily' || reportType === 'realtime') {
+            if (saleDate.getDate() === startDateObj.getDate() &&
+                saleDate.getMonth() === startDateObj.getMonth() &&
+                saleDate.getFullYear() === startDateObj.getFullYear()) {
+                label = saleDate.getHours().toString().padStart(2, '0') + ':00';
+            } else {
+                return;
+            }
+        } else if (reportType === 'weekly' || reportType === 'custom') {
+            if (saleDate >= startDateObj && saleDate <= endDateObj) { // Only aggregate data within the selected range
+                label = saleDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+            } else {
+                return;
+            }
+        } else if (reportType === 'monthly') {
+            let tempDate = new Date(startDateObj.getFullYear(), startDateObj.getMonth(), 1);
+            let weekIndex = 1;
+            let foundLabel = false;
+            while (tempDate.getMonth() === startDateObj.getMonth() && !foundLabel) {
+                let startOfWeek = new Date(tempDate);
+                let day = startOfWeek.getDay();
+                let diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                startOfWeek.setDate(diff);
+                startOfWeek.setHours(0,0,0,0);
+
+                let endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                endOfWeek.setHours(23,59,59,999);
+
+                if (endOfWeek.getMonth() !== startDateObj.getMonth() && endOfWeek.getFullYear() === startDateObj.getFullYear()) {
+                    endOfWeek = new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 1, 0, 23, 59, 59, 999);
+                }
+
+                if (saleDate >= startOfWeek && saleDate <= endOfWeek) {
+                    let weekStartDisplay = new Date(Math.max(startOfWeek.getTime(), new Date(startDateObj.getFullYear(), startDateObj.getMonth(), 1).getTime()));
+                    let weekEndDisplay = new Date(Math.min(endOfWeek.getTime(), new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 1, 0, 23, 59, 59, 999).getTime()));
+                    label = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })} - ${weekEndDisplay.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })})`;
+                    foundLabel = true;
+                }
+                weekIndex++;
+                tempDate.setDate(tempDate.getDate() + 7);
+            }
+        }
+        if (label) {
+            aggregatedCompletedSales[label] = (aggregatedCompletedSales[label] || 0) + parseInt(sale.total_harga);
+        }
+    });
+
+    // Agregasi data penjualan yang pending (hanya jika reportType === 'realtime')
+    if (reportType === 'realtime') {
+        pendingData.forEach(sale => {
+            const saleDate = new Date(sale.created_at);
+            let label;
+
+            if (saleDate.getDate() === startDateObj.getDate() &&
+                saleDate.getMonth() === startDateObj.getMonth() &&
+                saleDate.getFullYear() === startDateObj.getFullYear()) {
+                label = saleDate.getHours().toString().padStart(2, '0') + ':00';
+            } else {
+                return;
+            }
+            if (label) {
+                aggregatedPendingSales[label] = (aggregatedPendingSales[label] || 0) + parseInt(sale.total_harga);
+            }
+        });
+    }
+
+
+    if (reportType === 'daily' || reportType === 'realtime') {
+        labels = Object.keys(aggregatedCompletedSales).sort();
+    } else if (reportType === 'weekly' || reportType === 'custom') {
+        labels = Object.keys(aggregatedCompletedSales).sort((a, b) => {
+            const [dayA, monthA] = a.split('/').map(Number);
+            const [dayB, monthB] = b.split('/').map(Number);
+            // Use the correct year from startDateObj for comparison
+            const dateA = new Date(startDateObj.getFullYear(), monthA - 1, dayA);
+            const dateB = new Date(startDateObj.getFullYear(), monthB - 1, dayB);
+            return dateA - dateB;
+        });
+    } else if (reportType === 'monthly') {
+        labels = Object.keys(aggregatedCompletedSales);
+        labels.sort((a, b) => {
+            const weekNumA = parseInt(a.match(/Minggu (\d+)/)[1]);
+            const weekNumB = parseInt(b.match(/Minggu (\d+)/)[1]);
+            return weekNumA - weekNumB;
+        });
+    }
+
+    completedChartData = labels.map(label => aggregatedCompletedSales[label]);
+    if (reportType === 'realtime') {
+        pendingChartData = labels.map(label => aggregatedPendingSales[label]);
+    }
+    
+    salesChart.data.labels = labels;
+    salesChart.data.datasets[0].data = completedChartData;
+    salesChart.data.datasets[0].label = 'Total Penjualan Selesai (Rp)'; // Update label for clarity
+
+    // Remove existing pending dataset if present
+    if (salesChart.data.datasets.length > 1) {
+        salesChart.data.datasets.pop();
+    }
+
+    // Add pending dataset only for 'realtime'
+    if (reportType === 'realtime') {
+        salesChart.data.datasets.push({
+            label: 'Total Penjualan Pending (Rp)',
+            data: pendingChartData,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Blue for pending
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            fill: true
+        });
+    }
+
+
+    let xAxisTitle = 'Periode';
+    if (reportType === 'daily' || reportType === 'realtime') {
+        xAxisTitle = 'Jam';
+    } else if (reportType === 'weekly') {
+        xAxisTitle = 'Tanggal (DD/MM)';
+    } else if (reportType === 'monthly') {
+        xAxisTitle = 'Minggu dalam Bulan';
+    } else if (reportType === 'custom') {
+        xAxisTitle = 'Tanggal (DD/MM)';
+    }
+    salesChart.options.scales.x.title.text = xAxisTitle;
+
+    salesChart.update();
+}
         async function downloadReport() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Pesanan; // Still useful for model-based logic, though we'll use DB::table for the joins
-use Carbon\Carbon; // Untuk memudahkan manipulasi tanggal
-use Illuminate\Support\Facades\DB; // Untuk agregasi data
-use Illuminate\Support\Str; // Untuk sanitasi nama file
+use App\Models\Pesanan;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SalesReportController extends Controller
 {
@@ -35,36 +35,24 @@ class SalesReportController extends Controller
         }
 
         // Ambil data pesanan yang sudah selesai (atau status lain yang Anda anggap sebagai 'terjual')
-        // Menggunakan DB::table untuk LEFT JOIN dan COALESCE
         $sales = DB::table('pesanans')
                     ->select(
                         'pesanans.id',
                         'pesanans.created_at',
                         'pesanans.total_harga',
-                        'pesanans.meja_id', // Keep meja_id for fallback or direct use
+                        'pesanans.meja_id',
                         DB::raw('COALESCE(users.name, pemesan_infos.nama_pemesan, CONCAT("Meja ", pesanans.meja_id), "Tamu") as pelanggan_nama')
                     )
                     ->leftJoin('users', 'pesanans.user_id', '=', 'users.id')
-                    // Assuming pemesan_infos has a direct link to pesanan_id
-                    ->leftJoin('pemesan_infos', 'pesanans.pemesan_info_id', '=', 'pemesan_infos.id') // Assuming pemesan_info_id foreign key on pesanans table
+                    ->leftJoin('pemesan_infos', 'pesanans.pemesan_info_id', '=', 'pemesan_infos.id')
                     ->whereBetween('pesanans.created_at', [$startDate, $endDate])
                     ->where('pesanans.status', 'selesai') // Hanya pesanan yang completed/selesai
                     ->orderBy('pesanans.created_at', 'asc')
                     ->get();
 
-        // Untuk mendapatkan item, kita perlu memuatnya secara terpisah atau bergabung dengan cara berbeda.
-        // Jika Anda ingin detail item per pesanan, cara terbaik adalah tetap dengan Eager Loading,
-        // atau melakukan loop terpisah untuk setiap pesanan.
-        // Untuk kesederhanaan respons API ini, saya akan memuat item secara terpisah jika diperlukan.
-        // Jika Anda perlu item detail di sini, Anda harus menggunakan model Pesanan dengan with(['items.menu'])
-        // dan kemudian memproses customer_name seperti di atas secara manual di map().
-
-        // Untuk saat ini, kita akan mendapatkan data item untuk setiap pesanan.
-        // Ini mungkin kurang efisien jika ada banyak pesanan,
-        // namun konsisten dengan kebutuhan data 'items' di frontend.
-        $salesCollection = Pesanan::hydrate($sales->toArray()); // Re-hydrate to use relationships
-        $salesCollection->load('items.menu'); // Eager load items and menus for the re-hydrated collection
-
+        // Re-hydrate to use relationships for 'items.menu'
+        $salesCollection = Pesanan::hydrate($sales->toArray());
+        $salesCollection->load('items.menu');
 
         // Hitung total penjualan dan jumlah transaksi
         $totalSales = $salesCollection->sum('total_harga');
@@ -72,11 +60,10 @@ class SalesReportController extends Controller
 
         // Format data untuk respons API
         $formattedSales = $salesCollection->map(function($sale) {
-            // pelanggan_nama sudah diformat oleh query DB, langsung gunakan
             return [
                 'id' => $sale->id,
                 'created_at' => $sale->created_at,
-                'pelanggan_nama' => $sale->pelanggan_nama, // Langsung pakai hasil COALESCE dari DB
+                'pelanggan_nama' => $sale->pelanggan_nama,
                 'meja_id' => $sale->meja_id,
                 'total_harga' => $sale->total_harga,
                 'items' => $sale->items->map(function($item) {
@@ -87,7 +74,7 @@ class SalesReportController extends Controller
                         'menu' => $item->menu ? [
                             'nama' => $item->menu->nama,
                             'kategori' => $item->menu->kategori,
-                        ] : null, // Pastikan menu ada
+                        ] : null,
                     ];
                 }),
             ];
@@ -97,8 +84,69 @@ class SalesReportController extends Controller
             'sales' => $formattedSales,
             'total_sales' => $totalSales,
             'total_transactions' => $totalTransactions,
-            // Anda bisa menambahkan data analitik lainnya di sini, contoh:
-            // 'top_selling_items' => $this->getTopSellingItems($startDate, $endDate),
+        ]);
+    }
+
+    // New method to get pending sales data
+    public function getPendingSales(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if (!$startDate || !$endDate) {
+            return response()->json(['message' => 'Start date and end date are required.'], 400);
+        }
+
+        try {
+            $startDate = Carbon::parse($startDate)->startOfDay();
+            $endDate = Carbon::parse($endDate)->endOfDay();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid date format.'], 400);
+        }
+
+        // Ambil data pesanan yang masih pending (sesuaikan dengan status 'pending' di DB Anda)
+        $pendingSales = DB::table('pesanans')
+                    ->select(
+                        'pesanans.id',
+                        'pesanans.created_at',
+                        'pesanans.total_harga',
+                        'pesanans.meja_id',
+                        DB::raw('COALESCE(users.name, pemesan_infos.nama_pemesan, CONCAT("Meja ", pesanans.meja_id), "Tamu") as pelanggan_nama')
+                    )
+                    ->leftJoin('users', 'pesanans.user_id', '=', 'users.id')
+                    ->leftJoin('pemesan_infos', 'pesanans.pemesan_info_id', '=', 'pemesan_infos.id')
+                    ->whereBetween('pesanans.created_at', [$startDate, $endDate])
+                    ->whereIn('pesanans.status', ['pending', 'preparing', 'waiting_payment']) // Sesuaikan status pending Anda
+                    ->orderBy('pesanans.created_at', 'asc')
+                    ->get();
+
+        // Re-hydrate to use relationships for 'items.menu'
+        $pendingSalesCollection = Pesanan::hydrate($pendingSales->toArray());
+        $pendingSalesCollection->load('items.menu');
+
+        $formattedPendingSales = $pendingSalesCollection->map(function($sale) {
+            return [
+                'id' => $sale->id,
+                'created_at' => $sale->created_at,
+                'pelanggan_nama' => $sale->pelanggan_nama,
+                'meja_id' => $sale->meja_id,
+                'total_harga' => $sale->total_harga,
+                'items' => $sale->items->map(function($item) {
+                    return [
+                        'menu_id' => $item->menu_id,
+                        'jumlah' => $item->jumlah,
+                        'harga_per_item' => $item->harga_per_item,
+                        'menu' => $item->menu ? [
+                            'nama' => $item->menu->nama,
+                            'kategori' => $item->menu->kategori,
+                        ] : null,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'sales' => $formattedPendingSales,
         ]);
     }
 
@@ -125,7 +173,7 @@ class SalesReportController extends Controller
                 return response()->json(['message' => 'Invalid date format.'], 400);
             }
         } else {
-             return response()->json(['message' => 'Start date and end date are required for custom report.'], 400);
+            return response()->json(['message' => 'Start date and end date are required for custom report.'], 400);
         }
 
         // Ambil data pesanan menggunakan DB::table untuk join dan COALESCE
@@ -134,11 +182,11 @@ class SalesReportController extends Controller
                             'pesanans.id',
                             'pesanans.created_at',
                             'pesanans.total_harga',
-                            'pesanans.meja_id', // Keep meja_id for fallback or direct use
+                            'pesanans.meja_id',
                             DB::raw('COALESCE(users.name, pemesan_infos.nama_pemesan, CONCAT("Meja ", pesanans.meja_id), "Tamu") as pelanggan_nama')
                         )
                         ->leftJoin('users', 'pesanans.user_id', '=', 'users.id')
-                        ->leftJoin('pemesan_infos', 'pesanans.pemesan_info_id', '=', 'pemesan_infos.id') // Assuming pemesan_info_id foreign key on pesanans table
+                        ->leftJoin('pemesan_infos', 'pesanans.pemesan_info_id', '=', 'pemesan_infos.id')
                         ->whereBetween('pesanans.created_at', [$startDate, $endDate])
                         ->where('pesanans.status', 'selesai')
                         ->orderBy('pesanans.created_at', 'asc')
@@ -146,7 +194,7 @@ class SalesReportController extends Controller
 
         // Re-hydrate the collection to use relationships for 'items.menu'
         $salesCollection = Pesanan::hydrate($sales->toArray());
-        $salesCollection->load('items.menu'); // Eager load items and menus for the re-hydrated collection
+        $salesCollection->load('items.menu');
 
         $filename = "laporan_penjualan_{$reportType}_" . Carbon::now()->format('Ymd_His') . ".csv";
 
@@ -155,7 +203,7 @@ class SalesReportController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($salesCollection) { // Use $salesCollection here
+        $callback = function() use ($salesCollection) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Tanggal', 'ID Pesanan', 'Customer/Meja', 'Item (Jumlah)', 'Total Harga']); // CSV Headers
 
@@ -168,7 +216,7 @@ class SalesReportController extends Controller
                 $row = [
                     Carbon::parse($sale->created_at)->format('Y-m-d H:i:s'),
                     '#' . $sale->id,
-                    $sale->pelanggan_nama, // Directly use the 'pelanggan_nama' from the DB result
+                    $sale->pelanggan_nama,
                     $orderItems,
                     $sale->total_harga,
                 ];
@@ -180,12 +228,11 @@ class SalesReportController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // Contoh fungsi untuk mendapatkan item terlaris (bisa diintegrasikan ke generateReport)
     protected function getTopSellingItems($startDate, $endDate)
     {
         return DB::table('order_items')
             ->select('menus.nama as menu_name', DB::raw('SUM(order_items.jumlah) as total_quantity_sold'))
-            ->join('pesanans', 'order_items.order_id', '=', 'pesanans.id') // Changed 'orders' to 'pesanans'
+            ->join('pesanans', 'order_items.order_id', '=', 'pesanans.id')
             ->join('menus', 'order_items.menu_id', '=', 'menus.id')
             ->whereBetween('pesanans.created_at', [$startDate, $endDate])
             ->where('pesanans.status', 'selesai')
