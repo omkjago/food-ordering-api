@@ -1,117 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Edit Menu</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-700">Edit Menu</h2>
-    
-    <form id="editForm" enctype="multipart/form-data">
-        <input type="hidden" name="_method" value="PUT">
-            <div>
-        <label class="block font-medium text-gray-600">Nama Menu</label>
-        <input type="text" id="nama" required class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400" />
-      </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Edit Menu</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-700">
+                Edit Menu
+            </h2>
 
-      <div>
-        <label class="block font-medium text-gray-600">Kategori</label>
-        <input type="text" id="kategori" required class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400" />
-      </div>
+            <form id="editForm" enctype="multipart/form-data">
+                <input type="hidden" name="_method" value="PUT" />
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >Nama Menu</label
+                    >
+                    <input
+                        type="text"
+                        id="nama"
+                        required
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
 
-      <div>
-        <label class="block font-medium text-gray-600">Harga</label>
-        <input type="number" id="harga" required class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400" />
-      </div>
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >Kategori</label
+                    >
+                    <input
+                        type="text"
+                        id="kategori"
+                        required
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
 
-      <div>
-        <label class="block font-medium text-gray-600">Stok</label>
-        <select id="stok" required class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400">
-          <option value="tersedia">Tersedia</option>
-          <option value="kosong">Kosong</option>
-        </select>
-      </div>
+                <div>
+                    <label class="block font-medium text-gray-600">Harga</label>
+                    <input
+                        type="number"
+                        id="harga"
+                        required
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
 
-      <div>
-        <label class="block font-medium text-gray-600">diskripsi (Opsional)</label>
-        <textarea id="diskripsi" rows="3" class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"></textarea>
-      </div>
+                <div>
+                    <label class="block font-medium text-gray-600">Stok</label>
+                    <select
+                        id="stok"
+                        required
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    >
+                        <option value="tersedia">Tersedia</option>
+                        <option value="kosong">Kosong</option>
+                    </select>
+                </div>
 
-      <div>
-        <label class="block font-medium text-gray-600">image (Opsional)</label>
-        <input type="file" id="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-      </div>
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >diskripsi (Opsional)</label
+                    >
+                    <textarea
+                        id="diskripsi"
+                        rows="3"
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    ></textarea>
+                </div>
 
-      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md">
-        Simpan Perubahan
-      </button>
-    </form>
-  </div>
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >image (Opsional)</label
+                    >
+                    <input
+                        type="file"
+                        id="image"
+                        accept="image/*"
+                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                </div>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
-    const token = localStorage.getItem("token");
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md"
+                >
+                    Simpan Perubahan
+                </button>
+            </form>
+        </div>
 
-    // Load data menu
-    fetch(`/api/admin/menu/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("nama").value = data.nama;
-      document.getElementById("kategori").value = data.kategori;
-      document.getElementById("harga").value = data.harga;
-      document.getElementById("stok").value = data.stok;
-      document.getElementById("diskripsi").value = data.diskripsi || "";
-    });
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get("id");
+            const token = localStorage.getItem("token");
 
-    // Submit perubahan
-    document.getElementById("editForm").addEventListener("submit", function (e) {
-      e.preventDefault();
+            // Load data menu
+            fetch(`/api/admin/menu/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    document.getElementById("nama").value = data.nama;
+                    document.getElementById("kategori").value = data.kategori;
+                    document.getElementById("harga").value = data.harga;
+                    document.getElementById("stok").value = data.stok;
+                    document.getElementById("diskripsi").value =
+                        data.diskripsi || "";
+                });
 
-      const formData = new FormData();
-      formData.append("nama", document.getElementById("nama").value);
-      formData.append("kategori", document.getElementById("kategori").value);
-      formData.append("harga", document.getElementById("harga").value);
-      formData.append("stok", document.getElementById("stok").value);
-      formData.append("diskripsi", document.getElementById("diskripsi").value);
+            // Submit perubahan
+            document
+                .getElementById("editForm")
+                .addEventListener("submit", function (e) {
+                    e.preventDefault();
 
-      const image = document.getElementById("image").files[0];
-      if (image) {
-        formData.append("image", image);
-      }
+                    const formData = new FormData();
+                    formData.append(
+                        "nama",
+                        document.getElementById("nama").value
+                    );
+                    formData.append(
+                        "kategori",
+                        document.getElementById("kategori").value
+                    );
+                    formData.append(
+                        "harga",
+                        document.getElementById("harga").value
+                    );
+                    formData.append(
+                        "stok",
+                        document.getElementById("stok").value
+                    );
+                    formData.append(
+                        "diskripsi",
+                        document.getElementById("diskripsi").value
+                    );
 
-      fetch(`/api/admin/menu/${id}`, {
-        method: "POST", // Gunakan PUT jika backend support multipart PUT
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Accept': 'application/json'
-        },
-        body: formData,
-      })
-      .then(res => res.json())
-      .then(response => {
-        alert("Menu berhasil diupdate!");
-        window.location.href = "/ui/admin/admin-menu.html";
-      })
-      .catch(error => {
-        console.error("Gagal update:", error);
-        alert("Gagal update menu");
-      });
-    });
-    // Fungsi Logout
-    function logout() {
-        // Hapus token dari localStorage
-        localStorage.removeItem('token');
-        // Arahkan pengguna ke halaman login
-        window.location.href = '../login.html'; // Sesuaikan path jika halaman login ada di lokasi lain
-    }
-  </script>
+                    const image = document.getElementById("image").files[0];
+                    if (image) {
+                        formData.append("image", image);
+                    }
 
-</body>
+                    fetch(`/api/admin/menu/${id}`, {
+                        method: "POST", // Gunakan PUT jika backend support multipart PUT
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json",
+                        },
+                        body: formData,
+                    })
+                        .then((res) => res.json())
+                        .then((response) => {
+                            alert("Menu berhasil diupdate!");
+                            window.location.href = "/ui/admin/admin-menu.html";
+                        })
+                        .catch((error) => {
+                            console.error("Gagal update:", error);
+                            alert("Gagal update menu");
+                        });
+                });
+            // Fungsi Logout
+            function logout() {
+                // Hapus token dari localStorage
+                localStorage.removeItem("token");
+                // Arahkan pengguna ke halaman login
+                window.location.href = "../login.html"; // Sesuaikan path jika halaman login ada di lokasi lain
+            }
+        </script>
+    </body>
 </html>

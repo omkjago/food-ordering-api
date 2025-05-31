@@ -6,15 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
 use App\Models\PesananItem;
 use App\Models\Menu;
-use App\Models\Meja; // Masih dibutuhkan untuk relasi Pesanan
+use App\Models\Meja;
+use App\Models\PemesanInfo; // Make sure to import PemesanInfo
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log; // Import Log facade
 
 class PesananController extends Controller
 {
-    // ... (scanMeja dan store methods remain as you have them, not directly used by this specific cashier flow) ...
+    // ... (scanMeja, store, bayar methods remain as you have them) ...
 
     public function scanMeja(Request $request)
     {
@@ -159,6 +161,7 @@ class PesananController extends Controller
             'pesanan' => $pesanan->load('pembayaran')
         ]);
     }
+
     public function getStatus(Request $request)
     {
         $request->validate([
@@ -190,6 +193,66 @@ class PesananController extends Controller
                 'success' => false,
                 'message' => 'Internal server error.'
             ], 500);
+        }
+    }
+
+    /**
+     * Handle cash payment, save customer info, and update order status.
+     * This method is called directly by the frontend for cash payments.
+     */
+    public function processCashPayment(Request $request)
+    {
+
+        $request->validate([
+            'order_token' => 'required|string|exists:pesanans,order_token',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_email' => 'required|email|max:255',
+        ]);
+
+        $orderToken = $request->order_token;
+        $customerName = $request->customer_name;
+        $customerPhone = $request->customer_phone;
+        $customerEmail = $request->customer_email;
+
+        $order = Pesanan::where('order_token', $orderToken)->first();
+
+        if (!$order) {
+            Log::error('Order not found for cash payment', ['order_token' => $orderToken]);
+            return response()->json(['success' => false, 'message' => 'Order tidak ditemukan.'], 404);
+        }
+
+        if ($order->status !== 'pending') {
+            Log::warning('Cash payment attempted on non-pending order', ['order_token' => $orderToken, 'status' => $order->status]);
+            return response()->json(['success' => false, 'message' => 'Pesanan ini sudah dibayar atau diproses.'], 400);
+        }
+
+        try {
+            // Create PemesanInfo record
+            $pemesanInfo = PemesanInfo::create([
+                'pesanan_id' => $order->id,
+                'nama_pemesan' => $customerName,
+                'email_pemesan' => $customerEmail,
+                'no_hp' => $customerPhone,
+            ]);
+
+            // Update order with pemesan_info_id and status
+            $order->pemesan_info_id = $pemesanInfo->id;
+            $order->status = 'pending'; // Mark as completed for cash payments
+
+            // Check if email exists in users table and link user_id if applicable
+            $user = \App\Models\User::where('email', $customerEmail)->first();
+            if ($user) {
+                $order->user_id = $user->id;
+            }
+            
+            $order->save();
+
+            return response()->json(['success' => true, 'message' => 'Pembayaran tunai berhasil diproses dan informasi pelanggan disimpan.', 'order_token' => $order->order_token]);
+
+        } catch (\Exception $e) {
+            Log::error("Error processing cash payment for order {$orderToken}: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Gagal memproses pembayaran tunai karena kesalahan server internal.'], 500);
         }
     }
 }

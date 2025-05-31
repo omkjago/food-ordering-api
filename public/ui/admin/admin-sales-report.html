@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Laporan Penjualan - FoodOrder Admin</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.js"></script>
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="flex h-screen">
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open"
+            >
+                <div
+                    class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center"
+                >
+                    <span>🍴 FoodOrder</span>
+                    <button
+                        id="close-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="flex-1 space-y-2 sidebar-scroll">
+                    <button
+                        onclick="Dashboard()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onclick="Produk()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onclick="Kasir()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Kasir
+                    </button>
+                    <button
+                        onclick="LaporanPenjualan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Laporan Penjualan
+                    </button>
+                    <button
+                        onclick="Pesanan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Pesanan
+                    </button>
+                </nav>
+                <div class="mt-4 text-sm text-gray-500">
+                    <div class="font-bold" id="admin-name">Admin</div>
+                    <div id="admin-email">admin@admin.com</div>
+                    <button
+                        onclick="logout()"
+                        class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </aside>
+            <div
+                id="sidebar-overlay"
+                class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"
+            ></div>
+
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div>
+                    <h1 class="text-2xl font-bold mb-6">Laporan Penjualan</h1>
+                    <button
+                        id="open-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <div
+                        class="flex flex-wrap items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4"
+                    >
+                        <label for="reportType" class="text-gray-700 font-bold"
+                            >Jenis Laporan:</label
+                        >
+                        <select
+                            id="reportType"
+                            onchange="toggleCustomDatesAndGenerate()"
+                            class="border rounded px-3 py-2"
+                        >
+                            <option value="realtime">Realtime</option>
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                            <option value="custom">Custom (Tanggal)</option>
+                        </select>
+
+                        <div
+                            id="customDateRange"
+                            class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 hidden"
+                        >
+                            <input
+                                type="date"
+                                id="startDate"
+                                class="border rounded px-3 py-2"
+                                onchange="generateReport()"
+                            />
+                            <input
+                                type="date"
+                                id="endDate"
+                                class="border rounded px-3 py-2"
+                                onchange="generateReport()"
+                            />
+                        </div>
+
+                        <button
+                            onclick="downloadReport()"
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                        >
+                            Download Laporan (PDF)
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6"
+                >
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                            Total Penjualan
+                        </h3>
+                        <p
+                            id="totalSales"
+                            class="text-3xl font-bold text-orange-600"
+                        >
+                            Rp 0
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                            Jumlah Transaksi
+                        </h3>
+                        <p
+                            id="totalTransactions"
+                            class="text-3xl font-bold text-blue-600"
+                        >
+                            0
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+                            Rata-rata Per Pesanan
+                        </h3>
+                        <p
+                            id="averageOrderValue"
+                            class="text-3xl font-bold text-purple-600"
+                        >
+                            Rp 0
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                        Grafik Penjualan
+                    </h3>
+                    <canvas id="salesChart" style="height: 350px"></canvas>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                        Detail Penjualan
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto text-left">
+                            <thead>
+                                <tr class="text-gray-600 border-b">
+                                    <th class="py-2">Tanggal</th>
+                                    <th>ID Pesanan</th>
+                                    <th>Customer/Meja</th>
+                                    <th>Item (Jumlah)</th>
+                                    <th>Total Harga</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesReportTableBody">
+                                <tr>
+                                    <td
+                                        colspan="5"
+                                        class="text-center py-4 text-gray-500"
+                                    >
+                                        Pilih jenis laporan dan klik "Generate
+                                        Laporan".
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            const token = localStorage.getItem("token");
+            let salesData = []; // To store fetched sales data
+            let salesChart; // Variable to hold the Chart.js instance
+
+            // --- Navigation Functions (same as your other admin pages) ---
+            function Dashboard() {
+                window.location.href = `../dashboard_admin.html`;
+            }
+            function Produk() {
+                window.location.href = `admin-menu.html`;
+            }
+            function Kasir() {
+                window.location.href = `admin-validasi.html`;
+            }
+            function Pesanan() {
+                window.location.href = `admin-order-aktif.html`;
+            }
+            function LaporanPenjualan() {
+                window.location.href = `admin-sales-report.html`;
+            }
+
+            // --- Sidebar Toggle Functions ---
+            const sidebar = document.getElementById("sidebar");
+            const sidebarOverlay = document.getElementById("sidebar-overlay");
+            const openSidebarBtn = document.getElementById(
+                "open-sidebar-button"
+            );
+            const closeSidebarBtn = document.getElementById(
+                "close-sidebar-button"
+            );
+
+            function toggleSidebar() {
+                sidebar.classList.toggle("sidebar-closed");
+                sidebar.classList.toggle("sidebar-open");
+                sidebarOverlay.classList.toggle("opacity-0");
+                sidebarOverlay.classList.toggle("opacity-100");
+                sidebarOverlay.classList.toggle("pointer-events-none");
+            }
+
+            if (openSidebarBtn) {
+                openSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener("click", toggleSidebar);
+            }
+
+            function setInitialSidebarState() {
+                if (window.innerWidth >= 1024) {
+                    // Tailwind's 'lg' breakpoint
+                    sidebar.classList.add("sidebar-open");
+                    sidebar.classList.remove("sidebar-closed");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
+                } else {
+                    sidebar.classList.add("sidebar-closed");
+                    sidebar.classList.remove("sidebar-open");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
+                }
+            }
+
+            setInitialSidebarState();
+            window.addEventListener("resize", setInitialSidebarState);
+            // --- End Sidebar Toggle Functions ---
+
+            document.addEventListener("DOMContentLoaded", function () {
+                if (!token) {
+                    window.location.href = "../login.html";
+                    return;
+                }
+
+                fetch("/api/user", {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                window.location.href = "../login.html";
+                                return;
+                            }
+                            throw new Error("Failed to fetch admin data");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("admin-name").textContent =
+                            data.name || "Nama Tidak Tersedia";
+                        document.getElementById("admin-email").textContent =
+                            data.email || "Email Tidak Tersedia";
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                        document.getElementById("admin-name").textContent =
+                            "Error Loading";
+                        document.getElementById("admin-email").textContent =
+                            "Error Loading";
+                    });
+
+                // Inisialisasi chart pada saat DOMContentLoaded
+                const ctx = document
+                    .getElementById("salesChart")
+                    .getContext("2d");
+                salesChart = new Chart(ctx, {
+                    type: "line", // Bisa juga 'bar'
+                    data: {
+                        labels: [], // Label akan diisi nanti
+                        datasets: [
+                            {
+                                label: "Total Penjualan (Rp)",
+                                data: [],
+                                backgroundColor: "rgba(255, 159, 64, 0.2)", // Orange
+                                borderColor: "rgba(255, 159, 64, 1)",
+                                borderWidth: 1,
+                                fill: true,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true, // Penting agar chart bisa menyesuaikan ukuran div
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: "top",
+                            },
+                            title: {
+                                display: false,
+                                text: "Grafik Penjualan",
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Total Penjualan (Rp)",
+                                },
+                                ticks: {
+                                    callback: function (value) {
+                                        return (
+                                            "Rp " +
+                                            value.toLocaleString("id-ID")
+                                        );
+                                    },
+                                },
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Periode",
+                                },
+                            },
+                        },
+                    },
+                });
+
+                // Set tanggal awal dan akhir untuk custom range (untuk hari ini secara default)
+                const today = new Date();
+                const todayISO = today.toISOString().split("T")[0];
+                document.getElementById("startDate").value = todayISO;
+                document.getElementById("endDate").value = todayISO;
+
+                // Generate laporan untuk hari ini secara default (otomatis setelah DOMContentLoaded)
+                generateReport();
+            });
+
+            // Fungsi baru untuk menggabungkan toggleCustomDates dan generateReport
+            function toggleCustomDatesAndGenerate() {
+                const reportType = document.getElementById("reportType").value;
+                const customDateRangeDiv =
+                    document.getElementById("customDateRange");
+
+                if (reportType === "custom") {
+                    customDateRangeDiv.classList.remove("hidden");
+                    // Tidak langsung generate di sini, akan di-trigger oleh onchange pada input tanggal
+                } else {
+                    customDateRangeDiv.classList.add("hidden");
+                    generateReport(); // Langsung generate jika bukan custom
+                }
+            }
+
+            async function generateReport() {
+                const reportType = document.getElementById("reportType").value;
+                let startDate = null;
+                let endDate = null;
+                const salesReportTableBody = document.getElementById(
+                    "salesReportTableBody"
+                );
+
+                // Hapus data sebelumnya dan set status loading
+                salesReportTableBody.innerHTML =
+                    '<tr><td colspan="5" class="text-center py-4 text-gray-500">Memuat laporan...</td></tr>';
+                document.getElementById("totalSales").textContent = "Rp 0";
+                document.getElementById("totalTransactions").textContent = "0";
+                document.getElementById("averageOrderValue").textContent =
+                    "Rp 0";
+
+                // Hapus data chart agar tidak menunjukkan data lama
+                salesChart.data.labels = [];
+                salesChart.data.datasets[0].data = [];
+                // Clear the second dataset as well, if it exists
+                if (salesChart.data.datasets.length > 1) {
+                    salesChart.data.datasets.pop();
+                }
+                salesChart.update();
+
+                if (!token) {
+                    alert("Sesi Anda telah berakhir. Silakan login kembali.");
+                    window.location.href = "../login.html";
+                    return;
+                }
+
+                try {
+                    const now = new Date();
+                    let startTempDate = new Date(now);
+                    let endTempDate = new Date(now);
+
+                    switch (reportType) {
+                        case "daily":
+                        case "realtime": // Realtime akan menggunakan rentang harian
+                            startTempDate.setHours(0, 0, 0, 0);
+                            endTempDate.setHours(23, 59, 59, 999);
+                            break;
+                        case "weekly":
+                            // Set startTempDate ke hari Senin di minggu ini
+                            const dayOfWeek = startTempDate.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+                            const diffToMonday =
+                                startTempDate.getDate() -
+                                dayOfWeek +
+                                (dayOfWeek === 0 ? -6 : 1);
+                            startTempDate.setDate(diffToMonday);
+                            startTempDate.setHours(0, 0, 0, 0);
+
+                            // Set endTempDate ke hari Minggu di minggu ini
+                            endTempDate = new Date(startTempDate);
+                            endTempDate.setDate(startTempDate.getDate() + 6);
+                            endTempDate.setHours(23, 59, 59, 999);
+                            break;
+                        case "monthly":
+                            startTempDate = new Date(
+                                now.getFullYear(),
+                                now.getMonth(),
+                                1,
+                                0,
+                                0,
+                                0,
+                                0
+                            );
+                            endTempDate = new Date(
+                                now.getFullYear(),
+                                now.getMonth() + 1,
+                                0,
+                                23,
+                                59,
+                                59,
+                                999
+                            ); // Hari terakhir bulan ini
+                            break;
+                        case "custom":
+                            startDate =
+                                document.getElementById("startDate").value;
+                            endDate = document.getElementById("endDate").value;
+                            if (!startDate || !endDate) {
+                                // Jangan generate jika tanggal custom belum lengkap
+                                salesReportTableBody.innerHTML =
+                                    '<tr><td colspan="5" class="text-center py-4 text-gray-500">Pilih tanggal mulai dan akhir untuk laporan custom.</td></tr>';
+                                return;
+                            }
+                            startTempDate = new Date(startDate);
+                            startTempDate.setHours(0, 0, 0, 0);
+                            endTempDate = new Date(endDate);
+                            endTempDate.setHours(23, 59, 59, 999);
+
+                            // Validasi: endDate tidak boleh lebih awal dari startDate
+                            if (startTempDate > endTempDate) {
+                                alert(
+                                    "Tanggal akhir tidak boleh lebih awal dari tanggal mulai."
+                                );
+                                salesReportTableBody.innerHTML =
+                                    '<tr><td colspan="5" class="text-center py-4 text-red-500">Tanggal akhir tidak valid.</td></tr>';
+                                return;
+                            }
+                            break;
+                    }
+
+                    // Format tanggal ke ISO string tanpa milidetik untuk backend
+                    const formattedStartDate = startTempDate
+                        .toISOString()
+                        .slice(0, 19)
+                        .replace("T", " ");
+                    const formattedEndDate = endTempDate
+                        .toISOString()
+                        .slice(0, 19)
+                        .replace("T", " ");
+
+                    const url = `/api/admin/reports/sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+                    const res = await fetch(url, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            alert(
+                                "Sesi Anda telah berakhir. Silakan login kembali."
+                            );
+                            window.location.href = "../login.html";
+                            return;
+                        }
+                        throw new Error(
+                            `Failed to fetch sales data: ${res.statusText} (${res.status})`
+                        );
+                    }
+
+                    const data = await res.json();
+                    salesData = data.sales || []; // Asumsi API mengembalikan { sales: [], total_sales: ..., etc. }
+
+                    let pendingSalesData = [];
+                    if (reportType === "realtime") {
+                        const pendingUrl = `/api/admin/reports/pending-sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+                        const pendingRes = await fetch(pendingUrl, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+
+                        if (!pendingRes.ok) {
+                            console.warn(
+                                "Failed to fetch pending sales data, proceeding without it."
+                            );
+                        } else {
+                            const pendingData = await pendingRes.json();
+                            pendingSalesData = pendingData.sales || [];
+                        }
+                    }
+
+                    // Pass the startTempDate and endTempDate to filtering functions
+                    renderReportTable(
+                        salesData,
+                        reportType,
+                        startTempDate,
+                        endTempDate
+                    );
+                    updateAnalytics(
+                        salesData,
+                        reportType,
+                        startTempDate,
+                        endTempDate
+                    );
+                    updateSalesChart(
+                        salesData,
+                        pendingSalesData,
+                        reportType,
+                        startTempDate,
+                        endTempDate
+                    );
+                } catch (error) {
+                    console.error("Error generating report:", error);
+                    salesReportTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Error: ${error.message}. Gagal memuat laporan.</td></tr>`;
+                }
+            }
+
+            // Modified renderReportTable to filter sales
+            function renderReportTable(
+                data,
+                reportType,
+                startDateObj,
+                endDateObj
+            ) {
+                const salesReportTableBody = document.getElementById(
+                    "salesReportTableBody"
+                );
+                salesReportTableBody.innerHTML = ""; // Clear existing rows
+
+                let filteredData = [];
+
+                if (reportType === "daily" || reportType === "realtime") {
+                    filteredData = data.filter((sale) => {
+                        const saleDate = new Date(sale.created_at);
+                        return (
+                            saleDate.getDate() === startDateObj.getDate() &&
+                            saleDate.getMonth() === startDateObj.getMonth() &&
+                            saleDate.getFullYear() ===
+                                startDateObj.getFullYear()
+                        );
+                    });
+                } else if (
+                    reportType === "weekly" ||
+                    reportType === "monthly" ||
+                    reportType === "custom"
+                ) {
+                    filteredData = data.filter((sale) => {
+                        const saleDate = new Date(sale.created_at);
+                        return (
+                            saleDate >= startDateObj && saleDate <= endDateObj
+                        );
+                    });
+                }
+
+                if (filteredData.length === 0) {
+                    salesReportTableBody.innerHTML =
+                        '<tr><td colspan="5" class="text-center py-4 text-gray-500">Tidak ada data penjualan untuk periode ini.</td></tr>';
+                    return;
+                }
+
+                filteredData.forEach((sale) => {
+                    const orderItems = sale.items
+                        .map((item) => {
+                            const itemName = item.menu
+                                ? item.menu.nama
+                                : "Unknown Item";
+                            return `${itemName} (${item.jumlah})`;
+                        })
+                        .join(", ");
+
+                    const row = `
+                    <tr class="border-b">
+                        <td class="py-2">${new Date(
+                            sale.created_at
+                        ).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}</td>
+                        <td>#${sale.id}</td>
+                        <td>${
+                            sale.pelanggan_nama || `Meja ${sale.meja_id || "-"}`
+                        }</td>
+                        <td>${orderItems}</td>
+                        <td>Rp ${parseInt(sale.total_harga).toLocaleString(
+                            "id-ID"
+                        )}</td>
+                    </tr>
+                `;
+                    salesReportTableBody.innerHTML += row;
+                });
+            }
+
+            // Modified updateAnalytics to filter sales
+            function updateAnalytics(
+                data,
+                reportType,
+                startDateObj,
+                endDateObj
+            ) {
+                const totalSalesEl = document.getElementById("totalSales");
+                const totalTransactionsEl =
+                    document.getElementById("totalTransactions");
+                const averageOrderValueEl =
+                    document.getElementById("averageOrderValue");
+
+                let filteredData = [];
+
+                if (reportType === "daily" || reportType === "realtime") {
+                    filteredData = data.filter((sale) => {
+                        const saleDate = new Date(sale.created_at);
+                        return (
+                            saleDate.getDate() === startDateObj.getDate() &&
+                            saleDate.getMonth() === startDateObj.getMonth() &&
+                            saleDate.getFullYear() ===
+                                startDateObj.getFullYear()
+                        );
+                    });
+                } else if (
+                    reportType === "weekly" ||
+                    reportType === "monthly" ||
+                    reportType === "custom"
+                ) {
+                    filteredData = data.filter((sale) => {
+                        const saleDate = new Date(sale.created_at);
+                        return (
+                            saleDate >= startDateObj && saleDate <= endDateObj
+                        );
+                    });
+                }
+
+                const totalSales = filteredData.reduce(
+                    (sum, sale) => sum + parseInt(sale.total_harga),
+                    0
+                );
+                const totalTransactions = filteredData.length;
+                const averageOrderValue =
+                    totalTransactions > 0 ? totalSales / totalTransactions : 0;
+
+                totalSalesEl.textContent = `Rp ${totalSales.toLocaleString(
+                    "id-ID"
+                )}`;
+                totalTransactionsEl.textContent =
+                    totalTransactions.toLocaleString("id-ID");
+                averageOrderValueEl.textContent = `Rp ${averageOrderValue.toLocaleString(
+                    "id-ID",
+                    { maximumFractionDigits: 2 }
+                )}`;
+            }
+
+            function updateSalesChart(
+                completedData,
+                pendingData,
+                reportType,
+                startDateObj,
+                endDateObj
+            ) {
+                let labels = [];
+                let completedChartData = [];
+                let pendingChartData = []; // New array for pending sales
+
+                let aggregatedCompletedSales = {};
+                let aggregatedPendingSales = {}; // New object for pending sales
+
+                // Inisialisasi aggregatedSales untuk memastikan semua periode muncul, bahkan jika 0 penjualan
+                if (reportType === "daily" || reportType === "realtime") {
+                    for (let h = 0; h < 24; h++) {
+                        const hourLabel = h.toString().padStart(2, "0") + ":00";
+                        aggregatedCompletedSales[hourLabel] = 0;
+                        aggregatedPendingSales[hourLabel] = 0; // Initialize for pending as well
+                    }
+                } else if (reportType === "weekly" || reportType === "custom") {
+                    const current = new Date(startDateObj);
+                    current.setHours(0, 0, 0, 0);
+                    endDateObj.setHours(23, 59, 59, 999);
+
+                    while (current <= endDateObj) {
+                        const dateLabel = current.toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "2-digit",
+                        }); // "DD/MM"
+                        aggregatedCompletedSales[dateLabel] = 0;
+                        aggregatedPendingSales[dateLabel] = 0; // Initialize for pending
+                        current.setDate(current.getDate() + 1);
+                        current.setHours(0, 0, 0, 0);
+                    }
+                } else if (reportType === "monthly") {
+                    let currentMonth = startDateObj.getMonth();
+                    let currentYear = startDateObj.getFullYear();
+                    let tempDate = new Date(currentYear, currentMonth, 1);
+
+                    let weekIndex = 1;
+                    while (tempDate.getMonth() === currentMonth) {
+                        let startOfWeek = new Date(tempDate);
+                        let day = startOfWeek.getDay();
+                        let diff =
+                            startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                        startOfWeek.setDate(diff);
+                        startOfWeek.setHours(0, 0, 0, 0);
+
+                        let endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 6);
+                        endOfWeek.setHours(23, 59, 59, 999);
+
+                        if (
+                            endOfWeek.getMonth() !== currentMonth &&
+                            endOfWeek.getFullYear() === currentYear
+                        ) {
+                            endOfWeek = new Date(
+                                currentYear,
+                                currentMonth + 1,
+                                0,
+                                23,
+                                59,
+                                59,
+                                999
+                            );
+                        }
+
+                        let weekStartDisplay = new Date(
+                            Math.max(
+                                startOfWeek.getTime(),
+                                new Date(currentYear, currentMonth, 1).getTime()
+                            )
+                        );
+                        let weekEndDisplay = new Date(
+                            Math.min(
+                                endOfWeek.getTime(),
+                                new Date(
+                                    currentYear,
+                                    currentMonth + 1,
+                                    0,
+                                    23,
+                                    59,
+                                    59,
+                                    999
+                                ).getTime()
+                            )
+                        );
+
+                        const weekLabel = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString(
+                            "id-ID",
+                            { day: "2-digit", month: "2-digit" }
+                        )} - ${weekEndDisplay.toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "2-digit",
+                        })})`;
+
+                        if (
+                            startOfWeek <=
+                                new Date(
+                                    currentYear,
+                                    currentMonth + 1,
+                                    0,
+                                    23,
+                                    59,
+                                    59,
+                                    999
+                                ) &&
+                            endOfWeek >=
+                                new Date(
+                                    currentYear,
+                                    currentMonth,
+                                    1,
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                )
+                        ) {
+                            aggregatedCompletedSales[weekLabel] = 0;
+                            aggregatedPendingSales[weekLabel] = 0; // Initialize for pending
+                        }
+                        weekIndex++;
+                        tempDate.setDate(tempDate.getDate() + 7);
+                    }
+                    labels = Object.keys(aggregatedCompletedSales).sort(
+                        (a, b) => {
+                            const weekNumA = parseInt(
+                                a.match(/Minggu (\d+)/)[1]
+                            );
+                            const weekNumB = parseInt(
+                                b.match(/Minggu (\d+)/)[1]
+                            );
+                            return weekNumA - weekNumB;
+                        }
+                    );
+                }
+
+                // Agregasi data penjualan yang sudah selesai
+                completedData.forEach((sale) => {
+                    const saleDate = new Date(sale.created_at);
+                    let label;
+
+                    if (reportType === "daily" || reportType === "realtime") {
+                        if (
+                            saleDate.getDate() === startDateObj.getDate() &&
+                            saleDate.getMonth() === startDateObj.getMonth() &&
+                            saleDate.getFullYear() ===
+                                startDateObj.getFullYear()
+                        ) {
+                            label =
+                                saleDate
+                                    .getHours()
+                                    .toString()
+                                    .padStart(2, "0") + ":00";
+                        } else {
+                            return;
+                        }
+                    } else if (
+                        reportType === "weekly" ||
+                        reportType === "custom"
+                    ) {
+                        if (
+                            saleDate >= startDateObj &&
+                            saleDate <= endDateObj
+                        ) {
+                            // Only aggregate data within the selected range
+                            label = saleDate.toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "2-digit",
+                            });
+                        } else {
+                            return;
+                        }
+                    } else if (reportType === "monthly") {
+                        let tempDate = new Date(
+                            startDateObj.getFullYear(),
+                            startDateObj.getMonth(),
+                            1
+                        );
+                        let weekIndex = 1;
+                        let foundLabel = false;
+                        while (
+                            tempDate.getMonth() === startDateObj.getMonth() &&
+                            !foundLabel
+                        ) {
+                            let startOfWeek = new Date(tempDate);
+                            let day = startOfWeek.getDay();
+                            let diff =
+                                startOfWeek.getDate() -
+                                day +
+                                (day === 0 ? -6 : 1);
+                            startOfWeek.setDate(diff);
+                            startOfWeek.setHours(0, 0, 0, 0);
+
+                            let endOfWeek = new Date(startOfWeek);
+                            endOfWeek.setDate(startOfWeek.getDate() + 6);
+                            endOfWeek.setHours(23, 59, 59, 999);
+
+                            if (
+                                endOfWeek.getMonth() !==
+                                    startDateObj.getMonth() &&
+                                endOfWeek.getFullYear() ===
+                                    startDateObj.getFullYear()
+                            ) {
+                                endOfWeek = new Date(
+                                    startDateObj.getFullYear(),
+                                    startDateObj.getMonth() + 1,
+                                    0,
+                                    23,
+                                    59,
+                                    59,
+                                    999
+                                );
+                            }
+
+                            if (
+                                saleDate >= startOfWeek &&
+                                saleDate <= endOfWeek
+                            ) {
+                                let weekStartDisplay = new Date(
+                                    Math.max(
+                                        startOfWeek.getTime(),
+                                        new Date(
+                                            startDateObj.getFullYear(),
+                                            startDateObj.getMonth(),
+                                            1
+                                        ).getTime()
+                                    )
+                                );
+                                let weekEndDisplay = new Date(
+                                    Math.min(
+                                        endOfWeek.getTime(),
+                                        new Date(
+                                            startDateObj.getFullYear(),
+                                            startDateObj.getMonth() + 1,
+                                            0,
+                                            23,
+                                            59,
+                                            59,
+                                            999
+                                        ).getTime()
+                                    )
+                                );
+                                label = `Minggu ${weekIndex} (${weekStartDisplay.toLocaleDateString(
+                                    "id-ID",
+                                    { day: "2-digit", month: "2-digit" }
+                                )} - ${weekEndDisplay.toLocaleDateString(
+                                    "id-ID",
+                                    { day: "2-digit", month: "2-digit" }
+                                )})`;
+                                foundLabel = true;
+                            }
+                            weekIndex++;
+                            tempDate.setDate(tempDate.getDate() + 7);
+                        }
+                    }
+                    if (label) {
+                        aggregatedCompletedSales[label] =
+                            (aggregatedCompletedSales[label] || 0) +
+                            parseInt(sale.total_harga);
+                    }
+                });
+
+                // Agregasi data penjualan yang pending (hanya jika reportType === 'realtime')
+                if (reportType === "realtime") {
+                    pendingData.forEach((sale) => {
+                        const saleDate = new Date(sale.created_at);
+                        let label;
+
+                        if (
+                            saleDate.getDate() === startDateObj.getDate() &&
+                            saleDate.getMonth() === startDateObj.getMonth() &&
+                            saleDate.getFullYear() ===
+                                startDateObj.getFullYear()
+                        ) {
+                            label =
+                                saleDate
+                                    .getHours()
+                                    .toString()
+                                    .padStart(2, "0") + ":00";
+                        } else {
+                            return;
+                        }
+                        if (label) {
+                            aggregatedPendingSales[label] =
+                                (aggregatedPendingSales[label] || 0) +
+                                parseInt(sale.total_harga);
+                        }
+                    });
+                }
+
+                if (reportType === "daily" || reportType === "realtime") {
+                    labels = Object.keys(aggregatedCompletedSales).sort();
+                } else if (reportType === "weekly" || reportType === "custom") {
+                    labels = Object.keys(aggregatedCompletedSales).sort(
+                        (a, b) => {
+                            const [dayA, monthA] = a.split("/").map(Number);
+                            const [dayB, monthB] = b.split("/").map(Number);
+                            // Use the correct year from startDateObj for comparison
+                            const dateA = new Date(
+                                startDateObj.getFullYear(),
+                                monthA - 1,
+                                dayA
+                            );
+                            const dateB = new Date(
+                                startDateObj.getFullYear(),
+                                monthB - 1,
+                                dayB
+                            );
+                            return dateA - dateB;
+                        }
+                    );
+                } else if (reportType === "monthly") {
+                    labels = Object.keys(aggregatedCompletedSales);
+                    labels.sort((a, b) => {
+                        const weekNumA = parseInt(a.match(/Minggu (\d+)/)[1]);
+                        const weekNumB = parseInt(b.match(/Minggu (\d+)/)[1]);
+                        return weekNumA - weekNumB;
+                    });
+                }
+
+                completedChartData = labels.map(
+                    (label) => aggregatedCompletedSales[label]
+                );
+                if (reportType === "realtime") {
+                    pendingChartData = labels.map(
+                        (label) => aggregatedPendingSales[label]
+                    );
+                }
+
+                salesChart.data.labels = labels;
+                salesChart.data.datasets[0].data = completedChartData;
+                salesChart.data.datasets[0].label =
+                    "Total Penjualan Selesai (Rp)"; // Update label for clarity
+
+                // Remove existing pending dataset if present
+                if (salesChart.data.datasets.length > 1) {
+                    salesChart.data.datasets.pop();
+                }
+
+                // Add pending dataset only for 'realtime'
+                if (reportType === "realtime") {
+                    salesChart.data.datasets.push({
+                        label: "Total Penjualan Pending (Rp)",
+                        data: pendingChartData,
+                        backgroundColor: "rgba(54, 162, 235, 0.2)", // Blue for pending
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1,
+                        fill: true,
+                    });
+                }
+
+                let xAxisTitle = "Periode";
+                if (reportType === "daily" || reportType === "realtime") {
+                    xAxisTitle = "Jam";
+                } else if (reportType === "weekly") {
+                    xAxisTitle = "Tanggal (DD/MM)";
+                } else if (reportType === "monthly") {
+                    xAxisTitle = "Minggu dalam Bulan";
+                } else if (reportType === "custom") {
+                    xAxisTitle = "Tanggal (DD/MM)";
+                }
+                salesChart.options.scales.x.title.text = xAxisTitle;
+
+                salesChart.update();
+            }
+            async function downloadReport() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const reportType = document.getElementById("reportType").value;
+                let startDateVal = document.getElementById("startDate").value;
+                let endDateVal = document.getElementById("endDate").value;
+
+                let startTempDate;
+                let endTempDate;
+
+                // Determine date range based on report type
+                const now = new Date();
+                if (reportType === "daily" || reportType === "realtime") {
+                    startTempDate = new Date(now.setHours(0, 0, 0, 0));
+                    endTempDate = new Date(now.setHours(23, 59, 59, 999));
+                } else if (reportType === "weekly") {
+                    startTempDate = new Date(now);
+                    const dayOfWeek = startTempDate.getDay();
+                    const diffToMonday =
+                        startTempDate.getDate() -
+                        dayOfWeek +
+                        (dayOfWeek === 0 ? -6 : 1);
+                    startTempDate.setDate(diffToMonday);
+                    startTempDate.setHours(0, 0, 0, 0);
+
+                    endTempDate = new Date(startTempDate);
+                    endTempDate.setDate(startTempDate.getDate() + 6);
+                    endTempDate.setHours(23, 59, 59, 999);
+                } else if (reportType === "monthly") {
+                    startTempDate = new Date(
+                        now.getFullYear(),
+                        now.getMonth(),
+                        1,
+                        0,
+                        0,
+                        0,
+                        0
+                    );
+                    endTempDate = new Date(
+                        now.getFullYear(),
+                        now.getMonth() + 1,
+                        0,
+                        23,
+                        59,
+                        59,
+                        999
+                    );
+                } else if (reportType === "custom") {
+                    if (!startDateVal || !endDateVal) {
+                        alert(
+                            "Pilih tanggal mulai dan akhir untuk laporan custom."
+                        );
+                        return;
+                    }
+                    startTempDate = new Date(startDateVal);
+                    startTempDate.setHours(0, 0, 0, 0);
+                    endTempDate = new Date(endDateVal);
+                    endTempDate.setHours(23, 59, 59, 999);
+
+                    if (startTempDate > endTempDate) {
+                        alert(
+                            "Tanggal akhir tidak boleh lebih awal dari tanggal mulai."
+                        );
+                        return;
+                    }
+                }
+
+                const filteredData = salesData.filter((sale) => {
+                    const saleDate = new Date(sale.created_at);
+                    return saleDate >= startTempDate && saleDate <= endTempDate;
+                });
+
+                if (filteredData.length === 0) {
+                    alert(
+                        "Tidak ada data penjualan untuk periode yang dipilih untuk diunduh."
+                    );
+                    return;
+                }
+
+                const tableColumn = [
+                    "Tanggal",
+                    "ID Pesanan",
+                    "Customer/Meja",
+                    "Item (Jumlah)",
+                    "Total Harga",
+                ];
+                const tableRows = [];
+
+                let totalSalesAmount = 0;
+
+                filteredData.forEach((sale) => {
+                    const orderItems = sale.items
+                        .map((item) => {
+                            const itemName = item.menu
+                                ? item.menu.nama
+                                : "Unknown Item";
+                            return `${itemName} (${item.jumlah})`;
+                        })
+                        .join(", ");
+
+                    const saleDateFormatted = new Date(
+                        sale.created_at
+                    ).toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    });
+                    const customerInfo =
+                        sale.pelanggan_nama || `Meja ${sale.meja_id || "-"}`;
+                    const totalPriceFormatted = `Rp ${parseInt(
+                        sale.total_harga
+                    ).toLocaleString("id-ID")}`;
+
+                    tableRows.push([
+                        saleDateFormatted,
+                        `#${sale.id}`,
+                        customerInfo,
+                        orderItems,
+                        totalPriceFormatted,
+                    ]);
+                    totalSalesAmount += parseInt(sale.total_harga);
+                });
+
+                const title = `Laporan Penjualan (${
+                    reportType === "custom"
+                        ? `${startDateVal} - ${endDateVal}`
+                        : reportType.charAt(0).toUpperCase() +
+                          reportType.slice(1)
+                })`;
+                doc.text(title, 14, 20);
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 30,
+                    headStyles: { fillColor: [255, 159, 64] }, // Orange color
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        overflow: "linebreak",
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 30 }, // Tanggal
+                        1: { cellWidth: 20 }, // ID Pesanan
+                        2: { cellWidth: 30 }, // Customer/Meja
+                        3: { cellWidth: 60 }, // Item (Jumlah)
+                        4: { cellWidth: 30 }, // Total Harga
+                    },
+                    didDrawPage: function (data) {
+                        // Footer
+                        let str = "Page " + doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.text(
+                            str,
+                            data.settings.margin.left,
+                            doc.internal.pageSize.height - 10
+                        );
+                    },
+                });
+
+                const finalY = doc.autoTable.previous.finalY;
+                doc.setFontSize(10);
+                doc.text(
+                    `Total Penjualan: Rp ${totalSalesAmount.toLocaleString(
+                        "id-ID"
+                    )}`,
+                    14,
+                    finalY + 10
+                );
+                doc.text(
+                    `Jumlah Transaksi: ${filteredData.length.toLocaleString(
+                        "id-ID"
+                    )}`,
+                    14,
+                    finalY + 16
+                );
+                doc.text(
+                    `Rata-rata Per Pesanan: Rp ${(
+                        totalSalesAmount / filteredData.length
+                    ).toLocaleString("id-ID", { maximumFractionDigits: 2 })}`,
+                    14,
+                    finalY + 22
+                );
+
+                let filename = `laporan_penjualan_${reportType}`;
+                if (reportType === "custom") {
+                    filename += `_${startDateVal}_${endDateVal}.pdf`;
+                } else {
+                    const today = new Date().toISOString().slice(0, 10);
+                    filename += `_${today}.pdf`;
+                }
+
+                doc.save(filename);
+                alert("Laporan sedang diunduh dalam format PDF.");
+            }
+
+            function logout() {
+                localStorage.removeItem("token");
+                window.location.href = "../login.html";
+            }
+        </script>
+    </body>
+</html>

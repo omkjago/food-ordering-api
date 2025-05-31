@@ -1,402 +1,598 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Restoran - FoodOrder</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 font-sans">
-  <div class="flex h-screen">
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open">
-      <div class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center">
-        <span>🍴 FoodOrder</span>
-        <button id="close-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-      <nav class="flex-1 space-y-2 sidebar-scroll">
-        <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
-        <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
-        <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pelanggan</a>
-        <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pembayaran</a>
-        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Notifikasi</a>
-        <a href="#" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pengaturan</a>
-      </nav>
-      <div class="mt-4 text-sm text-gray-500">
-        <div class="font-bold" id="admin-name">Admin</div>
-        <div id="admin-email">admin@admin.com</div>
-        <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-          Logout
-      </button>
-      </div>
-    </aside>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard Restoran - FoodOrder</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <link href="css/style.css" rel="stylesheet" />
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="flex h-screen">
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open"
+            >
+                <div
+                    class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center"
+                >
+                    <span>🍴 FoodOrder</span>
+                    <button
+                        id="close-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="flex-1 space-y-2 sidebar-scroll">
+                    <button
+                        onclick="Dashboard()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onclick="Produk()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onclick="Kasir()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Kasir
+                    </button>
+                    <button
+                        onclick="LaporanPenjualan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Laporan Penjualan
+                    </button>
+                    <button
+                        onclick="Pesanan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Pesanan
+                    </button>
+                </nav>
+                <div class="mt-4 text-sm text-gray-500">
+                    <div class="font-bold" id="admin-name">Admin</div>
+                    <div id="admin-email">admin@admin.com</div>
+                    <button
+                        onclick="logout()"
+                        class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </aside>
 
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
+            <div
+                id="sidebar-overlay"
+                class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"
+            ></div>
 
-    <main class="flex-1 p-6 overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Dashboard Restoran</h1>
-        <button id="open-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <div class="relative hidden lg:block"> <input type="text" placeholder="Cari..." class="border rounded px-3 py-1">
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Dashboard Restoran</h1>
+                    <button
+                        id="open-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                            ></path>
+                        </svg>
+                    </button>
+                    <div class="relative hidden lg:block">
+                        <input
+                            type="text"
+                            placeholder="Cari..."
+                            class="border rounded px-3 py-1"
+                        />
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+                >
+                    <div
+                        class="bg-blue-50 p-4 rounded-lg shadow-md border border-blue-200"
+                    >
+                        <div class="text-blue-700 font-semibold mb-1">
+                            Total Pendapatan
+                        </div>
+                        <div class="text-2xl font-bold" id="total-pendapatan">
+                            Loading...
+                        </div>
+                        <div class="text-sm" id="pendapatan-persentase">
+                            Menghitung...
+                        </div>
+                    </div>
+                    <div
+                        class="bg-green-50 p-4 rounded-lg shadow-md border border-green-200"
+                    >
+                        <div class="text-green-700 font-semibold mb-1">
+                            Pesanan Baru
+                        </div>
+                        <div class="text-2xl font-bold" id="pesanan-baru">
+                            Loading...
+                        </div>
+                        <div class="text-sm" id="pesanan-persentase">
+                            Menghitung...
+                        </div>
+                    </div>
+                    <div
+                        class="bg-yellow-50 p-4 rounded-lg shadow-md border border-yellow-200"
+                    >
+                        <div class="text-yellow-700 font-semibold mb-1">
+                            Pelanggan Baru
+                        </div>
+                        <div class="text-2xl font-bold" id="pelanggan-baru">
+                            Loading...
+                        </div>
+                        <div class="text-sm" id="pelanggan-persentase">
+                            Menghitung...
+                        </div>
+                    </div>
+                    <div
+                        class="bg-purple-50 p-4 rounded-lg shadow-md border border-purple-200"
+                    >
+                        <div class="text-purple-700 font-semibold mb-1">
+                            Produk Terjual
+                        </div>
+                        <div class="text-2xl font-bold" id="produk-terjual">
+                            Loading...
+                        </div>
+                        <div class="text-sm" id="produk-persentase">
+                            Menghitung...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded shadow mb-6">
+                    <h2 class="text-lg font-bold mb-4">Produk Populer</h2>
+                    <ul class="space-y-2" id="produk-populer-list">
+                        <li class="text-center py-4">
+                            Loading produk populer...
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-bold mb-4">Pesanan Terbaru</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-auto text-left min-w-max">
+                            <thead>
+                                <tr class="text-gray-600">
+                                    <th class="py-2 px-2">ID Pesanan</th>
+                                    <th class="py-2 px-2">Pelanggan</th>
+                                    <th class="py-2 px-2">Tanggal</th>
+                                    <th class="py-2 px-2">Jumlah Produk</th>
+                                    <th class="py-2 px-2">Total</th>
+                                    <th class="py-2 px-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pesanan-terbaru-table">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        Loading data pesanan...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-blue-50 p-4 rounded-lg shadow-md border border-blue-200">
-          <div class="text-blue-700 font-semibold mb-1">Total Pendapatan</div>
-          <div class="text-2xl font-bold" id="total-pendapatan">Loading...</div>
-          <div class="text-sm" id="pendapatan-persentase">Menghitung...</div>
-        </div>
-        <div class="bg-green-50 p-4 rounded-lg shadow-md border border-green-200">
-          <div class="text-green-700 font-semibold mb-1">Pesanan Baru</div>
-          <div class="text-2xl font-bold" id="pesanan-baru">Loading...</div>
-          <div class="text-sm" id="pesanan-persentase">Menghitung...</div>
-        </div>
-        <div class="bg-yellow-50 p-4 rounded-lg shadow-md border border-yellow-200">
-          <div class="text-yellow-700 font-semibold mb-1">Pelanggan Baru</div>
-          <div class="text-2xl font-bold" id="pelanggan-baru">Loading...</div>
-          <div class="text-sm" id="pelanggan-persentase">Menghitung...</div>
-        </div>
-        <div class="bg-purple-50 p-4 rounded-lg shadow-md border border-purple-200">
-          <div class="text-purple-700 font-semibold mb-1">Produk Terjual</div>
-          <div class="text-2xl font-bold" id="produk-terjual">Loading...</div>
-          <div class="text-sm" id="produk-persentase">Menghitung...</div>
-        </div>
-      </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const token = localStorage.getItem("token");
+                const sidebar = document.getElementById("sidebar");
+                const sidebarOverlay =
+                    document.getElementById("sidebar-overlay");
+                const openSidebarBtn = document.getElementById(
+                    "open-sidebar-button"
+                );
+                const closeSidebarBtn = document.getElementById(
+                    "close-sidebar-button"
+                );
 
-      <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-lg font-bold mb-4">Produk Populer</h2>
-        <ul class="space-y-2" id="produk-populer-list">
-          <li class="text-center py-4">Loading produk populer...</li>
-        </ul>
-      </div>
+                // Fungsi untuk mengelola tampilan sidebar
+                function toggleSidebar() {
+                    sidebar.classList.toggle("sidebar-closed");
+                    sidebar.classList.toggle("sidebar-open");
+                    sidebarOverlay.classList.toggle("opacity-0");
+                    sidebarOverlay.classList.toggle("opacity-100");
+                    sidebarOverlay.classList.toggle("pointer-events-none");
+                }
 
-      <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-lg font-bold mb-4">Pesanan Terbaru</h2>
-        <div class="overflow-x-auto"> <table class="w-full table-auto text-left min-w-max"> <thead>
-              <tr class="text-gray-600">
-                <th class="py-2 px-2">ID Pesanan</th>
-                <th class="py-2 px-2">Pelanggan</th>
-                <th class="py-2 px-2">Tanggal</th>
-                <th class="py-2 px-2">Jumlah Produk</th>
-                <th class="py-2 px-2">Total</th>
-                <th class="py-2 px-2">Status</th>
-              </tr>
-            </thead>
-            <tbody id="pesanan-terbaru-table">
-              <tr>
-                <td colspan="6" class="text-center py-4">Loading data pesanan...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-  </div>
+                // Event listener untuk tombol buka/tutup sidebar
+                if (openSidebarBtn) {
+                    openSidebarBtn.addEventListener("click", toggleSidebar);
+                }
+                if (closeSidebarBtn) {
+                    closeSidebarBtn.addEventListener("click", toggleSidebar);
+                }
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener("click", toggleSidebar); // Tutup sidebar saat klik overlay
+                }
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const token = localStorage.getItem('token');
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebar-overlay');
-      const openSidebarBtn = document.getElementById('open-sidebar-button');
-      const closeSidebarBtn = document.getElementById('close-sidebar-button');
+                // Mengatur sidebar awal berdasarkan ukuran layar
+                function setInitialSidebarState() {
+                    if (window.innerWidth >= 1024) {
+                        // Ukuran large (lg) di Tailwind
+                        sidebar.classList.add("sidebar-open");
+                        sidebar.classList.remove("sidebar-closed");
+                        sidebarOverlay.classList.add(
+                            "opacity-0",
+                            "pointer-events-none"
+                        );
+                        sidebarOverlay.classList.remove("opacity-100");
+                    } else {
+                        sidebar.classList.add("sidebar-closed");
+                        sidebar.classList.remove("sidebar-open");
+                        sidebarOverlay.classList.add(
+                            "opacity-0",
+                            "pointer-events-none"
+                        );
+                        sidebarOverlay.classList.remove("opacity-100");
+                    }
+                }
 
-      // Fungsi untuk mengelola tampilan sidebar
-      function toggleSidebar() {
-        sidebar.classList.toggle('sidebar-closed');
-        sidebar.classList.toggle('sidebar-open');
-        sidebarOverlay.classList.toggle('opacity-0');
-        sidebarOverlay.classList.toggle('opacity-100');
-        sidebarOverlay.classList.toggle('pointer-events-none');
-      }
+                // Panggil saat halaman dimuat dan saat ukuran jendela berubah
+                setInitialSidebarState();
+                window.addEventListener("resize", setInitialSidebarState);
 
-      // Event listener untuk tombol buka/tutup sidebar
-      if (openSidebarBtn) {
-        openSidebarBtn.addEventListener('click', toggleSidebar);
-      }
-      if (closeSidebarBtn) {
-        closeSidebarBtn.addEventListener('click', toggleSidebar);
-      }
-      if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', toggleSidebar); // Tutup sidebar saat klik overlay
-      }
-      
-      // Mengatur sidebar awal berdasarkan ukuran layar
-      function setInitialSidebarState() {
-        if (window.innerWidth >= 1024) { // Ukuran large (lg) di Tailwind
-          sidebar.classList.add('sidebar-open');
-          sidebar.classList.remove('sidebar-closed');
-          sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-          sidebarOverlay.classList.remove('opacity-100');
-        } else {
-          sidebar.classList.add('sidebar-closed');
-          sidebar.classList.remove('sidebar-open');
-          sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-          sidebarOverlay.classList.remove('opacity-100');
-        }
-      }
+                if (!token) {
+                    window.location.href = "login.html";
+                    return;
+                }
+                fetch("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            // If the token is invalid or user data cannot be fetched,
+                            // it's a good idea to redirect to login or show an error.
+                            if (response.status === 401) {
+                                // Unauthorized
+                                window.location.href = "login.html";
+                            }
+                            throw new Error("Failed to fetch admin data");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        // Update the admin name and email based on the fetched user data
+                        document.getElementById("admin-name").textContent =
+                            data.name || "Nama Tidak Tersedia"; // Use data.name
+                        document.getElementById("admin-email").textContent =
+                            data.email || "Email Tidak Tersedia"; // Use data.email
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                        document.getElementById("admin-name").textContent =
+                            "Error Loading";
+                        document.getElementById("admin-email").textContent =
+                            "Error Loading";
+                    });
+                // Fungsi untuk format mata uang Rupiah
+                function formatRupiah(angka) {
+                    return "Rp " + new Intl.NumberFormat("id-ID").format(angka);
+                }
 
-      // Panggil saat halaman dimuat dan saat ukuran jendela berubah
-      setInitialSidebarState();
-      window.addEventListener('resize', setInitialSidebarState);
+                // Fungsi untuk format tanggal Indonesia
+                function formatTanggal(dateString) {
+                    const date = new Date(dateString);
+                    const options = {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                    };
+                    return date.toLocaleDateString("id-ID", options);
+                }
 
-      if (!token) {
-        window.location.href = 'login.html';
-        return;
-      }
-      fetch('/api/user', {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
-  .then(response => {
-    if (!response.ok) {
-      // If the token is invalid or user data cannot be fetched,
-      // it's a good idea to redirect to login or show an error.
-      if (response.status === 401) { // Unauthorized
-        window.location.href = 'login.html';
-      }
-      throw new Error('Failed to fetch admin data');
-    }
-    return response.json();
-  })
-  .then(data => {
-    // Update the admin name and email based on the fetched user data
-    document.getElementById('admin-name').textContent = data.name || 'Nama Tidak Tersedia'; // Use data.name
-    document.getElementById('admin-email').textContent = data.email || 'Email Tidak Tersedia'; // Use data.email
-  })
-  .catch(error => {
-    console.error('Error fetching admin data:', error);
-    document.getElementById('admin-name').textContent = 'Error Loading';
-    document.getElementById('admin-email').textContent = 'Error Loading';
-  });
-      // Fungsi untuk format mata uang Rupiah
-      function formatRupiah(angka) {
-        return 'Rp ' + new Intl.NumberFormat('id-ID').format(angka);
-      }
-      
-      // Fungsi untuk format tanggal Indonesia
-      function formatTanggal(dateString) {
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('id-ID', options);
-      }
-      
-      // Dapatkan data admin
-      fetch('/api/user', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch admin data');
-        return response.json();
-      })
-      .then(data => {
-        document.getElementById('admin-name').textContent = data.name;
-        document.getElementById('admin-email').textContent = data.email;
-      })
-      .catch(error => {
-        console.error('Error fetching admin data:', error);
-      });
-      
-      // Dapatkan statistik dashboard
-      fetch('/api/admin/statistics', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch statistics');
-        return response.json();
-      })
-      .then(data => {
-        // Total Pendapatan
-        document.getElementById('total-pendapatan').textContent = formatRupiah(data.pendapatan.current);
-        const persentasePendapatan = ((data.pendapatan.current - data.pendapatan.previous) / data.pendapatan.previous * 100).toFixed(1);
-        const pendapatanElement = document.getElementById('pendapatan-persentase');
-        pendapatanElement.textContent = `${persentasePendapatan}% dari bulan lalu`;
-        if (persentasePendapatan > 0) {
-          pendapatanElement.classList.add('text-green-500');
-          pendapatanElement.classList.remove('text-red-500');
-        } else {
-          pendapatanElement.classList.add('text-red-500');
-          pendapatanElement.classList.remove('text-green-500');
-        }
-        
-        // Pesanan Baru
-        document.getElementById('pesanan-baru').textContent = `+${data.pesanan.current}`;
-        const persentasePesanan = ((data.pesanan.current - data.pesanan.previous) / data.pesanan.previous * 100).toFixed(1);
-        const pesananElement = document.getElementById('pesanan-persentase');
-        pesananElement.textContent = `${persentasePesanan}% dari bulan lalu`;
-        if (persentasePesanan > 0) {
-          pesananElement.classList.add('text-green-500');
-          pesananElement.classList.remove('text-red-500');
-        } else {
-          pesananElement.classList.add('text-red-500');
-          pesananElement.classList.remove('text-green-500');
-        }
-        
-        // Pelanggan Baru
-        document.getElementById('pelanggan-baru').textContent = `+${data.pelanggan.current}`;
-        const persentasePelanggan = ((data.pelanggan.current - data.pelanggan.previous) / data.pelanggan.previous * 100).toFixed(1);
-        const pelangganElement = document.getElementById('pelanggan-persentase');
-        pelangganElement.textContent = `${persentasePelanggan}% dari bulan lalu`;
-        if (persentasePelanggan > 0) {
-          pelangganElement.classList.add('text-green-500');
-          pelangganElement.classList.remove('text-red-500');
-        } else {
-          pelangganElement.classList.add('text-red-500');
-          pelangganElement.classList.remove('text-green-500');
-        }
-        
-        // Produk Terjual
-        document.getElementById('produk-terjual').textContent = data.produk.current;
-        const persentaseProduk = ((data.produk.current - data.produk.previous) / data.produk.previous * 100).toFixed(1);
-        const produkElement = document.getElementById('produk-persentase');
-        produkElement.textContent = `${persentaseProduk}% dari bulan lalu`;
-        if (persentaseProduk > 0) {
-          produkElement.classList.add('text-green-500');
-          produkElement.classList.remove('text-red-500');
-        } else {
-          produkElement.classList.add('text-red-500');
-          produkElement.classList.remove('text-green-500');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching statistics:', error);
-        document.getElementById('total-pendapatan').textContent = 'Error';
-        document.getElementById('pesanan-baru').textContent = 'Error';
-        document.getElementById('pelanggan-baru').textContent = 'Error';
-        document.getElementById('produk-terjual').textContent = 'Error';
-      });
-      
-      // Dapatkan produk populer
-      fetch('/api/admin/popular-products', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch popular products');
-        return response.json();
-      })
-      .then(data => {
-        const productsContainer = document.getElementById('produk-populer-list');
-        productsContainer.innerHTML = '';
-        
-        data.forEach(product => {
-          const trendIcon = product.trend > 0 ? 
-            '<span class="text-green-500">↑</span>' : 
-            '<span class="text-red-500">↓</span>';
-          
-          const listItem = document.createElement('li');
-          listItem.className = 'flex justify-between';
-          listItem.innerHTML = `
+                // Dapatkan data admin
+                fetch("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error("Failed to fetch admin data");
+                        return response.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("admin-name").textContent =
+                            data.name;
+                        document.getElementById("admin-email").textContent =
+                            data.email;
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                    });
+
+                // Dapatkan statistik dashboard
+                fetch("/api/admin/statistics", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error("Failed to fetch statistics");
+                        return response.json();
+                    })
+                    .then((data) => {
+                        // Total Pendapatan
+                        document.getElementById(
+                            "total-pendapatan"
+                        ).textContent = formatRupiah(data.pendapatan.current);
+                        const persentasePendapatan = (
+                            ((data.pendapatan.current -
+                                data.pendapatan.previous) /
+                                data.pendapatan.previous) *
+                            100
+                        ).toFixed(1);
+                        const pendapatanElement = document.getElementById(
+                            "pendapatan-persentase"
+                        );
+                        pendapatanElement.textContent = `${persentasePendapatan}% dari bulan lalu`;
+                        if (persentasePendapatan > 0) {
+                            pendapatanElement.classList.add("text-green-500");
+                            pendapatanElement.classList.remove("text-red-500");
+                        } else {
+                            pendapatanElement.classList.add("text-red-500");
+                            pendapatanElement.classList.remove(
+                                "text-green-500"
+                            );
+                        }
+
+                        // Pesanan Baru
+                        document.getElementById(
+                            "pesanan-baru"
+                        ).textContent = `+${data.pesanan.current}`;
+                        const persentasePesanan = (
+                            ((data.pesanan.current - data.pesanan.previous) /
+                                data.pesanan.previous) *
+                            100
+                        ).toFixed(1);
+                        const pesananElement =
+                            document.getElementById("pesanan-persentase");
+                        pesananElement.textContent = `${persentasePesanan}% dari bulan lalu`;
+                        if (persentasePesanan > 0) {
+                            pesananElement.classList.add("text-green-500");
+                            pesananElement.classList.remove("text-red-500");
+                        } else {
+                            pesananElement.classList.add("text-red-500");
+                            pesananElement.classList.remove("text-green-500");
+                        }
+
+                        // Pelanggan Baru
+                        document.getElementById(
+                            "pelanggan-baru"
+                        ).textContent = `+${data.pelanggan.current}`;
+                        const persentasePelanggan = (
+                            ((data.pelanggan.current -
+                                data.pelanggan.previous) /
+                                data.pelanggan.previous) *
+                            100
+                        ).toFixed(1);
+                        const pelangganElement = document.getElementById(
+                            "pelanggan-persentase"
+                        );
+                        pelangganElement.textContent = `${persentasePelanggan}% dari bulan lalu`;
+                        if (persentasePelanggan > 0) {
+                            pelangganElement.classList.add("text-green-500");
+                            pelangganElement.classList.remove("text-red-500");
+                        } else {
+                            pelangganElement.classList.add("text-red-500");
+                            pelangganElement.classList.remove("text-green-500");
+                        }
+
+                        // Produk Terjual
+                        document.getElementById("produk-terjual").textContent =
+                            data.produk.current;
+                        const persentaseProduk = (
+                            ((data.produk.current - data.produk.previous) /
+                                data.produk.previous) *
+                            100
+                        ).toFixed(1);
+                        const produkElement =
+                            document.getElementById("produk-persentase");
+                        produkElement.textContent = `${persentaseProduk}% dari bulan lalu`;
+                        if (persentaseProduk > 0) {
+                            produkElement.classList.add("text-green-500");
+                            produkElement.classList.remove("text-red-500");
+                        } else {
+                            produkElement.classList.add("text-red-500");
+                            produkElement.classList.remove("text-green-500");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching statistics:", error);
+                        document.getElementById(
+                            "total-pendapatan"
+                        ).textContent = "Error";
+                        document.getElementById("pesanan-baru").textContent =
+                            "Error";
+                        document.getElementById("pelanggan-baru").textContent =
+                            "Error";
+                        document.getElementById("produk-terjual").textContent =
+                            "Error";
+                    });
+
+                // Dapatkan produk populer
+                fetch("/api/admin/popular-products", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error("Failed to fetch popular products");
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const productsContainer = document.getElementById(
+                            "produk-populer-list"
+                        );
+                        productsContainer.innerHTML = "";
+
+                        data.forEach((product) => {
+                            const trendIcon =
+                                product.trend > 0
+                                    ? '<span class="text-green-500">↑</span>'
+                                    : '<span class="text-red-500">↓</span>';
+
+                            const listItem = document.createElement("li");
+                            listItem.className = "flex justify-between";
+                            listItem.innerHTML = `
             <span>${product.nama} <span class="text-sm text-gray-500">(${product.kategori})</span></span>
             <span>${product.jumlah_terjual} ${trendIcon}</span>
           `;
-          
-          productsContainer.appendChild(listItem);
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching popular products:', error);
-        document.getElementById('produk-populer-list').innerHTML = 
-          '<li class="text-center py-2 text-red-500">Gagal memuat produk populer</li>';
-      });
-      
-      // Dapatkan pesanan terbaru
-      fetch('/api/admin/recent-orders', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch recent orders');
-        return response.json();
-      })
-      .then(data => {
-        const tableBody = document.getElementById('pesanan-terbaru-table');
-        tableBody.innerHTML = '';
-        
-        if (data.length === 0) {
-          const emptyRow = document.createElement('tr');
-          emptyRow.className = 'border-t';
-          emptyRow.innerHTML = `
+
+                            productsContainer.appendChild(listItem);
+                        });
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Error fetching popular products:",
+                            error
+                        );
+                        document.getElementById(
+                            "produk-populer-list"
+                        ).innerHTML =
+                            '<li class="text-center py-2 text-red-500">Gagal memuat produk populer</li>';
+                    });
+
+                // Dapatkan pesanan terbaru
+                fetch("/api/admin/recent-orders", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok)
+                            throw new Error("Failed to fetch recent orders");
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const tableBody = document.getElementById(
+                            "pesanan-terbaru-table"
+                        );
+                        tableBody.innerHTML = "";
+
+                        if (data.length === 0) {
+                            const emptyRow = document.createElement("tr");
+                            emptyRow.className = "border-t";
+                            emptyRow.innerHTML = `
             <td colspan="6" class="text-center py-4">Tidak ada pesanan terbaru</td>
           `;
-          tableBody.appendChild(emptyRow);
-          return;
-        }
-        
-        data.forEach(order => {
-          let statusClass = '';
-          switch (order.status.toLowerCase()) {
-            case 'selesai':
-              statusClass = 'text-green-600';
-              break;
-            case 'aktif':
-              statusClass = 'text-blue-600';
-              break;
-            case 'pending':
-              statusClass = 'text-yellow-600';
-              break;
-            default:
-              statusClass = 'text-gray-600';
-          }
-          
-          const row = document.createElement('tr');
-          row.className = 'border-t';
-          row.innerHTML = `
+                            tableBody.appendChild(emptyRow);
+                            return;
+                        }
+
+                        data.forEach((order) => {
+                            let statusClass = "";
+                            switch (order.status.toLowerCase()) {
+                                case "selesai":
+                                    statusClass = "text-green-600";
+                                    break;
+                                case "aktif":
+                                    statusClass = "text-blue-600";
+                                    break;
+                                case "pending":
+                                    statusClass = "text-yellow-600";
+                                    break;
+                                default:
+                                    statusClass = "text-gray-600";
+                            }
+
+                            const row = document.createElement("tr");
+                            row.className = "border-t";
+                            row.innerHTML = `
             <td class="py-2 px-2">#ORD-${order.id}</td>
             <td class="py-2 px-2">${order.pelanggan_nama}</td>
             <td class="py-2 px-2">${formatTanggal(order.tanggal)}</td>
             <td class="py-2 px-2">${order.jumlah_produk}</td>
             <td class="py-2 px-2">${formatRupiah(order.total)}</td>
-            <td class="py-2 px-2"><span class="${statusClass} font-semibold">${order.status}</span></td>
+            <td class="py-2 px-2"><span class="${statusClass} font-semibold">${
+                                order.status
+                            }</span></td>
           `;
-          
-          tableBody.appendChild(row);
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching recent orders:', error);
-        document.getElementById('pesanan-terbaru-table').innerHTML = `
+
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching recent orders:", error);
+                        document.getElementById(
+                            "pesanan-terbaru-table"
+                        ).innerHTML = `
           <tr class="border-t">
             <td colspan="6" class="text-center py-2 text-red-500">Gagal memuat data pesanan</td>
           </tr>
         `;
-      });
-    });
+                    });
+            });
 
-    function Dashboard() {
-      window.location.href = `dashboard_admin.html`;
-    }
-    
-    function Produk() {
-      window.location.href = `admin/admin-menu.html`;
-    }
-    function Pesanan() {
-      window.location.href = `admin/admin-order-aktif.html`;
-    }      
-    function Kasir() {
-      window.location.href = `admin/admin-validasi.html`;
-    }
-    // Fungsi Logout
-    function logout() {
-        // Hapus token dari localStorage
-        localStorage.removeItem('token');
-        // Arahkan pengguna ke halaman login
-        window.location.href = 'login.html'; // Sesuaikan path jika halaman login ada di lokasi lain
-    }
-  </script>
-</body>
+            function Dashboard() {
+                window.location.href = `dashboard_admin.html`;
+            }
+
+            function Produk() {
+                window.location.href = `admin/admin-menu.html`;
+            }
+            function Pesanan() {
+                window.location.href = `admin/admin-order-aktif.html`;
+            }
+            function Kasir() {
+                window.location.href = `admin/admin-validasi.html`;
+            }
+            function LaporanPenjualan() {
+                window.location.href = `admin/admin-sales-report.html`;
+            }
+
+            // Fungsi Logout
+            function logout() {
+                // Hapus token dari localStorage
+                localStorage.removeItem("token");
+                // Arahkan pengguna ke halaman login
+                window.location.href = "login.html"; // Sesuaikan path jika halaman login ada di lokasi lain
+            }
+        </script>
+    </body>
 </html>
