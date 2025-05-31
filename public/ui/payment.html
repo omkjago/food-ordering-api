@@ -1,365 +1,551 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metode Pembayaran</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-</head>
-<body class="p-4 payment-page">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Metode Pembayaran</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <link href="css/style.css" rel="stylesheet" />
+    </head>
+    <body class="p-4 payment-page">
+        <div class="container">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6">
+                Pilih Metode Pembayaran
+            </h2>
+            <p class="text-gray-600 mb-8">
+                Mohon lengkapi data diri Anda sebelum memilih metode pembayaran.
+            </p>
 
-<div class="container">
-    <h2 class="text-4xl font-extrabold text-gray-800 mb-6">Pilih Metode Pembayaran</h2>
-    <p class="text-gray-600 mb-8">Mohon lengkapi data diri Anda sebelum memilih metode pembayaran.</p>
+            <div
+                class="total text-3xl font-bold text-indigo-600 mb-6"
+                id="totalDisplay"
+            >
+                Total: Rp 0
+            </div>
 
-    <div class="total text-3xl font-bold text-indigo-600 mb-6" id="totalDisplay">Total: Rp 0</div>
+            <div class="summary mb-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+                <h4
+                    class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2"
+                >
+                    Ringkasan Pesanan:
+                </h4>
+                <ul id="itemList" class="divide-y divide-gray-200"></ul>
+            </div>
 
-    <div class="summary mb-8 p-4 bg-gray-50 rounded-lg shadow-inner">
-        <h4 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Ringkasan Pesanan:</h4>
-        <ul id="itemList" class="divide-y divide-gray-200">
-            </ul>
-    </div>
-    
-    <div class="form-group mb-4 text-left">
-        <label for="customer_name" class="block text-gray-700 text-sm font-bold mb-2">Nama Pelanggan <span class="text-red-500">*</span></label>
-        <input type="text" id="customer_name" name="customer_name" required placeholder="Contoh: Budi Santoso"
-               class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-    </div>
-    
-    <div class="form-group mb-4 text-left">
-        <label for="customer_phone" class="block text-gray-700 text-sm font-bold mb-2">Nomor Telepon <span class="text-red-500">*</span></label>
-        <input type="tel" id="customer_phone" name="customer_phone" required placeholder="Contoh: 081234567890"
-               class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-    </div>
-    
-    <div class="form-group mb-6 text-left">
-        <label for="customer_email" class="block text-gray-700 text-sm font-bold mb-2">Email <span class="text-red-500">*</span></label>
-        <input type="email" id="customer_email" name="customer_email" required placeholder="Contoh: budi@example.com"
-               class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-    </div>
-    
-    <div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 hidden" role="alert" id="error-message">
-        <strong class="font-bold">Error!</strong>
-        <span class="block sm:inline" id="error-text"></span>
-    </div>
-    
-    <div class="button-group flex flex-col sm:flex-row justify-center gap-4 mb-8">
-        <button class="tunai w-full sm:w-1/2 py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md" onclick="bayarTunai()">
-            Bayar Tunai
-        </button>
-        <button class="non-tunai w-full sm:w-1/2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md" onclick="bayarNonTunai()">
-            Bayar Non-Tunai
-        </button>
-    </div>
+            <div class="form-group mb-4 text-left">
+                <label
+                    for="customer_name"
+                    class="block text-gray-700 text-sm font-bold mb-2"
+                    >Nama Pelanggan <span class="text-red-500">*</span></label
+                >
+                <input
+                    type="text"
+                    id="customer_name"
+                    name="customer_name"
+                    required
+                    placeholder="Contoh: Budi Santoso"
+                    class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+            </div>
 
-    <div class="loading hidden p-6 bg-blue-50 rounded-lg text-blue-800 flex items-center justify-center space-x-3" id="payment-loading">
-        <div class="loading-spinner"></div>
-        <p class="text-lg font-semibold">Memproses pembayaran...</p>
-    </div>
+            <div class="form-group mb-4 text-left">
+                <label
+                    for="customer_phone"
+                    class="block text-gray-700 text-sm font-bold mb-2"
+                    >Nomor Telepon <span class="text-red-500">*</span></label
+                >
+                <input
+                    type="tel"
+                    id="customer_phone"
+                    name="customer_phone"
+                    required
+                    placeholder="Contoh: 081234567890"
+                    class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+            </div>
 
-    <div id="barcode-container" class="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 hidden">
-        <h3 class="text-2xl font-bold mb-4">Barcode untuk Pembayaran Tunai</h3>
-        <img id="barcode" src="" alt="Barcode Pembayaran" class="w-64 h-64 object-contain mx-auto mb-4 border border-gray-300 rounded-lg p-2">
-        <p class="text-lg font-semibold">Tunjukkan barcode ini ke kasir untuk menyelesaikan pembayaran.</p>
-        <p class="text-sm text-gray-600 mt-2">Nomor Pesanan: <span id="order-token-display" class="font-mono text-gray-800"></span></p>
-        <button onclick="checkPaymentStatusFromBarcode()" class="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-md transition duration-300 ease-in-out">
-            Cek Status Pembayaran
-        </button>
-    </div>
-</div>
+            <div class="form-group mb-6 text-left">
+                <label
+                    for="customer_email"
+                    class="block text-gray-700 text-sm font-bold mb-2"
+                    >Email <span class="text-red-500">*</span></label
+                >
+                <input
+                    type="email"
+                    id="customer_email"
+                    name="customer_email"
+                    required
+                    placeholder="Contoh: budi@example.com"
+                    class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+            </div>
 
-<div id="success-modal" class="success-modal">
-    <div class="success-modal-content">
-        <svg class="mx-auto mb-4 text-green-500" fill="currentColor" viewBox="0 0 20 20" width="64" height="64">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-        </svg>
-        <h3 class="text-3xl font-bold text-gray-800 mb-4">Pembayaran Berhasil!</h3>
-        <p class="text-lg text-gray-600 mb-6">Terima kasih atas pesanan Anda. Silakan tunggu pesanan Anda disiapkan.</p>
-        <button onclick="redirectToNewOrder()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
-            Mulai Pesanan Baru
-        </button>
-    </div>
-</div>
+            <div
+                class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 hidden"
+                role="alert"
+                id="error-message"
+            >
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline" id="error-text"></span>
+            </div>
 
+            <div
+                class="button-group flex flex-col sm:flex-row justify-center gap-4 mb-8"
+            >
+                <button
+                    class="tunai w-full sm:w-1/2 py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md"
+                    onclick="bayarTunai()"
+                >
+                    Bayar Tunai
+                </button>
+                <button
+                    class="non-tunai w-full sm:w-1/2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md"
+                    onclick="bayarNonTunai()"
+                >
+                    Bayar Non-Tunai
+                </button>
+            </div>
 
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderToken = urlParams.get("order_token");
-    const mejaId = localStorage.getItem('id_meja');
-    const errorMessageDiv = document.getElementById("error-message");
-    const errorTextSpan = document.getElementById("error-text");
-    const paymentLoadingDiv = document.getElementById('payment-loading');
-    const barcodeContainerDiv = document.getElementById('barcode-container');
-    const barcodeImg = document.getElementById('barcode');
-    const orderTokenDisplaySpan = document.getElementById('order-token-display');
-    const successModal = document.getElementById('success-modal');
+            <div
+                class="loading hidden p-6 bg-blue-50 rounded-lg text-blue-800 flex items-center justify-center space-x-3"
+                id="payment-loading"
+            >
+                <div class="loading-spinner"></div>
+                <p class="text-lg font-semibold">Memproses pembayaran...</p>
+            </div>
 
-    let statusCheckInterval; // To store the interval ID for polling
+            <div
+                id="barcode-container"
+                class="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 hidden"
+            >
+                <h3 class="text-2xl font-bold mb-4">
+                    Barcode untuk Pembayaran Tunai
+                </h3>
+                <img
+                    id="barcode"
+                    src=""
+                    alt="Barcode Pembayaran"
+                    class="w-64 h-64 object-contain mx-auto mb-4 border border-gray-300 rounded-lg p-2"
+                />
+                <p class="text-lg font-semibold">
+                    Tunjukkan barcode ini ke kasir untuk menyelesaikan
+                    pembayaran.
+                </p>
+                <p class="text-sm text-gray-600 mt-2">
+                    Nomor Pesanan:
+                    <span
+                        id="order-token-display"
+                        class="font-mono text-gray-800"
+                    ></span>
+                </p>
+                <button
+                    onclick="checkPaymentStatusFromBarcode()"
+                    class="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-md transition duration-300 ease-in-out"
+                >
+                    Cek Status Pembayaran
+                </button>
+            </div>
+        </div>
 
-    if (!orderToken) {
-        showError("Order token tidak ditemukan. Mohon ulangi proses pesanan.");
-        // Consider redirecting to index.html immediately if no token
-        // setTimeout(() => window.location.href = 'index.html', 3000); 
-        throw new Error("No order token provided.");
-    }
+        <div id="success-modal" class="success-modal">
+            <div class="success-modal-content">
+                <svg
+                    class="mx-auto mb-4 text-green-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    width="64"
+                    height="64"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"
+                    ></path>
+                </svg>
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">
+                    Pembayaran Berhasil!
+                </h3>
+                <p class="text-lg text-gray-600 mb-6">
+                    Terima kasih atas pesanan Anda. Silakan tunggu pesanan Anda
+                    disiapkan.
+                </p>
+                <button
+                    onclick="redirectToNewOrder()"
+                    class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                    Mulai Pesanan Baru
+                </button>
+            </div>
+        </div>
 
-    // Set order token in barcode container if available
-    orderTokenDisplaySpan.textContent = orderToken;
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderToken = urlParams.get("order_token");
+            const mejaId = localStorage.getItem("id_meja");
+            const errorMessageDiv = document.getElementById("error-message");
+            const errorTextSpan = document.getElementById("error-text");
+            const paymentLoadingDiv =
+                document.getElementById("payment-loading");
+            const barcodeContainerDiv =
+                document.getElementById("barcode-container");
+            const barcodeImg = document.getElementById("barcode");
+            const orderTokenDisplaySpan = document.getElementById(
+                "order-token-display"
+            );
+            const successModal = document.getElementById("success-modal");
 
-    // Ambil data pesanan dari backend
-    fetch('/api/tripay/order-summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ order_token: orderToken })
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(errData => {
-                throw new Error(errData.message || 'Gagal mengambil ringkasan pesanan');
-            });
-        }
-        return res.json();
-    })
-    .then(data => {
-        if (data.items && data.total) {
-            let total = data.total;
-            document.getElementById('totalDisplay').innerText = `Total: Rp ${formatNumber(total)}`;
+            let statusCheckInterval; // To store the interval ID for polling
 
-            let itemsList = document.getElementById('itemList');
-            itemsList.innerHTML = ''; 
-            data.items.forEach(item => {
-                let listItem = document.createElement('li');
-                listItem.classList.add('item', 'flex', 'items-center', 'py-2');
+            if (!orderToken) {
+                showError(
+                    "Order token tidak ditemukan. Mohon ulangi proses pesanan."
+                );
+                // Consider redirecting to index.html immediately if no token
+                // setTimeout(() => window.location.href = 'index.html', 3000);
+                throw new Error("No order token provided.");
+            }
 
-                let imageElement = document.createElement('img');
-                imageElement.src = `/storage/${item.image_path ?? 'default.jpg'}`; 
-                imageElement.alt = item.nama_menu;
-                imageElement.classList.add('w-16', 'h-16', 'object-cover', 'rounded-md', 'mr-4', 'flex-shrink-0'); 
-                imageElement.onerror = function() {
-                    this.src = '/images/no-image.png'; 
-                };
+            // Set order token in barcode container if available
+            orderTokenDisplaySpan.textContent = orderToken;
 
-                let itemDetails = document.createElement('div');
-                itemDetails.classList.add('item-details', 'flex-grow');
-                itemDetails.innerHTML = `
+            // Ambil data pesanan dari backend
+            fetch("/api/tripay/order-summary", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ order_token: orderToken }),
+            })
+                .then((res) => {
+                    if (!res.ok) {
+                        return res.json().then((errData) => {
+                            throw new Error(
+                                errData.message ||
+                                    "Gagal mengambil ringkasan pesanan"
+                            );
+                        });
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    if (data.items && data.total) {
+                        let total = data.total;
+                        document.getElementById(
+                            "totalDisplay"
+                        ).innerText = `Total: Rp ${formatNumber(total)}`;
+
+                        let itemsList = document.getElementById("itemList");
+                        itemsList.innerHTML = "";
+                        data.items.forEach((item) => {
+                            let listItem = document.createElement("li");
+                            listItem.classList.add(
+                                "item",
+                                "flex",
+                                "items-center",
+                                "py-2"
+                            );
+
+                            let imageElement = document.createElement("img");
+                            imageElement.src = `/storage/${
+                                item.image_path ?? "default.jpg"
+                            }`;
+                            imageElement.alt = item.nama_menu;
+                            imageElement.classList.add(
+                                "w-16",
+                                "h-16",
+                                "object-cover",
+                                "rounded-md",
+                                "mr-4",
+                                "flex-shrink-0"
+                            );
+                            imageElement.onerror = function () {
+                                this.src = "/images/no-image.png";
+                            };
+
+                            let itemDetails = document.createElement("div");
+                            itemDetails.classList.add(
+                                "item-details",
+                                "flex-grow"
+                            );
+                            itemDetails.innerHTML = `
                     <p class="font-semibold text-gray-800">${item.nama_menu}</p>
-                    <p class="text-sm text-gray-600">Rp ${formatNumber(item.harga)} x ${item.jumlah} = <span class="font-bold">Rp ${formatNumber(item.subtotal)}</span></p>
+                    <p class="text-sm text-gray-600">Rp ${formatNumber(
+                        item.harga
+                    )} x ${
+                                item.jumlah
+                            } = <span class="font-bold">Rp ${formatNumber(
+                                item.subtotal
+                            )}</span></p>
                 `;
 
-                listItem.appendChild(imageElement);
-                listItem.appendChild(itemDetails);
-                itemsList.appendChild(listItem);
-            });
+                            listItem.appendChild(imageElement);
+                            listItem.appendChild(itemDetails);
+                            itemsList.appendChild(listItem);
+                        });
 
-            // Start checking order status periodically if order is not already completed
-            if (data.status !== 'selesai' && data.status !== 'paid') { // Adjust 'paid' if your status is different
-                startStatusPolling();
-            } else {
-                // If order is already completed on load (e.g., user navigated back after payment), show success
-                showSuccessModal();
-            }
-
-        } else {
-            showError("Data pesanan tidak lengkap atau tidak ditemukan.");
-        }
-    })
-    .catch(err => {
-        console.error('Error fetching order summary:', err);
-        showError("Gagal memuat data pesanan. Silakan coba lagi nanti.");
-    });
-
-    // Helper to display error messages
-    function showError(message) {
-        errorTextSpan.innerText = message;
-        errorMessageDiv.classList.remove('hidden');
-    }
-
-    // Helper to hide error messages
-    function hideError() {
-        errorMessageDiv.classList.add('hidden');
-        errorTextSpan.innerText = '';
-    }
-
-    // Format angka dengan pemisah ribuan
-    function formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    // Bayar Tunai - MODIFIED
-    async function bayarTunai() {
-        hideError();
-        const customerName = document.getElementById('customer_name').value.trim();
-        const customerPhone = document.getElementById('customer_phone').value.trim();
-        const customerEmail = document.getElementById('customer_email').value.trim();
-
-        if (!customerName || !customerPhone || !customerEmail) {
-            showError("Nama, Email, dan nomor telepon harus diisi.");
-            return;
-        }
-        
-        paymentLoadingDiv.classList.remove('hidden'); // Show loading
-        barcodeContainerDiv.classList.add('hidden'); // Hide barcode during processing
-
-        try {
-            const response = await fetch('/api/pesanan/process-cash-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    order_token: orderToken,
-                    customer_name: customerName,
-                    customer_phone: customerPhone,
-                    customer_email: customerEmail
+                        // Start checking order status periodically if order is not already completed
+                        if (
+                            data.status !== "selesai" &&
+                            data.status !== "paid"
+                        ) {
+                            // Adjust 'paid' if your status is different
+                            startStatusPolling();
+                        } else {
+                            // If order is already completed on load (e.g., user navigated back after payment), show success
+                            showSuccessModal();
+                        }
+                    } else {
+                        showError(
+                            "Data pesanan tidak lengkap atau tidak ditemukan."
+                        );
+                    }
                 })
-            });
+                .catch((err) => {
+                    console.error("Error fetching order summary:", err);
+                    showError(
+                        "Gagal memuat data pesanan. Silakan coba lagi nanti."
+                    );
+                });
 
-            const data = await response.json();
-
-            paymentLoadingDiv.classList.add('hidden'); // Hide loading
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Gagal memproses pembayaran tunai');
+            // Helper to display error messages
+            function showError(message) {
+                errorTextSpan.innerText = message;
+                errorMessageDiv.classList.remove("hidden");
             }
 
-            console.log("Cash payment response:", data);
-
-            // If successful, show barcode and start polling
-            const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
-            barcodeImg.src = barcodeUrl;
-            barcodeContainerDiv.classList.remove('hidden');
-            
-            // Start polling for order status. The cashier will manually update the status
-            // on their end, and this polling will detect the change.
-            startStatusPolling();
-
-        } catch (error) {
-            console.error('Error during cash payment process:', error);
-            paymentLoadingDiv.classList.add('hidden');
-            showError("Terjadi kesalahan saat memproses pembayaran tunai: " + error.message);
-        }
-    }
-
-    // Bayar Non-Tunai via Tripay
-    function bayarNonTunai() {
-        hideError();
-        const customerName = document.getElementById('customer_name').value.trim();
-        const customerPhone = document.getElementById('customer_phone').value.trim();
-        const customerEmail = document.getElementById('customer_email').value.trim();
-
-        if (!customerName || !customerPhone || !customerEmail) {
-            showError("Nama, Email, dan nomor telepon harus diisi.");
-            return;
-        }
-
-        paymentLoadingDiv.classList.remove('hidden');
-        barcodeContainerDiv.classList.add('hidden'); 
-
-        fetch('/api/tripay/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({
-                order_token: orderToken,
-                customer_name: customerName,
-                customer_phone: customerPhone,
-                customer_email: customerEmail
-            })
-        })
-        .then(res => {
-            if (!res.ok) {
-                return res.json().then(errData => { throw new Error(errData.message || 'Gagal memproses pembayaran non-tunai'); });
-            }
-            return res.json();
-        })
-        .then(data => {
-            console.log("Respon dari backend:", data);
-
-            paymentLoadingDiv.classList.add('hidden');
-
-            if (data.success && data.payment_url) {
-                // If redirecting, no need to poll from this page directly
-                // The status will be updated via webhook on your backend
-                // and if the user comes back, the page will check status on load.
-                window.location.href = data.payment_url; 
-            } else {
-                showError(data.message || "Gagal mendapatkan link pembayaran.");
-            }
-        })
-        .catch(err => {
-            console.error('Error during checkout:', err);
-            paymentLoadingDiv.classList.add('hidden');
-            showError("Terjadi kesalahan saat memproses pembayaran: " + err.message);
-        });
-    }
-
-    // --- New: Order Status Polling Logic ---
-
-    // Function to check the order status
-    async function checkOrderStatus() {
-        try {
-            const response = await fetch('/api/pesanan/status', { // Assuming you have a status endpoint
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_token: orderToken })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch order status');
+            // Helper to hide error messages
+            function hideError() {
+                errorMessageDiv.classList.add("hidden");
+                errorTextSpan.innerText = "";
             }
 
-            const data = await response.json();
-            console.log("Order status check response:", data);
-
-            // IMPORTANT: Adjust 'selesai' to the actual status your backend sends for a completed/paid order
-            if (data.status && (data.status.toLowerCase() === 'selesai' || data.status.toLowerCase() === 'paid')) {
-                clearInterval(statusCheckInterval); // Stop polling
-                showSuccessModal();
-            } else {
-                // Optionally update UI to show "waiting for payment" or similar
-                console.log(`Order status is: ${data.status}. Still waiting...`);
+            // Format angka dengan pemisah ribuan
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
 
-        } catch (error) {
-            console.error("Error checking order status:", error);
-            // Don't stop polling on error unless it's a critical error (e.g., token invalid)
-            // showError("Gagal memperbarui status pesanan."); // Only show if critical
-        }
-    }
+            // Bayar Tunai - MODIFIED
+            async function bayarTunai() {
+                hideError();
+                const customerName = document
+                    .getElementById("customer_name")
+                    .value.trim();
+                const customerPhone = document
+                    .getElementById("customer_phone")
+                    .value.trim();
+                const customerEmail = document
+                    .getElementById("customer_email")
+                    .value.trim();
 
-    // Function to start polling
-    function startStatusPolling() {
-        // Clear any existing interval to prevent duplicates
-        if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-        }
-        // Poll every 5 seconds (5000 milliseconds)
-        statusCheckInterval = setInterval(checkOrderStatus, 5000); 
-    }
+                if (!customerName || !customerPhone || !customerEmail) {
+                    showError("Nama, Email, dan nomor telepon harus diisi.");
+                    return;
+                }
 
-    // Function to show the success modal
-    function showSuccessModal() {
-        successModal.classList.add('show');
-        // Clear any ongoing polling if success is manually triggered
-        if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-        }
-    }
+                paymentLoadingDiv.classList.remove("hidden"); // Show loading
+                barcodeContainerDiv.classList.add("hidden"); // Hide barcode during processing
 
-    // Function to redirect for a new order
-    function redirectToNewOrder() {
-      const kode = localStorage.getItem('kode_barcode');
-            if (kode) {
-                window.location.href = `menu.html?=${kode}`; // Ensure consistent parameter name
-            } else {
-                alert("Nomor meja tidak ditemukan, silakan scan ulang QR Code di meja Anda.");
-                window.location.href = "index.html"; // Redirect to QR scan page
+                try {
+                    const response = await fetch(
+                        "/api/pesanan/process-cash-payment",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Accept: "application/json",
+                            },
+                            body: JSON.stringify({
+                                order_token: orderToken,
+                                customer_name: customerName,
+                                customer_phone: customerPhone,
+                                customer_email: customerEmail,
+                            }),
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    paymentLoadingDiv.classList.add("hidden"); // Hide loading
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.message || "Gagal memproses pembayaran tunai"
+                        );
+                    }
+
+                    console.log("Cash payment response:", data);
+
+                    // If successful, show barcode and start polling
+                    const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
+                    barcodeImg.src = barcodeUrl;
+                    barcodeContainerDiv.classList.remove("hidden");
+
+                    // Start polling for order status. The cashier will manually update the status
+                    // on their end, and this polling will detect the change.
+                    startStatusPolling();
+                } catch (error) {
+                    console.error("Error during cash payment process:", error);
+                    paymentLoadingDiv.classList.add("hidden");
+                    showError(
+                        "Terjadi kesalahan saat memproses pembayaran tunai: " +
+                            error.message
+                    );
+                }
             }
-    }
 
-    // --- Added a button to manually check status for cash payment (optional, but good for testing) ---
-    function checkPaymentStatusFromBarcode() {
-        // This button triggers the status check immediately
-        checkOrderStatus();
-    }
-</script>
-</body>
+            // Bayar Non-Tunai via Tripay
+            function bayarNonTunai() {
+                hideError();
+                const customerName = document
+                    .getElementById("customer_name")
+                    .value.trim();
+                const customerPhone = document
+                    .getElementById("customer_phone")
+                    .value.trim();
+                const customerEmail = document
+                    .getElementById("customer_email")
+                    .value.trim();
+
+                if (!customerName || !customerPhone || !customerEmail) {
+                    showError("Nama, Email, dan nomor telepon harus diisi.");
+                    return;
+                }
+
+                paymentLoadingDiv.classList.remove("hidden");
+                barcodeContainerDiv.classList.add("hidden");
+
+                fetch("/api/tripay/checkout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({
+                        order_token: orderToken,
+                        customer_name: customerName,
+                        customer_phone: customerPhone,
+                        customer_email: customerEmail,
+                    }),
+                })
+                    .then((res) => {
+                        if (!res.ok) {
+                            return res.json().then((errData) => {
+                                throw new Error(
+                                    errData.message ||
+                                        "Gagal memproses pembayaran non-tunai"
+                                );
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then((data) => {
+                        console.log("Respon dari backend:", data);
+
+                        paymentLoadingDiv.classList.add("hidden");
+
+                        if (data.success && data.payment_url) {
+                            // If redirecting, no need to poll from this page directly
+                            // The status will be updated via webhook on your backend
+                            // and if the user comes back, the page will check status on load.
+                            window.location.href = data.payment_url;
+                        } else {
+                            showError(
+                                data.message ||
+                                    "Gagal mendapatkan link pembayaran."
+                            );
+                        }
+                    })
+                    .catch((err) => {
+                        console.error("Error during checkout:", err);
+                        paymentLoadingDiv.classList.add("hidden");
+                        showError(
+                            "Terjadi kesalahan saat memproses pembayaran: " +
+                                err.message
+                        );
+                    });
+            }
+
+            // --- New: Order Status Polling Logic ---
+
+            // Function to check the order status
+            async function checkOrderStatus() {
+                try {
+                    const response = await fetch("/api/pesanan/status", {
+                        // Assuming you have a status endpoint
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ order_token: orderToken }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch order status");
+                    }
+
+                    const data = await response.json();
+                    console.log("Order status check response:", data);
+
+                    // IMPORTANT: Adjust 'selesai' to the actual status your backend sends for a completed/paid order
+                    if (
+                        data.status &&
+                        (data.status.toLowerCase() === "selesai" ||
+                            data.status.toLowerCase() === "paid")
+                    ) {
+                        clearInterval(statusCheckInterval); // Stop polling
+                        showSuccessModal();
+                    } else {
+                        // Optionally update UI to show "waiting for payment" or similar
+                        console.log(
+                            `Order status is: ${data.status}. Still waiting...`
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error checking order status:", error);
+                    // Don't stop polling on error unless it's a critical error (e.g., token invalid)
+                    // showError("Gagal memperbarui status pesanan."); // Only show if critical
+                }
+            }
+
+            // Function to start polling
+            function startStatusPolling() {
+                // Clear any existing interval to prevent duplicates
+                if (statusCheckInterval) {
+                    clearInterval(statusCheckInterval);
+                }
+                // Poll every 5 seconds (5000 milliseconds)
+                statusCheckInterval = setInterval(checkOrderStatus, 5000);
+            }
+
+            // Function to show the success modal
+            function showSuccessModal() {
+                successModal.classList.add("show");
+                // Clear any ongoing polling if success is manually triggered
+                if (statusCheckInterval) {
+                    clearInterval(statusCheckInterval);
+                }
+            }
+
+            // Function to redirect for a new order
+            function redirectToNewOrder() {
+                const kode = localStorage.getItem("kode_barcode");
+                if (kode) {
+                    window.location.href = `menu.html?=${kode}`; // Ensure consistent parameter name
+                } else {
+                    alert(
+                        "Nomor meja tidak ditemukan, silakan scan ulang QR Code di meja Anda."
+                    );
+                    window.location.href = "index.html"; // Redirect to QR scan page
+                }
+            }
+
+            // --- Added a button to manually check status for cash payment (optional, but good for testing) ---
+            function checkPaymentStatusFromBarcode() {
+                // This button triggers the status check immediately
+                checkOrderStatus();
+            }
+        </script>
+    </body>
 </html>

@@ -1,259 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Manajemen Pesanan - FoodOrder</title> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open">
-            <div class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center">
-                <span>🍴 FoodOrder</span>
-                <button id="close-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <nav class="flex-1 space-y-2 sidebar-scroll">
-                <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
-                <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
-                <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-                <button onclick="LaporanPenjualan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Laporan Penjualan</button>
-                <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-                
-            </nav>
-            <div class="mt-4 text-sm text-gray-500">
-                <div class="font-bold" id="admin-name">Admin</div>
-                <div id="admin-email">admin@admin.com</div>
-                <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                    Logout
-                </button>
-            </div>
-        </aside>
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Manajemen Pesanan - FoodOrder</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="flex h-screen">
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open"
+            >
+                <div
+                    class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center"
+                >
+                    <span>🍴 FoodOrder</span>
+                    <button
+                        id="close-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="flex-1 space-y-2 sidebar-scroll">
+                    <button
+                        onclick="Dashboard()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onclick="Produk()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onclick="Kasir()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Kasir
+                    </button>
+                    <button
+                        onclick="LaporanPenjualan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Laporan Penjualan
+                    </button>
+                    <button
+                        onclick="Pesanan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Pesanan
+                    </button>
+                </nav>
+                <div class="mt-4 text-sm text-gray-500">
+                    <div class="font-bold" id="admin-name">Admin</div>
+                    <div id="admin-email">admin@admin.com</div>
+                    <button
+                        onclick="logout()"
+                        class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </aside>
+            <div
+                id="sidebar-overlay"
+                class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"
+            ></div>
 
-        <main class="flex-1 p-6 overflow-y-auto">
-          <div>
-            <h1 class="text-3xl font-bold text-blue-500">Manajemen Pesanan</h1>
-            <button id="open-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-      </div>
-            <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Cari #, Tanggal, atau Customer"
-                    class="border px-3 py-2 rounded w-full sm:w-1/3"
-                    oninput="filterOrders()"
-                />
-            </div>
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-500">
+                        Manajemen Pesanan
+                    </h1>
+                    <button
+                        id="open-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="mb-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4"
+                >
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Cari #, Tanggal, atau Customer"
+                        class="border px-3 py-2 rounded w-full sm:w-1/3"
+                        oninput="filterOrders()"
+                    />
+                </div>
 
-            <div class="bg-white p-4 rounded shadow">
-                <h2 class="text-lg font-semibold mb-4">Daftar Pesanan</h2>
-                <table class="w-full table-auto text-left">
-                    <thead>
-                        <tr class="text-gray-600 border-b">
-                            <th class="py-2">#</th>
-                            <th>Tanggal</th>
-                            <th>Customer</th>
-                            <th>Menu</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="active-orders">
-                        </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-4">Daftar Pesanan</h2>
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr class="text-gray-600 border-b">
+                                <th class="py-2">#</th>
+                                <th>Tanggal</th>
+                                <th>Customer</th>
+                                <th>Menu</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-orders"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
 
-    <script>
-        const token = localStorage.getItem('token');
-        let allOrders = []; // Simpan semua data di sini
+        <script>
+            const token = localStorage.getItem("token");
+            let allOrders = []; // Simpan semua data di sini
 
-        // Fungsi navigasi sidebar
-        function Dashboard() { window.location.href = `../dashboard_admin.html`; }
-        function Produk() { window.location.href = `admin-menu.html`; }
-        function Kasir() { window.location.href = `admin-validasi.html`; }
-        function Pesanan() { window.location.href = `admin-order-aktif.html`; }
-        function LaporanPenjualan() { window.location.href = `admin-sales-report.html`; }
-
-        // --- Sidebar Toggle Functions ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const openSidebarBtn = document.getElementById('open-sidebar-button');
-        const closeSidebarBtn = document.getElementById('close-sidebar-button');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('sidebar-closed');
-            sidebar.classList.toggle('sidebar-open');
-            sidebarOverlay.classList.toggle('opacity-0');
-            sidebarOverlay.classList.toggle('opacity-100');
-            sidebarOverlay.classList.toggle('pointer-events-none');
-        }
-
-        if (openSidebarBtn) {
-            openSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (closeSidebarBtn) {
-            closeSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-        }
-
-        function setInitialSidebarState() {
-            if (window.innerWidth >= 1024) { // Tailwind's 'lg' breakpoint
-                sidebar.classList.add('sidebar-open');
-                sidebar.classList.remove('sidebar-closed');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
-            } else {
-                sidebar.classList.add('sidebar-closed');
-                sidebar.classList.remove('sidebar-open');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
+            // Fungsi navigasi sidebar
+            function Dashboard() {
+                window.location.href = `../dashboard_admin.html`;
             }
-        }
-
-        setInitialSidebarState();
-        window.addEventListener('resize', setInitialSidebarState);
-        // --- End Sidebar Toggle Functions ---
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!token) {
-                window.location.href = '../login.html'; // Redirect if no token
-                return; // Stop execution
+            function Produk() {
+                window.location.href = `admin-menu.html`;
+            }
+            function Kasir() {
+                window.location.href = `admin-validasi.html`;
+            }
+            function Pesanan() {
+                window.location.href = `admin-order-aktif.html`;
+            }
+            function LaporanPenjualan() {
+                window.location.href = `admin-sales-report.html`;
             }
 
-            // Fetch admin user data
-            fetch('/api/user', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            // --- Sidebar Toggle Functions ---
+            const sidebar = document.getElementById("sidebar");
+            const sidebarOverlay = document.getElementById("sidebar-overlay");
+            const openSidebarBtn = document.getElementById(
+                "open-sidebar-button"
+            );
+            const closeSidebarBtn = document.getElementById(
+                "close-sidebar-button"
+            );
+
+            function toggleSidebar() {
+                sidebar.classList.toggle("sidebar-closed");
+                sidebar.classList.toggle("sidebar-open");
+                sidebarOverlay.classList.toggle("opacity-0");
+                sidebarOverlay.classList.toggle("opacity-100");
+                sidebarOverlay.classList.toggle("pointer-events-none");
+            }
+
+            if (openSidebarBtn) {
+                openSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener("click", toggleSidebar);
+            }
+
+            function setInitialSidebarState() {
+                if (window.innerWidth >= 1024) {
+                    // Tailwind's 'lg' breakpoint
+                    sidebar.classList.add("sidebar-open");
+                    sidebar.classList.remove("sidebar-closed");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
+                } else {
+                    sidebar.classList.add("sidebar-closed");
+                    sidebar.classList.remove("sidebar-open");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '../login.html'; // Redirect to login on 401
-                        return; // Stop further execution
-                    }
-                    throw new Error('Failed to fetch admin data');
+            }
+
+            setInitialSidebarState();
+            window.addEventListener("resize", setInitialSidebarState);
+            // --- End Sidebar Toggle Functions ---
+
+            document.addEventListener("DOMContentLoaded", function () {
+                if (!token) {
+                    window.location.href = "../login.html"; // Redirect if no token
+                    return; // Stop execution
                 }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('admin-name').textContent = data.name || 'Nama Tidak Tersedia';
-                document.getElementById('admin-email').textContent = data.email || 'Email Tidak Tersedia';
-            })
-            .catch(error => {
-                console.error('Error fetching admin data:', error);
-                document.getElementById('admin-name').textContent = 'Error Loading';
-                document.getElementById('admin-email').textContent = 'Error Loading';
+
+                // Fetch admin user data
+                fetch("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                window.location.href = "../login.html"; // Redirect to login on 401
+                                return; // Stop further execution
+                            }
+                            throw new Error("Failed to fetch admin data");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("admin-name").textContent =
+                            data.name || "Nama Tidak Tersedia";
+                        document.getElementById("admin-email").textContent =
+                            data.email || "Email Tidak Tersedia";
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                        document.getElementById("admin-name").textContent =
+                            "Error Loading";
+                        document.getElementById("admin-email").textContent =
+                            "Error Loading";
+                    });
+
+                // Initial fetch of orders when the DOM is ready
+                fetchOrders();
             });
 
-            // Initial fetch of orders when the DOM is ready
-            fetchOrders();
-        });
-
-        async function fetchOrders() {
-            if (!token) { // Double-check token before fetching orders
-                console.warn('Token not found, cannot fetch orders.');
-                window.location.href = '../login.html';
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/admin/pesanan/aktif', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        console.error('Unauthorized. Redirecting to login.');
-                        window.location.href = '../login.html';
-                        return;
-                    }
-                    throw new Error(`HTTP error! status: ${res.status}`);
+            async function fetchOrders() {
+                if (!token) {
+                    // Double-check token before fetching orders
+                    console.warn("Token not found, cannot fetch orders.");
+                    window.location.href = "../login.html";
+                    return;
                 }
 
-                const data = await res.json();
-                allOrders = data; // simpan data di global
-                renderOrders(allOrders);
-            } catch (error) {
-                console.error('Gagal memuat data pesanan:', error);
-                const tbody = document.getElementById('active-orders');
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat pesanan. Silakan coba lagi.</td></tr>';
+                try {
+                    const res = await fetch("/api/admin/pesanan/aktif", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            console.error(
+                                "Unauthorized. Redirecting to login."
+                            );
+                            window.location.href = "../login.html";
+                            return;
+                        }
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    allOrders = data; // simpan data di global
+                    renderOrders(allOrders);
+                } catch (error) {
+                    console.error("Gagal memuat data pesanan:", error);
+                    const tbody = document.getElementById("active-orders");
+                    tbody.innerHTML =
+                        '<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat pesanan. Silakan coba lagi.</td></tr>';
+                }
             }
-        }
 
-        function renderOrders(data) {
-            const tbody = document.getElementById('active-orders');
-            tbody.innerHTML = ''; // Clear existing list
+            function renderOrders(data) {
+                const tbody = document.getElementById("active-orders");
+                tbody.innerHTML = ""; // Clear existing list
 
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Tidak ada pesanan aktif ditemukan.</td></tr>';
-                return;
-            }
+                if (!data || data.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="5" class="text-center py-4">Tidak ada pesanan aktif ditemukan.</td></tr>';
+                    return;
+                }
 
-            data.forEach((pesanan, index) => {
-                const menuList = pesanan.items?.map(item => {
-                    const namaMenu = item.menu?.nama || 'Menu tidak ditemukan';
-                    return `${item.jumlah}x ${namaMenu}`;
-                }).join(', ') || '-';
+                data.forEach((pesanan, index) => {
+                    const menuList =
+                        pesanan.items
+                            ?.map((item) => {
+                                const namaMenu =
+                                    item.menu?.nama || "Menu tidak ditemukan";
+                                return `${item.jumlah}x ${namaMenu}`;
+                            })
+                            .join(", ") || "-";
 
-                const tanggal = new Date(pesanan.created_at).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-                const customer = pesanan.pelanggan_nama || `Meja ${pesanan.meja_id ?? '-'}`;
+                    const tanggal = new Date(
+                        pesanan.created_at
+                    ).toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                    });
+                    const customer =
+                        pesanan.pelanggan_nama ||
+                        `Meja ${pesanan.meja_id ?? "-"}`;
 
-                const row = document.createElement('tr');
-                row.classList.add('border-b');
+                    const row = document.createElement("tr");
+                    row.classList.add("border-b");
 
-                row.innerHTML = `
+                    row.innerHTML = `
                     <td class="py-2">${index + 1}</td>
                     <td>${tanggal}</td>
                     <td>${customer}</td>
                     <td>${menuList}</td>
-                    <td>Rp ${parseInt(pesanan.total_harga).toLocaleString('id-ID')}</td>
+                    <td>Rp ${parseInt(pesanan.total_harga).toLocaleString(
+                        "id-ID"
+                    )}</td>
                 `;
-                tbody.appendChild(row);
-            });
-        }
+                    tbody.appendChild(row);
+                });
+            }
 
-        function filterOrders() {
-            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            function filterOrders() {
+                const keyword = document
+                    .getElementById("searchInput")
+                    .value.toLowerCase();
 
-            const filtered = allOrders.filter((pesanan) => {
-                const orderNumber = (allOrders.indexOf(pesanan) + 1).toString(); // Get current display order number
-                const tanggal = new Date(pesanan.created_at).toLocaleDateString('id-ID');
-                const customer = pesanan.pelanggan_nama || `Meja ${pesanan.meja_id ?? '-'}`;
-                const menuItems = pesanan.items?.map(item => item.menu?.nama.toLowerCase()).join(' ') || '';
+                const filtered = allOrders.filter((pesanan) => {
+                    const orderNumber = (
+                        allOrders.indexOf(pesanan) + 1
+                    ).toString(); // Get current display order number
+                    const tanggal = new Date(
+                        pesanan.created_at
+                    ).toLocaleDateString("id-ID");
+                    const customer =
+                        pesanan.pelanggan_nama ||
+                        `Meja ${pesanan.meja_id ?? "-"}`;
+                    const menuItems =
+                        pesanan.items
+                            ?.map((item) => item.menu?.nama.toLowerCase())
+                            .join(" ") || "";
 
-                return (
-                    orderNumber.includes(keyword) || // Search by order number
-                    tanggal.toLowerCase().includes(keyword) ||
-                    customer.toLowerCase().includes(keyword) ||
-                    menuItems.includes(keyword) // Search by menu name
-                );
-            });
+                    return (
+                        orderNumber.includes(keyword) || // Search by order number
+                        tanggal.toLowerCase().includes(keyword) ||
+                        customer.toLowerCase().includes(keyword) ||
+                        menuItems.includes(keyword) // Search by menu name
+                    );
+                });
 
-            renderOrders(filtered);
-        }
+                renderOrders(filtered);
+            }
 
-        // Fungsi Logout
-        function logout() {
-            // Hapus token dari localStorage
-            localStorage.removeItem('token');
-            // Arahkan pengguna ke halaman login
-            window.location.href = '../login.html';
-        }
-    </script>
-</body>
+            // Fungsi Logout
+            function logout() {
+                // Hapus token dari localStorage
+                localStorage.removeItem("token");
+                // Arahkan pengguna ke halaman login
+                window.location.href = "../login.html";
+            }
+        </script>
+    </body>
 </html>

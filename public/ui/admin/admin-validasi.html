@@ -1,372 +1,583 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validasi Pesanan Kasir</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open">
-            <div class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center">
-                <span>🍴 FoodOrder</span>
-                <button id="close-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <nav class="flex-1 space-y-2 sidebar-scroll">
-                <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
-                <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
-                <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-                <button onclick="LaporanPenjualan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Laporan Penjualan</button>
-                <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-                
-            </nav>
-            <div class="mt-4 text-sm text-gray-500">
-                <div class="font-bold" id="admin-name">Admin</div>
-                <div id="admin-email">admin@admin.com</div>
-                <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                    Logout
-                </button>
-              </div>
-        </aside>
-
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
-
-        <main class="flex-1 p-6 overflow-y-auto">
-            <div class="input-container mx-auto max-w-md text-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-600">Validasi Pesanan Kasir</h1>
-                <button id="open-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                </button>
-            </div>
-
-            <div class="input-container mx-auto max-w-md text-center mb-8">
-                <label for="barcode-input" class="block text-gray-700 text-lg font-semibold mb-2">Scan Barcode Pesanan (Order Token):</label>
-                <input type="text" id="barcode-input" placeholder="Arahkan scanner ke barcode pesanan..." autofocus
-                    class="w-full p-3 border border-gray-300 rounded-lg text-lg shadow-sm outline-none
-                                focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ease-in-out">
-            </div>
-
-            <p id="message" class="text-center font-bold p-3 rounded-lg w-full max-w-2xl mx-auto mb-6 bg-gray-200 text-gray-700">
-                Siap untuk menerima input barcode pesanan...
-            </p>
-
-            <div id="order-details" class="bg-white p-6 rounded-lg shadow-xl mt-8 w-full max-w-2xl mx-auto hidden">
-                <h2 class="text-2xl font-semibold text-gray-800 border-b-2 border-blue-600 pb-3 mb-5">Detail Pesanan</h2>
-                <p class="mb-3"><strong class="text-gray-700">ID Pesanan:</strong> <span id="order-id" class="text-gray-900"></span></p>
-                <p class="mb-3"><strong class="text-gray-700">Order Token:</strong> <span id="order-token-display" class="text-gray-900"></span></p>
-                <p class="mb-3"><strong class="text-gray-700">Meja:</strong> <span id="meja-info" class="text-gray-900"></span></p>
-                <p class="mb-5"><strong class="text-gray-700">Status:</strong> <span id="order-status" class="text-gray-900 font-semibold"></span></p>
-
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Daftar Item:</h3>
-                <div id="order-items" class="mb-6">
-                    <ul class="list-none p-0 border border-gray-200 rounded-md">
-                    </ul>
-                </div>
-
-                <div id="total-price" class="text-2xl font-bold text-right mt-5 pt-4 border-t-2 border-blue-600 text-blue-700">
-                    Total Harga: Rp <span id="total-value">0</span>
-                </div>
-
-                <div id="confirmation-area" class="text-center mt-6 pt-4 border-t border-gray-200">
-                    <button id="confirm-button" disabled
-                        class="bg-green-600 text-white py-3 px-6 rounded-md cursor-pointer text-lg font-bold
-                                transition-colors duration-300 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed">
-                        Konfirmasi Pembayaran (Tunai)
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Validasi Pesanan Kasir</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="flex h-screen">
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open"
+            >
+                <div
+                    class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center"
+                >
+                    <span>🍴 FoodOrder</span>
+                    <button
+                        id="close-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
                     </button>
                 </div>
-            </div>
-            </div>
-        </main>
-    </div>
+                <nav class="flex-1 space-y-2 sidebar-scroll">
+                    <button
+                        onclick="Dashboard()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onclick="Produk()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onclick="Kasir()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Kasir
+                    </button>
+                    <button
+                        onclick="LaporanPenjualan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Laporan Penjualan
+                    </button>
+                    <button
+                        onclick="Pesanan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Pesanan
+                    </button>
+                </nav>
+                <div class="mt-4 text-sm text-gray-500">
+                    <div class="font-bold" id="admin-name">Admin</div>
+                    <div id="admin-email">admin@admin.com</div>
+                    <button
+                        onclick="logout()"
+                        class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </aside>
 
-    <script>
-        
-        // Navigation functions
-        function Dashboard() { window.location.href = `../dashboard_admin.html`; }
-        function Produk() { window.location.href = `admin-menu.html`; }
-        function Kasir() { window.location.href = `admin-validasi.html`; }
-        function Pesanan() { window.location.href = `admin-order-aktif.html`; }
-        function LaporanPenjualan() { window.location.href = `admin-sales-report.html`; }
+            <div
+                id="sidebar-overlay"
+                class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"
+            ></div>
 
-        // DOM Elements
-        const messageElement = document.getElementById('message');
-        const barcodeInput = document.getElementById('barcode-input');
-        const orderDetailsDiv = document.getElementById('order-details');
-        const orderIdSpan = document.getElementById('order-id');
-        const orderTokenDisplay = document.getElementById('order-token-display');
-        const mejaInfoSpan = document.getElementById('meja-info');
-        const orderStatusSpan = document.getElementById('order-status');
-        const orderItemsList = document.querySelector('#order-items ul');
-        const totalValueSpan = document.getElementById('total-value');
-        const confirmButton = document.getElementById('confirm-button');
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div class="input-container mx-auto max-w-md text-center mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-blue-600">
+                            Validasi Pesanan Kasir
+                        </h1>
+                        <button
+                            id="open-sidebar-button"
+                            class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                ></path>
+                            </svg>
+                        </button>
+                    </div>
 
-        // Authentication token
-        const token = localStorage.getItem('token');
+                    <div
+                        class="input-container mx-auto max-w-md text-center mb-8"
+                    >
+                        <label
+                            for="barcode-input"
+                            class="block text-gray-700 text-lg font-semibold mb-2"
+                            >Scan Barcode Pesanan (Order Token):</label
+                        >
+                        <input
+                            type="text"
+                            id="barcode-input"
+                            placeholder="Arahkan scanner ke barcode pesanan..."
+                            autofocus
+                            class="w-full p-3 border border-gray-300 rounded-lg text-lg shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ease-in-out"
+                        />
+                    </div>
 
-        let currentOrderId = null; // Stores the ID of the currently displayed order
-        document.addEventListener('DOMContentLoaded', function() {
-      if (!token) {
-        window.location.href = '../login.html'; // Adjust path if needed
-        // return;
-        }
-        fetch('/api/user', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        .then(response => {
-          if (!response.ok) {
-            if (response.status === 401) {
-              window.location.href = '../login.html'; // Redirect to login
-              }
-              throw new Error('Failed to fetch admin data');
+                    <p
+                        id="message"
+                        class="text-center font-bold p-3 rounded-lg w-full max-w-2xl mx-auto mb-6 bg-gray-200 text-gray-700"
+                    >
+                        Siap untuk menerima input barcode pesanan...
+                    </p>
+
+                    <div
+                        id="order-details"
+                        class="bg-white p-6 rounded-lg shadow-xl mt-8 w-full max-w-2xl mx-auto hidden"
+                    >
+                        <h2
+                            class="text-2xl font-semibold text-gray-800 border-b-2 border-blue-600 pb-3 mb-5"
+                        >
+                            Detail Pesanan
+                        </h2>
+                        <p class="mb-3">
+                            <strong class="text-gray-700">ID Pesanan:</strong>
+                            <span id="order-id" class="text-gray-900"></span>
+                        </p>
+                        <p class="mb-3">
+                            <strong class="text-gray-700">Order Token:</strong>
+                            <span
+                                id="order-token-display"
+                                class="text-gray-900"
+                            ></span>
+                        </p>
+                        <p class="mb-3">
+                            <strong class="text-gray-700">Meja:</strong>
+                            <span id="meja-info" class="text-gray-900"></span>
+                        </p>
+                        <p class="mb-5">
+                            <strong class="text-gray-700">Status:</strong>
+                            <span
+                                id="order-status"
+                                class="text-gray-900 font-semibold"
+                            ></span>
+                        </p>
+
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            Daftar Item:
+                        </h3>
+                        <div id="order-items" class="mb-6">
+                            <ul
+                                class="list-none p-0 border border-gray-200 rounded-md"
+                            ></ul>
+                        </div>
+
+                        <div
+                            id="total-price"
+                            class="text-2xl font-bold text-right mt-5 pt-4 border-t-2 border-blue-600 text-blue-700"
+                        >
+                            Total Harga: Rp <span id="total-value">0</span>
+                        </div>
+
+                        <div
+                            id="confirmation-area"
+                            class="text-center mt-6 pt-4 border-t border-gray-200"
+                        >
+                            <button
+                                id="confirm-button"
+                                disabled
+                                class="bg-green-600 text-white py-3 px-6 rounded-md cursor-pointer text-lg font-bold transition-colors duration-300 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                            >
+                                Konfirmasi Pembayaran (Tunai)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            // Navigation functions
+            function Dashboard() {
+                window.location.href = `../dashboard_admin.html`;
             }
-            return response.json();
-          })
-          .then(data => {
-            document.getElementById('admin-name').textContent = data.name || 'Nama Tidak Tersedia';
-            document.getElementById('admin-email').textContent = data.email || 'Email Tidak Tersedia';
-          })
-          .catch(error => {
-            console.error('Error fetching admin data:', error);
-            document.getElementById('admin-name').textContent = 'Error Loading';
-            document.getElementById('admin-email').textContent = 'Error Loading';
-          });
-          fetchProduk();
-        });
-        // --- Sidebar Toggle Functions ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const openSidebarBtn = document.getElementById('open-sidebar-button');
-        const closeSidebarBtn = document.getElementById('close-sidebar-button');
+            function Produk() {
+                window.location.href = `admin-menu.html`;
+            }
+            function Kasir() {
+                window.location.href = `admin-validasi.html`;
+            }
+            function Pesanan() {
+                window.location.href = `admin-order-aktif.html`;
+            }
+            function LaporanPenjualan() {
+                window.location.href = `admin-sales-report.html`;
+            }
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('sidebar-closed');
-            sidebar.classList.toggle('sidebar-open');
-            sidebarOverlay.classList.toggle('opacity-0');
-            sidebarOverlay.classList.toggle('opacity-100');
-            sidebarOverlay.classList.toggle('pointer-events-none');
-        }
+            // DOM Elements
+            const messageElement = document.getElementById("message");
+            const barcodeInput = document.getElementById("barcode-input");
+            const orderDetailsDiv = document.getElementById("order-details");
+            const orderIdSpan = document.getElementById("order-id");
+            const orderTokenDisplay = document.getElementById(
+                "order-token-display"
+            );
+            const mejaInfoSpan = document.getElementById("meja-info");
+            const orderStatusSpan = document.getElementById("order-status");
+            const orderItemsList = document.querySelector("#order-items ul");
+            const totalValueSpan = document.getElementById("total-value");
+            const confirmButton = document.getElementById("confirm-button");
 
-        if (openSidebarBtn) {
-            openSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (closeSidebarBtn) {
-            closeSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-        }
+            // Authentication token
+            const token = localStorage.getItem("token");
 
-        function setInitialSidebarState() {
-            if (window.innerWidth >= 1024) { // Tailwind's 'lg' breakpoint
-                sidebar.classList.add('sidebar-open');
-                sidebar.classList.remove('sidebar-closed');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
+            let currentOrderId = null; // Stores the ID of the currently displayed order
+            document.addEventListener("DOMContentLoaded", function () {
+                if (!token) {
+                    window.location.href = "../login.html"; // Adjust path if needed
+                    // return;
+                }
+                fetch("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                window.location.href = "../login.html"; // Redirect to login
+                            }
+                            throw new Error("Failed to fetch admin data");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("admin-name").textContent =
+                            data.name || "Nama Tidak Tersedia";
+                        document.getElementById("admin-email").textContent =
+                            data.email || "Email Tidak Tersedia";
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                        document.getElementById("admin-name").textContent =
+                            "Error Loading";
+                        document.getElementById("admin-email").textContent =
+                            "Error Loading";
+                    });
+                fetchProduk();
+            });
+            // --- Sidebar Toggle Functions ---
+            const sidebar = document.getElementById("sidebar");
+            const sidebarOverlay = document.getElementById("sidebar-overlay");
+            const openSidebarBtn = document.getElementById(
+                "open-sidebar-button"
+            );
+            const closeSidebarBtn = document.getElementById(
+                "close-sidebar-button"
+            );
+
+            function toggleSidebar() {
+                sidebar.classList.toggle("sidebar-closed");
+                sidebar.classList.toggle("sidebar-open");
+                sidebarOverlay.classList.toggle("opacity-0");
+                sidebarOverlay.classList.toggle("opacity-100");
+                sidebarOverlay.classList.toggle("pointer-events-none");
+            }
+
+            if (openSidebarBtn) {
+                openSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener("click", toggleSidebar);
+            }
+
+            function setInitialSidebarState() {
+                if (window.innerWidth >= 1024) {
+                    // Tailwind's 'lg' breakpoint
+                    sidebar.classList.add("sidebar-open");
+                    sidebar.classList.remove("sidebar-closed");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
+                } else {
+                    sidebar.classList.add("sidebar-closed");
+                    sidebar.classList.remove("sidebar-open");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
+                }
+            }
+
+            setInitialSidebarState();
+            window.addEventListener("resize", setInitialSidebarState);
+            // --- End Sidebar Toggle Functions ---
+
+            // Function to reset the UI to its initial state
+            const resetUI = () => {
+                messageElement.textContent =
+                    "Siap untuk menerima input barcode pesanan...";
+                messageElement.classList.remove("error", "success");
+                orderDetailsDiv.style.display = "none";
+                orderIdSpan.textContent = "";
+                orderTokenDisplay.textContent = "";
+                mejaInfoSpan.textContent = "";
+                orderStatusSpan.textContent = "";
+                orderItemsList.innerHTML = "";
+                totalValueSpan.textContent = "0";
+                confirmButton.disabled = true;
+                currentOrderId = null;
+                barcodeInput.value = ""; // Clear the barcode input
+                barcodeInput.focus(); // Focus the input for the next scan
+            };
+
+            // Check for authentication token
+            if (!token) {
+                messageElement.textContent =
+                    "Token otentikasi tidak ditemukan. Silakan login sebagai kasir.";
+                messageElement.classList.add("error");
+                barcodeInput.disabled = true; // Disable input if no token
             } else {
-                sidebar.classList.add('sidebar-closed');
-                sidebar.classList.remove('sidebar-open');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
-            }
-        }
+                // Event listener for barcode input (on Enter key press)
+                barcodeInput.addEventListener("keyup", async (event) => {
+                    if (event.key === "Enter") {
+                        const decodedToken = barcodeInput.value.trim();
 
-        setInitialSidebarState();
-        window.addEventListener('resize', setInitialSidebarState);
-        // --- End Sidebar Toggle Functions ---
+                        if (!decodedToken) {
+                            messageElement.textContent =
+                                "Barcode (Order Token) tidak boleh kosong.";
+                            messageElement.classList.add("error");
+                            return;
+                        }
 
+                        resetUI(); // Reset UI before fetching new data
 
-        // Function to reset the UI to its initial state
-        const resetUI = () => {
-            messageElement.textContent = 'Siap untuk menerima input barcode pesanan...';
-            messageElement.classList.remove('error', 'success');
-            orderDetailsDiv.style.display = 'none';
-            orderIdSpan.textContent = '';
-            orderTokenDisplay.textContent = '';
-            mejaInfoSpan.textContent = '';
-            orderStatusSpan.textContent = '';
-            orderItemsList.innerHTML = '';
-            totalValueSpan.textContent = '0';
-            confirmButton.disabled = true;
-            currentOrderId = null;
-            barcodeInput.value = ''; // Clear the barcode input
-            barcodeInput.focus(); // Focus the input for the next scan
-        };
+                        messageElement.textContent =
+                            "Mencari pesanan berdasarkan order token...";
+                        messageElement.classList.remove("error", "success");
 
-        // Check for authentication token
-        if (!token) {
-            messageElement.textContent = 'Token otentikasi tidak ditemukan. Silakan login sebagai kasir.';
-            messageElement.classList.add('error');
-            barcodeInput.disabled = true; // Disable input if no token
-        } else {
-            // Event listener for barcode input (on Enter key press)
-            barcodeInput.addEventListener('keyup', async (event) => {
-                if (event.key === 'Enter') {
-                    const decodedToken = barcodeInput.value.trim();
+                        try {
+                            const res = await fetch(
+                                `/api/pesanan/by-order-token/${decodedToken}`,
+                                {
+                                    method: "GET",
+                                    headers: {
+                                        Authorization: "Bearer " + token,
+                                        Accept: "application/json",
+                                    },
+                                }
+                            );
 
-                    if (!decodedToken) {
-                        messageElement.textContent = 'Barcode (Order Token) tidak boleh kosong.';
-                        messageElement.classList.add('error');
+                            const data = await res.json();
+
+                            if (!res.ok) {
+                                messageElement.textContent =
+                                    data.message ||
+                                    "Gagal mengambil data pesanan.";
+                                messageElement.classList.add("error");
+                                barcodeInput.focus();
+                            } else {
+                                messageElement.textContent =
+                                    "Pesanan ditemukan!";
+                                messageElement.classList.add("success");
+
+                                currentOrderId = data.id;
+                                orderIdSpan.textContent = data.id;
+                                orderTokenDisplay.textContent =
+                                    data.order_token;
+
+                                // Display table info with fallbacks based on your JSON structure
+                                mejaInfoSpan.textContent = data.meja
+                                    ? `${
+                                          data.meja.kode_barcode ||
+                                          "Kode Meja Tidak Diketahui"
+                                      }` +
+                                      (data.meja.nama_meja
+                                          ? ` (${data.meja.nama_meja}`
+                                          : "") +
+                                      (data.meja.kapasitas
+                                          ? `, Kapasitas: ${data.meja.kapasitas})`
+                                          : data.meja.nama_meja
+                                          ? ")"
+                                          : "")
+                                    : "Informasi Meja Tidak Tersedia";
+
+                                orderStatusSpan.textContent = (
+                                    data.status || "Status Tidak Diketahui"
+                                ).toUpperCase();
+                                totalValueSpan.textContent = parseFloat(
+                                    data.total_harga || 0
+                                ).toLocaleString("id-ID");
+
+                                orderItemsList.innerHTML = ""; // Clear previous items
+                                if (data.items && data.items.length > 0) {
+                                    data.items.forEach((item) => {
+                                        const li = document.createElement("li");
+                                        li.classList.add(
+                                            "flex",
+                                            "justify-between",
+                                            "items-center",
+                                            "py-2",
+                                            "px-4",
+                                            "border-b",
+                                            "last:border-b-0"
+                                        );
+                                        // Use 'nama' for menu name and parse 'harga' as float
+                                        const menuName = item.menu
+                                            ? item.menu.nama
+                                            : "Menu Tidak Diketahui";
+                                        const menuPrice = item.menu
+                                            ? parseFloat(item.menu.harga)
+                                            : 0;
+                                        const jumlah = item.jumlah || 0;
+                                        const subtotal = jumlah * menuPrice;
+
+                                        li.innerHTML = `
+                                        <span class="item-name text-gray-800 font-medium">${menuName}</span>
+                                        <span class="item-qty text-gray-600">${jumlah}x</span>
+                                        <span class="item-price text-gray-900 font-semibold">Rp ${subtotal.toLocaleString(
+                                            "id-ID"
+                                        )}</span>
+                                    `;
+                                        orderItemsList.appendChild(li);
+                                    });
+                                } else {
+                                    const li = document.createElement("li");
+                                    li.classList.add(
+                                        "text-center",
+                                        "py-4",
+                                        "text-gray-500"
+                                    );
+                                    li.textContent =
+                                        "Tidak ada item dalam pesanan ini.";
+                                    orderItemsList.appendChild(li);
+                                }
+
+                                orderDetailsDiv.style.display = "block"; // Show order details
+                                confirmButton.disabled = false; // Enable confirm button
+                            }
+                        } catch (error) {
+                            console.error("Error fetching order:", error);
+                            messageElement.textContent =
+                                "Terjadi kesalahan saat mengambil data pesanan.";
+                            messageElement.classList.add("error");
+                            barcodeInput.focus();
+                        }
+                    }
+                });
+
+                // Event listener for confirmation button
+                confirmButton.addEventListener("click", async () => {
+                    if (!currentOrderId) {
+                        displayCustomAlert(
+                            "Tidak ada pesanan yang dipilih untuk dikonfirmasi."
+                        );
                         return;
                     }
 
-                    resetUI(); // Reset UI before fetching new data
+                    const confirmed = await displayCustomConfirm(
+                        `Anda yakin ingin mengkonfirmasi pembayaran untuk Pesanan ID ${currentOrderId} sebesar Rp ${totalValueSpan.textContent}?`
+                    );
 
-                    messageElement.textContent = 'Mencari pesanan berdasarkan order token...';
-                    messageElement.classList.remove('error', 'success');
+                    if (confirmed) {
+                        messageElement.textContent =
+                            "Mengkonfirmasi pembayaran...";
+                        messageElement.classList.remove("error", "success");
+                        confirmButton.disabled = true;
 
-                    try {
-                        const res = await fetch(`/api/pesanan/by-order-token/${decodedToken}`, {
-                            method: "GET",
-                            headers: {
-                                "Authorization": "Bearer " + token,
-                                "Accept": "application/json"
-                            },
-                        });
+                        try {
+                            const res = await fetch(
+                                "/api/admin/confirm-payment",
+                                {
+                                    method: "POST",
+                                    headers: {
+                                        Authorization: "Bearer " + token,
+                                        "Content-Type": "application/json",
+                                        Accept: "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                        order_id: currentOrderId,
+                                        metode_pembayaran: "tunai", // Hardcoded to 'tunai' as requested
+                                    }),
+                                }
+                            );
 
-                        const data = await res.json();
+                            const data = await res.json();
 
-                        if (!res.ok) {
-                            messageElement.textContent = data.message || 'Gagal mengambil data pesanan.';
-                            messageElement.classList.add('error');
-                            barcodeInput.focus();
-                        } else {
-                            messageElement.textContent = 'Pesanan ditemukan!';
-                            messageElement.classList.add('success');
-
-                            currentOrderId = data.id;
-                            orderIdSpan.textContent = data.id;
-                            orderTokenDisplay.textContent = data.order_token;
-
-                            // Display table info with fallbacks based on your JSON structure
-                            mejaInfoSpan.textContent = data.meja ?
-                                `${data.meja.kode_barcode || 'Kode Meja Tidak Diketahui'}` +
-                                (data.meja.nama_meja ? ` (${data.meja.nama_meja}` : '') +
-                                (data.meja.kapasitas ? `, Kapasitas: ${data.meja.kapasitas})` : (data.meja.nama_meja ? ')' : '')) :
-                                'Informasi Meja Tidak Tersedia';
-
-                            orderStatusSpan.textContent = (data.status || 'Status Tidak Diketahui').toUpperCase();
-                            totalValueSpan.textContent = parseFloat(data.total_harga || 0).toLocaleString('id-ID');
-
-                            orderItemsList.innerHTML = ''; // Clear previous items
-                            if (data.items && data.items.length > 0) {
-                                data.items.forEach(item => {
-                                    const li = document.createElement('li');
-                                    li.classList.add('flex', 'justify-between', 'items-center', 'py-2', 'px-4', 'border-b', 'last:border-b-0');
-                                    // Use 'nama' for menu name and parse 'harga' as float
-                                    const menuName = item.menu ? item.menu.nama : 'Menu Tidak Diketahui';
-                                    const menuPrice = item.menu ? parseFloat(item.menu.harga) : 0;
-                                    const jumlah = item.jumlah || 0;
-                                    const subtotal = jumlah * menuPrice;
-
-                                    li.innerHTML = `
-                                        <span class="item-name text-gray-800 font-medium">${menuName}</span>
-                                        <span class="item-qty text-gray-600">${jumlah}x</span>
-                                        <span class="item-price text-gray-900 font-semibold">Rp ${subtotal.toLocaleString('id-ID')}</span>
-                                    `;
-                                    orderItemsList.appendChild(li);
-                                });
+                            if (!res.ok) {
+                                messageElement.textContent =
+                                    data.message ||
+                                    "Gagal mengkonfirmasi pembayaran.";
+                                messageElement.classList.add("error");
+                                confirmButton.disabled = false;
+                                displayCustomAlert(
+                                    data.message ||
+                                        "Gagal mengkonfirmasi pembayaran."
+                                );
                             } else {
-                                const li = document.createElement('li');
-                                li.classList.add('text-center', 'py-4', 'text-gray-500');
-                                li.textContent = 'Tidak ada item dalam pesanan ini.';
-                                orderItemsList.appendChild(li);
+                                messageElement.textContent =
+                                    data.message ||
+                                    "Pembayaran berhasil dikonfirmasi!";
+                                messageElement.classList.add("success");
+                                displayCustomAlert(
+                                    "Pembayaran berhasil dikonfirmasi!"
+                                );
+                                resetUI(); // Reset UI for the next scan
                             }
-
-                            orderDetailsDiv.style.display = 'block'; // Show order details
-                            confirmButton.disabled = false; // Enable confirm button
-                        }
-
-                    } catch (error) {
-                        console.error('Error fetching order:', error);
-                        messageElement.textContent = 'Terjadi kesalahan saat mengambil data pesanan.';
-                        messageElement.classList.add('error');
-                        barcodeInput.focus();
-                    }
-                }
-            });
-
-            // Event listener for confirmation button
-            confirmButton.addEventListener('click', async () => {
-                if (!currentOrderId) {
-                    displayCustomAlert('Tidak ada pesanan yang dipilih untuk dikonfirmasi.');
-                    return;
-                }
-
-                const confirmed = await displayCustomConfirm(`Anda yakin ingin mengkonfirmasi pembayaran untuk Pesanan ID ${currentOrderId} sebesar Rp ${totalValueSpan.textContent}?`);
-
-                if (confirmed) {
-                    messageElement.textContent = 'Mengkonfirmasi pembayaran...';
-                    messageElement.classList.remove('error', 'success');
-                    confirmButton.disabled = true;
-
-                    try {
-                        const res = await fetch("/api/admin/confirm-payment", {
-                            method: "POST",
-                            headers: {
-                                "Authorization": "Bearer " + token,
-                                "Content-Type": "application/json",
-                                "Accept": "application/json"
-                            },
-                            body: JSON.stringify({
-                                order_id: currentOrderId,
-                                metode_pembayaran: 'tunai' // Hardcoded to 'tunai' as requested
-                            })
-                        });
-
-                        const data = await res.json();
-
-                        if (!res.ok) {
-                            messageElement.textContent = data.message || 'Gagal mengkonfirmasi pembayaran.';
-                            messageElement.classList.add('error');
+                        } catch (error) {
+                            console.error("Error confirming payment:", error);
+                            messageElement.textContent =
+                                "Terjadi kesalahan saat mengkonfirmasi pembayaran.";
+                            messageElement.classList.add("error");
                             confirmButton.disabled = false;
-                            displayCustomAlert(data.message || 'Gagal mengkonfirmasi pembayaran.');
-                        } else {
-                            messageElement.textContent = data.message || 'Pembayaran berhasil dikonfirmasi!';
-                            messageElement.classList.add('success');
-                            displayCustomAlert('Pembayaran berhasil dikonfirmasi!');
-                            resetUI(); // Reset UI for the next scan
+                            displayCustomAlert(
+                                "Terjadi kesalahan saat mengkonfirmasi pembayaran."
+                            );
                         }
-                    } catch (error) {
-                        console.error('Error confirming payment:', error);
-                        messageElement.textContent = 'Terjadi kesalahan saat mengkonfirmasi pembayaran.';
-                        messageElement.classList.add('error');
-                        confirmButton.disabled = false;
-                        displayCustomAlert('Terjadi kesalahan saat mengkonfirmasi pembayaran.');
                     }
-                }
-            });
+                });
 
-            // --- Custom Alert/Confirm Functions (to replace window.alert/confirm) ---
-            function displayCustomAlert(message) {
-                const overlay = document.createElement('div');
-                overlay.classList.add('custom-modal-overlay');
-                overlay.innerHTML = `
+                // --- Custom Alert/Confirm Functions (to replace window.alert/confirm) ---
+                function displayCustomAlert(message) {
+                    const overlay = document.createElement("div");
+                    overlay.classList.add("custom-modal-overlay");
+                    overlay.innerHTML = `
                     <div class="custom-modal-content">
                         <p>${message}</p>
                         <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md mt-4">OK</button>
                     </div>
                 `;
-                document.body.appendChild(overlay);
+                    document.body.appendChild(overlay);
 
-                overlay.querySelector('button').onclick = () => {
-                    document.body.removeChild(overlay);
-                };
-            }
+                    overlay.querySelector("button").onclick = () => {
+                        document.body.removeChild(overlay);
+                    };
+                }
 
-            function displayCustomConfirm(message) {
-                return new Promise((resolve) => {
-                    const overlay = document.createElement('div');
-                    overlay.classList.add('custom-modal-overlay');
-                    overlay.innerHTML = `
+                function displayCustomConfirm(message) {
+                    return new Promise((resolve) => {
+                        const overlay = document.createElement("div");
+                        overlay.classList.add("custom-modal-overlay");
+                        overlay.innerHTML = `
                         <div class="custom-modal-content">
                             <p>${message}</p>
                             <div class="confirm-buttons mt-5">
@@ -375,28 +586,27 @@
                             </div>
                         </div>
                     `;
-                    document.body.appendChild(overlay);
+                        document.body.appendChild(overlay);
 
-                    overlay.querySelector('.confirm-yes').onclick = () => {
-                        document.body.removeChild(overlay);
-                        resolve(true);
-                    };
-                    overlay.querySelector('.confirm-no').onclick = () => {
-                        document.body.removeChild(overlay);
-                        resolve(false);
-                    };
-                });
+                        overlay.querySelector(".confirm-yes").onclick = () => {
+                            document.body.removeChild(overlay);
+                            resolve(true);
+                        };
+                        overlay.querySelector(".confirm-no").onclick = () => {
+                            document.body.removeChild(overlay);
+                            resolve(false);
+                        };
+                    });
+                }
+                // --- End Custom Alert/Confirm Functions ---
             }
-            // --- End Custom Alert/Confirm Functions ---
-        }
-        // Fungsi Logout
-    function logout() {
-        // Hapus token dari localStorage
-        localStorage.removeItem('token');
-        // Arahkan pengguna ke halaman login
-        window.location.href = '../login.html'; // Sesuaikan path jika halaman login ada di lokasi lain
-    }
-    </script>
-</body>
-
+            // Fungsi Logout
+            function logout() {
+                // Hapus token dari localStorage
+                localStorage.removeItem("token");
+                // Arahkan pengguna ke halaman login
+                window.location.href = "../login.html"; // Sesuaikan path jika halaman login ada di lokasi lain
+            }
+        </script>
+    </body>
 </html>

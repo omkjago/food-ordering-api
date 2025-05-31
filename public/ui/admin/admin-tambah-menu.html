@@ -1,245 +1,416 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Tambah Menu - FoodOrder Admin</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="bg-gray-100 font-sans">
-    <div class="flex h-screen">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open">
-            <div class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center">
-                <span>🍴 FoodOrder</span>
-                <button id="close-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <nav class="flex-1 space-y-2 sidebar-scroll">
-                <button onclick="Dashboard()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Dashboard</button>
-                <button onclick="Produk()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Produk</button>
-                <button onclick="Kasir()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Kasir</button>
-                <button onclick="LaporanPenjualan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Laporan Penjualan</button>
-                <button onclick="Pesanan()" class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200">Pesanan</button>
-                
-            </nav>
-            <div class="mt-4 text-sm text-gray-500">
-                <div class="font-bold" id="admin-name">Admin</div>
-                <div id="admin-email">admin@admin.com</div>
-                <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                    Logout
-                </button>
-            </div>
-        </aside>
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tambah Menu - FoodOrder Admin</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="flex h-screen">
+            <aside
+                id="sidebar"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow p-4 flex flex-col lg:relative lg:translate-x-0 sidebar-transition sidebar-closed lg:sidebar-open"
+            >
+                <div
+                    class="text-orange-600 font-bold text-xl mb-4 flex justify-between items-center"
+                >
+                    <span>🍴 FoodOrder</span>
+                    <button
+                        id="close-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="flex-1 space-y-2 sidebar-scroll">
+                    <button
+                        onclick="Dashboard()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Dashboard
+                    </button>
+                    <button
+                        onclick="Produk()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Produk
+                    </button>
+                    <button
+                        onclick="Kasir()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Kasir
+                    </button>
+                    <button
+                        onclick="LaporanPenjualan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Laporan Penjualan
+                    </button>
+                    <button
+                        onclick="Pesanan()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Pesanan
+                    </button>
+                </nav>
+                <div class="mt-4 text-sm text-gray-500">
+                    <div class="font-bold" id="admin-name">Admin</div>
+                    <div id="admin-email">admin@admin.com</div>
+                    <button
+                        onclick="logout()"
+                        class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </aside>
+            <div
+                id="sidebar-overlay"
+                class="fixed inset-0 bg-black opacity-0 z-30 transition-opacity duration-300 pointer-events-none lg:hidden"
+            ></div>
 
-        <main class="flex-1 p-6 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-blue-600">Tambah Menu Baru</h1>
-                <button id="open-sidebar-button" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                </button>
-              </div>
+            <main class="flex-1 p-6 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-blue-600">
+                        Tambah Menu Baru
+                    </h1>
+                    <button
+                        id="open-sidebar-button"
+                        class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                            ></path>
+                        </svg>
+                    </button>
+                </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                <form id="menuForm" class="space-y-4">
-                    <div>
-                        <label for="nama" class="block text-gray-700 text-sm font-bold mb-2">Nama Menu</label>
-                        <input type="text" id="nama" name="nama" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="harga" class="block text-gray-700 text-sm font-bold mb-2">Harga</label>
-                        <input type="number" id="harga" name="harga" required step="0.01" min="0"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="diskripsi" class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
-                        <textarea id="diskripsi" name="diskripsi" rows="3"
-                                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-                    </div>
-                    <div>
-                        <label for="kategori" class="block text-gray-700 text-sm font-bold mb-2">Kategori</label>
-                        <input type="text" id="kategori" name="kategori"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div>
-                        <label for="stok" class="block text-gray-700 text-sm font-bold mb-2">Stok</label>
-                        <select id="stok" name="stok"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="tersedia">Tersedia</option>
-                            <option value="kosong">Kosong</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Gambar Menu</label>
-                        <input type="file" id="image" name="image" accept="image/*"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div class="pt-4">
-                        <button type="submit"
-                                class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200">
-                            Tambah Menu Baru
-                        </button>
-                    </div>
-                </form>
+                <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                    <form id="menuForm" class="space-y-4">
+                        <div>
+                            <label
+                                for="nama"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Nama Menu</label
+                            >
+                            <input
+                                type="text"
+                                id="nama"
+                                name="nama"
+                                required
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="harga"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Harga</label
+                            >
+                            <input
+                                type="number"
+                                id="harga"
+                                name="harga"
+                                required
+                                step="0.01"
+                                min="0"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="diskripsi"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Deskripsi</label
+                            >
+                            <textarea
+                                id="diskripsi"
+                                name="diskripsi"
+                                rows="3"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label
+                                for="kategori"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Kategori</label
+                            >
+                            <input
+                                type="text"
+                                id="kategori"
+                                name="kategori"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="stok"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Stok</label
+                            >
+                            <select
+                                id="stok"
+                                name="stok"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            >
+                                <option value="tersedia">Tersedia</option>
+                                <option value="kosong">Kosong</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                for="image"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Gambar Menu</label
+                            >
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                accept="image/*"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div class="pt-4">
+                            <button
+                                type="submit"
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
+                            >
+                                Tambah Menu Baru
+                            </button>
+                        </div>
+                    </form>
 
-                <div id="message" class="mt-4 text-center text-sm font-semibold"></div>
-            </div>
-        </main>
-    </div>
+                    <div
+                        id="message"
+                        class="mt-4 text-center text-sm font-semibold"
+                    ></div>
+                </div>
+            </main>
+        </div>
 
-    <script>
-        // Define token globally so it's accessible everywhere
-        let token = localStorage.getItem('token'); // Get token once on script load
+        <script>
+            // Define token globally so it's accessible everywhere
+            let token = localStorage.getItem("token"); // Get token once on script load
 
-        const form = document.getElementById('menuForm');
-        const messageDiv = document.getElementById('message');
+            const form = document.getElementById("menuForm");
+            const messageDiv = document.getElementById("message");
 
-        // Fungsi navigasi sidebar
-        function Dashboard() { window.location.href = `../dashboard_admin.html`; }
-        function Produk() { window.location.href = `admin-menu.html`; }
-        function Kasir() { window.location.href = `admin-validasi.html`; }
-        function Pesanan() { window.location.href = `admin-order-aktif.html`; }
-        function LaporanPenjualan() { window.location.href = `admin-sales-report.html`; }
-
-        // --- Sidebar Toggle Functions ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const openSidebarBtn = document.getElementById('open-sidebar-button');
-        const closeSidebarBtn = document.getElementById('close-sidebar-button');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('sidebar-closed');
-            sidebar.classList.toggle('sidebar-open');
-            sidebarOverlay.classList.toggle('opacity-0');
-            sidebarOverlay.classList.toggle('opacity-100');
-            sidebarOverlay.classList.toggle('pointer-events-none');
-        }
-
-        if (openSidebarBtn) {
-            openSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (closeSidebarBtn) {
-            closeSidebarBtn.addEventListener('click', toggleSidebar);
-        }
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-        }
-
-        function setInitialSidebarState() {
-            if (window.innerWidth >= 1024) { // Tailwind's 'lg' breakpoint
-                sidebar.classList.add('sidebar-open');
-                sidebar.classList.remove('sidebar-closed');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
-            } else {
-                sidebar.classList.add('sidebar-closed');
-                sidebar.classList.remove('sidebar-open');
-                sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                sidebarOverlay.classList.remove('opacity-100');
+            // Fungsi navigasi sidebar
+            function Dashboard() {
+                window.location.href = `../dashboard_admin.html`;
             }
-        }
-
-        setInitialSidebarState();
-        window.addEventListener('resize', setInitialSidebarState);
-        // --- End Sidebar Toggle Functions ---
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check for token immediately on DOMContentLoaded
-            if (!token) {
-                window.location.href = '../login.html'; // Redirect to login if no token
-                return; // Stop execution
+            function Produk() {
+                window.location.href = `admin-menu.html`;
+            }
+            function Kasir() {
+                window.location.href = `admin-validasi.html`;
+            }
+            function Pesanan() {
+                window.location.href = `admin-order-aktif.html`;
+            }
+            function LaporanPenjualan() {
+                window.location.href = `admin-sales-report.html`;
             }
 
-            fetch('/api/user', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '../login.html'; // Redirect to login on 401
-                    }
-                    throw new Error('Failed to fetch admin data');
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('admin-name').textContent = data.name || 'Nama Tidak Tersedia';
-                document.getElementById('admin-email').textContent = data.email || 'Email Tidak Tersedia';
-            })
-            .catch(error => {
-                console.error('Error fetching admin data:', error);
-                document.getElementById('admin-name').textContent = 'Error Loading';
-                document.getElementById('admin-email').textContent = 'Error Loading';
-            });
-            // Removed fetchProduk(); as it was undefined and likely not needed here.
-        });
+            // --- Sidebar Toggle Functions ---
+            const sidebar = document.getElementById("sidebar");
+            const sidebarOverlay = document.getElementById("sidebar-overlay");
+            const openSidebarBtn = document.getElementById(
+                "open-sidebar-button"
+            );
+            const closeSidebarBtn = document.getElementById(
+                "close-sidebar-button"
+            );
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(form);
-
-            // Ensure stok value is correctly sent
-            const stokValue = document.getElementById('stok').value;
-            formData.set('stok', stokValue);
-
-            // Use the globally defined token
-            if (!token) {
-                messageDiv.textContent = 'Token tidak ditemukan. Silakan login.';
-                messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
-                setTimeout(() => window.location.href = '../login.html', 2000); // Redirect after message
-                return;
+            function toggleSidebar() {
+                sidebar.classList.toggle("sidebar-closed");
+                sidebar.classList.toggle("sidebar-open");
+                sidebarOverlay.classList.toggle("opacity-0");
+                sidebarOverlay.classList.toggle("opacity-100");
+                sidebarOverlay.classList.toggle("pointer-events-none");
             }
 
-            try {
-                const res = await fetch('/api/admin/menu', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        // 'Accept': 'application/json' // FormData automatically sets Content-Type to multipart/form-data
-                    },
-                    body: formData
-                });
+            if (openSidebarBtn) {
+                openSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener("click", toggleSidebar);
+            }
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener("click", toggleSidebar);
+            }
 
-                const data = await res.json();
-
-                if (!res.ok) {
-                    let errorMessage = data.message || 'Gagal menambahkan menu.';
-                    if (res.status === 401) { // Check if status 401 (Unauthenticated)
-                        errorMessage = 'Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.';
-                        setTimeout(() => window.location.href = '../login.html', 2000); // Redirect to login page
-                    } else if (data.errors) {
-                        for (const key in data.errors) {
-                            errorMessage += `\n${key}: ${data.errors[key].join(', ')}`;
-                        }
-                    }
-                    messageDiv.textContent = errorMessage;
-                    messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
+            function setInitialSidebarState() {
+                if (window.innerWidth >= 1024) {
+                    // Tailwind's 'lg' breakpoint
+                    sidebar.classList.add("sidebar-open");
+                    sidebar.classList.remove("sidebar-closed");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
                 } else {
-                    messageDiv.textContent = 'Menu berhasil ditambahkan!';
-                    messageDiv.className = 'mt-4 text-center text-green-500 font-semibold';
-                    form.reset();
-                    // Optional: Redirect or update product list after success
-                    // setTimeout(() => window.location.href = 'admin-menu.html', 1500);
+                    sidebar.classList.add("sidebar-closed");
+                    sidebar.classList.remove("sidebar-open");
+                    sidebarOverlay.classList.add(
+                        "opacity-0",
+                        "pointer-events-none"
+                    );
+                    sidebarOverlay.classList.remove("opacity-100");
                 }
-            } catch (error) {
-                console.error('Terjadi kesalahan:', error);
-                messageDiv.textContent = 'Terjadi kesalahan saat menghubungi server.';
-                messageDiv.className = 'mt-4 text-center text-red-500 font-semibold';
             }
-        });
 
-        function logout() {
-            // Remove token from localStorage
-            localStorage.removeItem('token');
-            // Redirect user to login page
-            window.location.href = '../login.html';
-        }
-    </script>
-</body>
+            setInitialSidebarState();
+            window.addEventListener("resize", setInitialSidebarState);
+            // --- End Sidebar Toggle Functions ---
+
+            document.addEventListener("DOMContentLoaded", function () {
+                // Check for token immediately on DOMContentLoaded
+                if (!token) {
+                    window.location.href = "../login.html"; // Redirect to login if no token
+                    return; // Stop execution
+                }
+
+                fetch("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                window.location.href = "../login.html"; // Redirect to login on 401
+                            }
+                            throw new Error("Failed to fetch admin data");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("admin-name").textContent =
+                            data.name || "Nama Tidak Tersedia";
+                        document.getElementById("admin-email").textContent =
+                            data.email || "Email Tidak Tersedia";
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching admin data:", error);
+                        document.getElementById("admin-name").textContent =
+                            "Error Loading";
+                        document.getElementById("admin-email").textContent =
+                            "Error Loading";
+                    });
+                // Removed fetchProduk(); as it was undefined and likely not needed here.
+            });
+
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                // Ensure stok value is correctly sent
+                const stokValue = document.getElementById("stok").value;
+                formData.set("stok", stokValue);
+
+                // Use the globally defined token
+                if (!token) {
+                    messageDiv.textContent =
+                        "Token tidak ditemukan. Silakan login.";
+                    messageDiv.className =
+                        "mt-4 text-center text-red-500 font-semibold";
+                    setTimeout(
+                        () => (window.location.href = "../login.html"),
+                        2000
+                    ); // Redirect after message
+                    return;
+                }
+
+                try {
+                    const res = await fetch("/api/admin/menu", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            // 'Accept': 'application/json' // FormData automatically sets Content-Type to multipart/form-data
+                        },
+                        body: formData,
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        let errorMessage =
+                            data.message || "Gagal menambahkan menu.";
+                        if (res.status === 401) {
+                            // Check if status 401 (Unauthenticated)
+                            errorMessage =
+                                "Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.";
+                            setTimeout(
+                                () => (window.location.href = "../login.html"),
+                                2000
+                            ); // Redirect to login page
+                        } else if (data.errors) {
+                            for (const key in data.errors) {
+                                errorMessage += `\n${key}: ${data.errors[
+                                    key
+                                ].join(", ")}`;
+                            }
+                        }
+                        messageDiv.textContent = errorMessage;
+                        messageDiv.className =
+                            "mt-4 text-center text-red-500 font-semibold";
+                    } else {
+                        messageDiv.textContent = "Menu berhasil ditambahkan!";
+                        messageDiv.className =
+                            "mt-4 text-center text-green-500 font-semibold";
+                        form.reset();
+                        // Optional: Redirect or update product list after success
+                        // setTimeout(() => window.location.href = 'admin-menu.html', 1500);
+                    }
+                } catch (error) {
+                    console.error("Terjadi kesalahan:", error);
+                    messageDiv.textContent =
+                        "Terjadi kesalahan saat menghubungi server.";
+                    messageDiv.className =
+                        "mt-4 text-center text-red-500 font-semibold";
+                }
+            });
+
+            function logout() {
+                // Remove token from localStorage
+                localStorage.removeItem("token");
+                // Redirect user to login page
+                window.location.href = "../login.html";
+            }
+        </script>
+    </body>
 </html>
