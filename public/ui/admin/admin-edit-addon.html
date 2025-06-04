@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Edit Add-On</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+        />
+        <link rel="stylesheet" href="../css/style.css" />
+    </head>
+    <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-700">
+                Edit Add-On
+            </h2>
+
+            <form id="editAddonForm">
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >Nama Add-On</label
+                    >
+                    <input
+                        type="text"
+                        id="nama"
+                        required
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-600">Harga</label>
+                    <input
+                        type="number"
+                        id="harga"
+                        required
+                        step="0.01"
+                        min="0"
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >Kategori (Opsional)</label
+                    >
+                    <input
+                        type="text"
+                        id="kategori"
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-600"
+                        >Sub Kategori (Opsional)</label
+                    >
+                    <input
+                        type="text"
+                        id="sub_kategori"
+                        class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md mt-4"
+                >
+                    Simpan Perubahan
+                </button>
+            </form>
+            <div
+                id="message"
+                class="mt-4 text-center text-sm font-semibold"
+            ></div>
+        </div>
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get("id");
+            const token = localStorage.getItem("token");
+            const messageDiv = document.getElementById("message");
+
+            // Load data add-on
+            if (id) {
+                fetch(`/api/admin/addons/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                    .then((res) => {
+                        if (res.status === 401) {
+                            window.location.href = "../login.html";
+                            throw new Error("Unauthorized");
+                        }
+                        if (!res.ok) {
+                            throw new Error("Failed to fetch add-on data");
+                        }
+                        return res.json();
+                    })
+                    .then((data) => {
+                        document.getElementById("nama").value = data.nama;
+                        document.getElementById("harga").value = data.harga;
+                        document.getElementById("kategori").value =
+                            data.kategori || "";
+                        document.getElementById("sub_kategori").value =
+                            data.sub_kategori || "";
+                    })
+                    .catch((error) => {
+                        console.error("Gagal memuat add-on:", error);
+                        messageDiv.textContent =
+                            "Gagal memuat data add-on. Silakan coba lagi.";
+                        messageDiv.className =
+                            "mt-4 text-center text-red-500 font-semibold";
+                    });
+            } else {
+                messageDiv.textContent = "ID Add-on tidak ditemukan.";
+                messageDiv.className =
+                    "mt-4 text-center text-red-500 font-semibold";
+            }
+
+            // Submit perubahan
+            document
+                .getElementById("editAddonForm")
+                .addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const data = {
+                        nama: document.getElementById("nama").value,
+                        harga: document.getElementById("harga").value,
+                        kategori: document.getElementById("kategori").value,
+                        sub_kategori:
+                            document.getElementById("sub_kategori").value,
+                    };
+
+                    fetch(`/api/admin/addons/${id}`, {
+                        method: "PUT",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    })
+                        .then((res) => {
+                            if (res.status === 401) {
+                                window.location.href = "../login.html";
+                                throw new Error("Unauthorized");
+                            }
+                            if (!res.ok) {
+                                return res.json().then((err) => {
+                                    throw new Error(
+                                        err.message ||
+                                            "Gagal update add-on."
+                                    );
+                                });
+                            }
+                            return res.json();
+                        })
+                        .then((response) => {
+                            messageDiv.textContent = "Add-on berhasil diupdate!";
+                            messageDiv.className =
+                                "mt-4 text-center text-green-500 font-semibold";
+                            setTimeout(
+                                () =>
+                                    (window.location.href =
+                                        "/ui/admin/admin-addons.html"),
+                                1500
+                            );
+                        })
+                        .catch((error) => {
+                            console.error("Gagal update:", error);
+                            messageDiv.textContent = `Gagal update add-on: ${error.message}`;
+                            messageDiv.className =
+                                "mt-4 text-center text-red-500 font-semibold";
+                        });
+                });
+            // Fungsi Logout
+            function logout() {
+                localStorage.removeItem("token");
+                window.location.href = "../login.html";
+            }
+        </script>
+    </body>
+</html>

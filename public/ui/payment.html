@@ -9,6 +9,12 @@
             rel="stylesheet"
         />
         <link href="css/style.css" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body class="p-4 payment-page">
         <div class="container">
@@ -211,7 +217,7 @@
             // Set order token in barcode container if available
             orderTokenDisplaySpan.textContent = orderToken;
 
-            // Ambil data pesanan dari backend
+            // Fetch order data from backend
             fetch("/api/tripay/order-summary", {
                 method: "POST",
                 headers: {
@@ -233,7 +239,8 @@
                 })
                 .then((data) => {
                     if (data.items && data.total) {
-                        let total = data.total;
+                        // total from backend should already be a number, but we format it anyway
+                        let total = parseInt(data.total) || 0; 
                         document.getElementById(
                             "totalDisplay"
                         ).innerText = `Total: Rp ${formatNumber(total)}`;
@@ -272,15 +279,15 @@
                                 "flex-grow"
                             );
                             itemDetails.innerHTML = `
-                    <p class="font-semibold text-gray-800">${item.nama_menu}</p>
-                    <p class="text-sm text-gray-600">Rp ${formatNumber(
-                        item.harga
-                    )} x ${
-                                item.jumlah
-                            } = <span class="font-bold">Rp ${formatNumber(
-                                item.subtotal
-                            )}</span></p>
-                `;
+                                <p class="font-semibold text-gray-800">${item.nama_menu}</p>
+                                <p class="text-sm text-gray-600">Rp ${formatNumber(parseInt(item.harga) || 0)} x ${item.jumlah} = <span class="font-bold">Rp ${formatNumber(parseInt(item.subtotal) || 0)}</span></p>
+                                ${item.addons && item.addons.length > 0 ?
+                                    `<ul class="text-gray-500 text-xs mt-1">` +
+                                    item.addons.map(addon => `<li>+ ${addon.name} (Rp ${formatNumber(parseInt(addon.price) || 0)})</li>`).join('') +
+                                    `</ul>` : ''
+                                }
+                                ${item.catatan ? `<p class="text-gray-500 text-xs mt-1">Catatan: ${item.catatan}</p>` : ''}
+                            `;
 
                             listItem.appendChild(imageElement);
                             listItem.appendChild(itemDetails);
@@ -292,10 +299,8 @@
                             data.status !== "selesai" &&
                             data.status !== "paid"
                         ) {
-                            // Adjust 'paid' if your status is different
                             startStatusPolling();
                         } else {
-                            // If order is already completed on load (e.g., user navigated back after payment), show success
                             showSuccessModal();
                         }
                     } else {
@@ -323,12 +328,16 @@
                 errorTextSpan.innerText = "";
             }
 
-            // Format angka dengan pemisah ribuan
+            // Format number with thousands separator
             function formatNumber(num) {
+                // Ensure num is a number before calling toLocaleString
+                if (isNaN(num) || num === null || num === undefined) { // Add undefined check
+                    return "0";
+                }
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
 
-            // Bayar Tunai - MODIFIED
+            // Pay Cash - MODIFIED
             async function bayarTunai() {
                 hideError();
                 const customerName = document
@@ -346,8 +355,8 @@
                     return;
                 }
 
-                paymentLoadingDiv.classList.remove("hidden"); // Show loading
-                barcodeContainerDiv.classList.add("hidden"); // Hide barcode during processing
+                paymentLoadingDiv.classList.remove("hidden");
+                barcodeContainerDiv.classList.add("hidden");
 
                 try {
                     const response = await fetch(
@@ -369,7 +378,7 @@
 
                     const data = await response.json();
 
-                    paymentLoadingDiv.classList.add("hidden"); // Hide loading
+                    paymentLoadingDiv.classList.add("hidden");
 
                     if (!response.ok) {
                         throw new Error(
@@ -379,13 +388,11 @@
 
                     console.log("Cash payment response:", data);
 
-                    // If successful, show barcode and start polling
                     const barcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${orderToken}`;
                     barcodeImg.src = barcodeUrl;
+                    orderTokenDisplaySpan.textContent = orderToken; // Ensure token is displayed
                     barcodeContainerDiv.classList.remove("hidden");
 
-                    // Start polling for order status. The cashier will manually update the status
-                    // on their end, and this polling will detect the change.
                     startStatusPolling();
                 } catch (error) {
                     console.error("Error during cash payment process:", error);
@@ -397,7 +404,7 @@
                 }
             }
 
-            // Bayar Non-Tunai via Tripay
+            // Pay Non-Cash via Tripay
             function bayarNonTunai() {
                 hideError();
                 const customerName = document
@@ -443,14 +450,11 @@
                         return res.json();
                     })
                     .then((data) => {
-                        console.log("Respon dari backend:", data);
+                        console.log("Response from backend:", data);
 
                         paymentLoadingDiv.classList.add("hidden");
 
                         if (data.success && data.payment_url) {
-                            // If redirecting, no need to poll from this page directly
-                            // The status will be updated via webhook on your backend
-                            // and if the user comes back, the page will check status on load.
                             window.location.href = data.payment_url;
                         } else {
                             showError(
@@ -469,13 +473,10 @@
                     });
             }
 
-            // --- New: Order Status Polling Logic ---
-
-            // Function to check the order status
+            // --- Order Status Polling Logic ---
             async function checkOrderStatus() {
                 try {
                     const response = await fetch("/api/pesanan/status", {
-                        // Assuming you have a status endpoint
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ order_token: orderToken }),
@@ -488,62 +489,50 @@
                     const data = await response.json();
                     console.log("Order status check response:", data);
 
-                    // IMPORTANT: Adjust 'selesai' to the actual status your backend sends for a completed/paid order
                     if (
                         data.status &&
                         (data.status.toLowerCase() === "selesai" ||
                             data.status.toLowerCase() === "paid")
                     ) {
-                        clearInterval(statusCheckInterval); // Stop polling
+                        clearInterval(statusCheckInterval);
                         showSuccessModal();
                     } else {
-                        // Optionally update UI to show "waiting for payment" or similar
                         console.log(
                             `Order status is: ${data.status}. Still waiting...`
                         );
                     }
                 } catch (error) {
                     console.error("Error checking order status:", error);
-                    // Don't stop polling on error unless it's a critical error (e.g., token invalid)
-                    // showError("Gagal memperbarui status pesanan."); // Only show if critical
                 }
             }
 
-            // Function to start polling
             function startStatusPolling() {
-                // Clear any existing interval to prevent duplicates
                 if (statusCheckInterval) {
                     clearInterval(statusCheckInterval);
                 }
-                // Poll every 5 seconds (5000 milliseconds)
                 statusCheckInterval = setInterval(checkOrderStatus, 5000);
             }
 
-            // Function to show the success modal
             function showSuccessModal() {
                 successModal.classList.add("show");
-                // Clear any ongoing polling if success is manually triggered
                 if (statusCheckInterval) {
                     clearInterval(statusCheckInterval);
                 }
             }
 
-            // Function to redirect for a new order
             function redirectToNewOrder() {
                 const kode = localStorage.getItem("kode_barcode");
                 if (kode) {
-                    window.location.href = `menu.html?=${kode}`; // Ensure consistent parameter name
+                    window.location.href = `menu.html?=${kode}`;
                 } else {
                     alert(
                         "Nomor meja tidak ditemukan, silakan scan ulang QR Code di meja Anda."
                     );
-                    window.location.href = "index.html"; // Redirect to QR scan page
+                    window.location.href = "index.html";
                 }
             }
 
-            // --- Added a button to manually check status for cash payment (optional, but good for testing) ---
             function checkPaymentStatusFromBarcode() {
-                // This button triggers the status check immediately
                 checkOrderStatus();
             }
         </script>

@@ -7,12 +7,13 @@ use App\Models\Pesanan;
 use App\Models\PesananItem;
 use App\Models\Menu;
 use App\Models\Meja;
-use App\Models\PemesanInfo; // Make sure to import PemesanInfo
+use App\Models\PemesanInfo;
+use App\Models\AddOn; // Import model AddOn
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log; // Import Log facade
+use Illuminate\Support\Facades\Log;
 
 class PesananController extends Controller
 {
@@ -37,9 +38,13 @@ class PesananController extends Controller
             $validated = $request->validate([
                 'user_id' => 'nullable|exists:users,id',
                 'meja_id' => 'required|exists:mejas,id',
+                'global_notes' => 'nullable|string|max:500', // Tambahkan validasi untuk catatan global
                 'items'   => 'required|array',
                 'items.*.menu_id' => 'required|exists:menus,id',
                 'items.*.jumlah'  => 'required|integer|min:1',
+                'items.*.catatan' => 'nullable|string|max:255', // Validasi catatan per item
+                'items.*.addons'  => 'nullable|array', // Validasi add-ons per item
+                'items.*.addons.*' => 'exists:add_ons,id', // Validasi ID add-on
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -50,36 +55,106 @@ class PesananController extends Controller
         }
 
         $total = 0;
+        $orderItemsData = []; // Untuk menyimpan data item sebelum membuat pesanan
+
         foreach ($request->items as $item) {
             $menu = Menu::find($item['menu_id']);
-            $total += $menu->harga * $item['jumlah'];
-        }
+            if (!$menu) {
+                return response()->json(['success' => false, 'message' => 'Menu tidak ditemukan.'], 404);
+            }
 
-        $pesanan = Pesanan::create([
-            'user_id' => $request->user_id ?? null,
-            'meja_id' => $request->meja_id,
-            'status' => 'pending',
-            'total_harga' => $total,
-            'order_token' => Str::uuid(),
-        ]);
+            $itemPrice = $menu->harga * $item['jumlah'];
 
-        foreach ($request->items as $item) {
-            PesananItem::create([
-                'pesanan_id' => $pesanan->id,
+            $selectedAddons = [];
+            if (isset($item['addons']) && is_array($item['addons'])) {
+                foreach ($item['addons'] as $addonId) {
+                    $addon = AddOn::find($addonId);
+                    if ($addon) {
+                        $itemPrice += $addon->harga * $item['jumlah']; // Harga add-on dikalikan jumlah menu utama
+                        $selectedAddons[] = $addon->id;
+                    }
+                }
+            }
+            $total += $itemPrice;
+
+            $orderItemsData[] = [
                 'menu_id' => $item['menu_id'],
                 'jumlah' => $item['jumlah'],
-            ]);
+                'catatan' => $item['catatan'] ?? null,
+                'addons' => $selectedAddons,
+            ];
         }
+
+        // Cek apakah ada order_token yang sudah ada dari localStorage
+        $orderToken = $request->input('order_token');
+        $pesanan = null;
+
+        if ($orderToken) {
+            $pesanan = Pesanan::where('order_token', $orderToken)->first();
+            if ($pesanan && $pesanan->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesanan ini sudah dibayar atau diproses.',
+                    'order_token' => $orderToken,
+                    'status' => $pesanan->status
+                ], 400);
+            }
+        }
+
+        if ($pesanan) {
+            // Update existing order
+            $pesanan->total_harga = $total;
+            $pesanan->global_notes = $request->global_notes ?? null; // Update catatan global
+            $pesanan->save();
+
+            // Clear existing items and re-add for simplicity (or implement diffing for complex updates)
+            $pesanan->items()->delete();
+            foreach ($orderItemsData as $itemData) {
+                $pesananItem = PesananItem::create([
+                    'pesanan_id' => $pesanan->id,
+                    'menu_id' => $itemData['menu_id'],
+                    'jumlah' => $itemData['jumlah'],
+                    'catatan' => $itemData['catatan'],
+                ]);
+                if (!empty($itemData['addons'])) {
+                    $pesananItem->addons()->attach($itemData['addons']);
+                }
+            }
+        } else {
+            // Create new order
+            $pesanan = Pesanan::create([
+                'user_id' => $request->user_id ?? null,
+                'meja_id' => $request->meja_id,
+                'status' => 'pending',
+                'total_harga' => $total,
+                'order_token' => Str::uuid(),
+                'global_notes' => $request->global_notes ?? null, // Simpan catatan global
+            ]);
+
+            foreach ($orderItemsData as $itemData) {
+                $pesananItem = PesananItem::create([
+                    'pesanan_id' => $pesanan->id,
+                    'menu_id' => $itemData['menu_id'],
+                    'jumlah' => $itemData['jumlah'],
+                    'catatan' => $itemData['catatan'],
+                ]);
+                if (!empty($itemData['addons'])) {
+                    $pesananItem->addons()->attach($itemData['addons']);
+                }
+            }
+        }
+
 
         return response()->json([
             'success' => true,
-            'message' => 'Pesanan berhasil dibuat',
+            'message' => 'Pesanan berhasil dibuat/diperbarui',
             'data' => [
                 'pesanan' => $pesanan,
                 'order_token' => $pesanan->order_token,
             ]
         ], 201);
     }
+
 
     public function bayar(Request $request, $id)
     {
@@ -109,7 +184,8 @@ class PesananController extends Controller
      */
     public function getByOrderToken($order_token)
     {
-        $pesanan = Pesanan::with(['items.menu', 'meja'])
+        // Perbaikan: Tambahkan 'items.addons.addOn' untuk memuat detail add-on
+        $pesanan = Pesanan::with(['items.menu', 'meja', 'items.addons.addOn']) 
                             ->where('order_token', $order_token)
                             ->first(); // Tidak perlu latest() karena order_token unik
 
@@ -238,8 +314,7 @@ class PesananController extends Controller
 
             // Update order with pemesan_info_id and status
             $order->pemesan_info_id = $pemesanInfo->id;
-            $order->status = 'pending'; // Mark as completed for cash payments
-
+            $order->status = 'pending'; // Status tetap pending, menunggu konfirmasi kasir
             // Check if email exists in users table and link user_id if applicable
             $user = \App\Models\User::where('email', $customerEmail)->first();
             if ($user) {

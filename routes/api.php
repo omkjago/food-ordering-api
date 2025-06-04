@@ -40,6 +40,8 @@ Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth:san
 
 Route::get('/menu', [MenuController::class, 'index']);
 Route::get('/menu/favorit', [MenuController::class, 'getFavorit']);
+Route::get('addons', [MenuController::class, 'getAddOns']); // Tambahkan rute ini
+
 
 //pesan
 Route::post('/pesanan', [PesananController::class, 'store']);
@@ -54,9 +56,8 @@ Route::prefix('tripay')->group(function () {
     Route::post('/checkout', [TripayController::class, 'checkout']);
     Route::post('/callback', [TripayController::class, 'handleCallback'])->name('tripay.callback');
     Route::post('/order-summary', [TripayController::class, 'orderSummary']);
+    Route::get('/payment/return', [TripayController::class, 'paymentReturn'])->name('tripay.return');
 });
-Route::get('/payment/return', [TripayController::class, 'paymentReturn'])->name('tripay.return');
-
 
 //admin
 Route::middleware('auth:sanctum', 'is_admin')->group(function () {
@@ -69,7 +70,7 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::delete('/admin/menu/{id}', [AdminController::class, 'deleteMenu']);
     Route::post('admin/confirm-payment', [PesananController::class, 'confirmPayment']);
     Route::get('pesanan/by-order-token/{order_token}', [PesananController::class, 'getByOrderToken']);
-
+    Route::get('/admin/receipt/{order_id}', [AdminController::class, 'printReceipt']);
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
     Route::get('/admin/popular-products', [AdminController::class, 'popularProducts']);
     Route::get('/admin/recent-orders', [AdminController::class, 'recentOrders']);
@@ -77,7 +78,11 @@ Route::middleware('auth:sanctum', 'is_admin')->group(function () {
     Route::get('/admin/reports/sales/download', [SalesReportController::class, 'downloadReport']);
     Route::get('/admin/reports/sales?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD', [SalesReportController::class, 'generateReport']);
     Route::get('/admin/reports/pending-sales', [SalesReportController::class, 'getPendingSales']); // New route for pending sales
-
+    Route::get('/admin/addons', [AdminController::class, 'indexAddons']);
+    Route::get('/admin/addons/{id}', [AdminController::class, 'showAddon']);
+    Route::post('/admin/addons', [AdminController::class, 'storeAddon']);
+    Route::put('/admin/addons/{id}', [AdminController::class, 'updateAddon']);
+    Route::delete('/admin/addons/{id}', [AdminController::class, 'destroyAddon']);
 });
 
 Route::get('/meja', [MejaController::class, 'index']);

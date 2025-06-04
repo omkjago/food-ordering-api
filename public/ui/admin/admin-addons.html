@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tambah Menu - FoodOrder Admin</title>
+        <title>Manajemen Add-On - FoodOrder</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -59,6 +59,7 @@
                     >
                         Add-Ons
                     </button>
+                    
                     <button
                         onclick="Kasir()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
@@ -95,10 +96,16 @@
             ></div>
 
             <main class="flex-1 p-6 overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-4">
                     <h1 class="text-3xl font-bold text-blue-600">
-                        Tambah Menu Baru
+                        Manajemen Add-On
                     </h1>
+                    <button
+                        onclick="tambahAddon()"
+                        class="bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded-md transition-colors duration-200"
+                    >
+                        Tambah Add-On
+                    </button>
                     <button
                         id="open-sidebar-button"
                         class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -120,117 +127,29 @@
                     </button>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                    <form id="menuForm" class="space-y-4">
-                        <div>
-                            <label
-                                for="nama"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Nama Menu</label
-                            >
-                            <input
-                                type="text"
-                                id="nama"
-                                name="nama"
-                                required
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            />
-                        </div>
-                        <div>
-                            <label
-                                for="harga"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Harga</label
-                            >
-                            <input
-                                type="number"
-                                id="harga"
-                                name="harga"
-                                required
-                                step="0.01"
-                                min="0"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            />
-                        </div>
-                        <div>
-                            <label
-                                for="diskripsi"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Deskripsi</label
-                            >
-                            <textarea
-                                id="diskripsi"
-                                name="diskripsi"
-                                rows="3"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            ></textarea>
-                        </div>
-                        <div>
-                            <label
-                                for="kategori"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Kategori</label
-                            >
-                            <input
-                                type="text"
-                                id="kategori"
-                                name="kategori"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            />
-                        </div>
-                        <div>
-                            <label
-                                for="stok"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Stok</label
-                            >
-                            <select
-                                id="stok"
-                                name="stok"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            >
-                                <option value="tersedia">Tersedia</option>
-                                <option value="kosong">Kosong</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                for="image"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Gambar Menu</label
-                            >
-                            <input
-                                type="file"
-                                id="image"
-                                name="image"
-                                accept="image/*"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            />
-                        </div>
-                        <div class="pt-4">
-                            <button
-                                type="submit"
-                                class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
-                            >
-                                Tambah Menu Baru
-                            </button>
-                        </div>
-                    </form>
-
-                    <div
-                        id="message"
-                        class="mt-4 text-center text-sm font-semibold"
-                    ></div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-4">Daftar Add-On</h2>
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr class="text-gray-600 border-b">
+                                <th class="py-2">Nama</th>
+                                <th>Harga</th>
+                                <th>Kategori</th>
+                                <th>Sub Kategori</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="addonList">
+                            </tbody>
+                    </table>
                 </div>
             </main>
         </div>
 
         <script>
-            // Define token globally so it's accessible everywhere
-            let token = localStorage.getItem("token"); // Get token once on script load
-
-            const form = document.getElementById("menuForm");
-            const messageDiv = document.getElementById("message");
+            const apiUrl = "/api/admin/addons"; // Endpoint baru untuk admin add-on
+            const token = localStorage.getItem("token");
+            const addonList = document.getElementById("addonList");
 
             // Fungsi navigasi sidebar
             function Dashboard() {
@@ -242,6 +161,9 @@
             function Addons() {
                 window.location.href = `admin-addons.html`;
             }
+            function Addons() {
+                window.location.href = `admin-addons.html`; // Navigasi ke halaman add-on
+            }
             function Kasir() {
                 window.location.href = `admin-validasi.html`;
             }
@@ -251,8 +173,11 @@
             function LaporanPenjualan() {
                 window.location.href = `admin-sales-report.html`;
             }
+            function tambahAddon() {
+                window.location.href = `admin-tambah-addon.html`;
+            }
 
-            // --- Sidebar Toggle Functions ---
+            // --- Sidebar Toggle Functions (re-used from admin-menu.html) ---
             const sidebar = document.getElementById("sidebar");
             const sidebarOverlay = document.getElementById("sidebar-overlay");
             const openSidebarBtn = document.getElementById(
@@ -282,7 +207,6 @@
 
             function setInitialSidebarState() {
                 if (window.innerWidth >= 1024) {
-                    // Tailwind's 'lg' breakpoint
                     sidebar.classList.add("sidebar-open");
                     sidebar.classList.remove("sidebar-closed");
                     sidebarOverlay.classList.add(
@@ -306,12 +230,12 @@
             // --- End Sidebar Toggle Functions ---
 
             document.addEventListener("DOMContentLoaded", function () {
-                // Check for token immediately on DOMContentLoaded
                 if (!token) {
-                    window.location.href = "../login.html"; // Redirect to login if no token
-                    return; // Stop execution
+                    window.location.href = "../login.html";
+                    return;
                 }
 
+                // Fetch admin user data
                 fetch("/api/user", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -320,7 +244,7 @@
                     .then((response) => {
                         if (!response.ok) {
                             if (response.status === 401) {
-                                window.location.href = "../login.html"; // Redirect to login on 401
+                                window.location.href = "../login.html";
                             }
                             throw new Error("Failed to fetch admin data");
                         }
@@ -339,85 +263,114 @@
                         document.getElementById("admin-email").textContent =
                             "Error Loading";
                     });
-                // Removed fetchProduk(); as it was undefined and likely not needed here.
+
+                fetchAddons(); // Initial fetch of addons
             });
 
-            form.addEventListener("submit", async function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-
-                // Ensure stok value is correctly sent
-                const stokValue = document.getElementById("stok").value;
-                formData.set("stok", stokValue);
-
-                // Use the globally defined token
+            // Ambil data add-on
+            async function fetchAddons() {
                 if (!token) {
-                    messageDiv.textContent =
-                        "Token tidak ditemukan. Silakan login.";
-                    messageDiv.className =
-                        "mt-4 text-center text-red-500 font-semibold";
-                    setTimeout(
-                        () => (window.location.href = "../login.html"),
-                        2000
-                    ); // Redirect after message
+                    console.warn("Token not found, cannot fetch add-ons.");
+                    window.location.href = "../login.html";
                     return;
                 }
 
                 try {
-                    const res = await fetch("/api/admin/menu", {
-                        method: "POST",
+                    const res = await fetch(apiUrl, {
                         headers: {
                             Authorization: `Bearer ${token}`,
-                            // 'Accept': 'application/json' // FormData automatically sets Content-Type to multipart/form-data
                         },
-                        body: formData,
                     });
 
-                    const data = await res.json();
-
                     if (!res.ok) {
-                        let errorMessage =
-                            data.message || "Gagal menambahkan menu.";
                         if (res.status === 401) {
-                            // Check if status 401 (Unauthenticated)
-                            errorMessage =
-                                "Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.";
-                            setTimeout(
-                                () => (window.location.href = "../login.html"),
-                                2000
-                            ); // Redirect to login page
-                        } else if (data.errors) {
-                            for (const key in data.errors) {
-                                errorMessage += `\n${key}: ${data.errors[
-                                    key
-                                ].join(", ")}`;
-                            }
+                            console.error(
+                                "Unauthorized. Redirecting to login."
+                            );
+                            window.location.href = "../login.html";
+                            return;
                         }
-                        messageDiv.textContent = errorMessage;
-                        messageDiv.className =
-                            "mt-4 text-center text-red-500 font-semibold";
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+
+                    const addons = await res.json();
+                    addonList.innerHTML = ""; // Clear existing list
+                    if (addons && Array.isArray(addons)) {
+                        addons.forEach((a) => {
+                            addonList.innerHTML += `
+                            <tr class="border-t">
+                                <td class="py-2">${a.nama}</td>
+                                <td>Rp ${a.harga.toLocaleString("id-ID")}</td>
+                                <td>${a.kategori || '-'}</td>
+                                <td>${a.sub_kategori || '-'}</td>
+                                <td>
+                                    <button onclick="window.location.href='/ui/admin/admin-edit-addon.html?id=${
+                                        a.id
+                                    }'" class="text-blue-600 hover:underline mr-2">Edit</button>
+                                    <button onclick="hapusAddon(${
+                                        a.id
+                                    })" class="text-red-600 hover:underline">Hapus</button>
+                                </td>
+                            </tr>`;
+                        });
                     } else {
-                        messageDiv.textContent = "Menu berhasil ditambahkan!";
-                        messageDiv.className =
-                            "mt-4 text-center text-green-500 font-semibold";
-                        form.reset();
-                        // Optional: Redirect or update product list after success
-                        // setTimeout(() => window.location.href = 'admin-menu.html', 1500);
+                        console.warn(
+                            "API returned unexpected data format:",
+                            addons
+                        );
+                        addonList.innerHTML =
+                            '<tr><td colspan="5" class="text-center py-4">Tidak ada add-on ditemukan.</td></tr>';
                     }
                 } catch (error) {
-                    console.error("Terjadi kesalahan:", error);
-                    messageDiv.textContent =
-                        "Terjadi kesalahan saat menghubungi server.";
-                    messageDiv.className =
-                        "mt-4 text-center text-red-500 font-semibold";
+                    console.error("Gagal memuat add-on:", error);
+                    addonList.innerHTML =
+                        '<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal memuat add-on. Silakan coba lagi.</td></tr>';
                 }
-            });
+            }
 
+            // Hapus Add-on
+            async function hapusAddon(id) {
+                if (!token) {
+                    alert("Sesi Anda telah berakhir. Silakan login kembali.");
+                    window.location.href = "../login.html";
+                    return;
+                }
+
+                if (confirm("Yakin ingin menghapus add-on ini?")) {
+                    try {
+                        const response = await fetch(`${apiUrl}/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                alert(
+                                    "Sesi Anda telah berakhir atau tidak valid. Silakan login kembali."
+                                );
+                                window.location.href = "../login.html";
+                                return;
+                            }
+                            const errorData = await response.json();
+                            throw new Error(
+                                errorData.message || "Gagal menghapus add-on"
+                            );
+                        }
+
+                        alert("Add-on berhasil dihapus!");
+                        fetchAddons(); // Refresh list after deletion
+                    } catch (error) {
+                        alert(`Gagal menghapus add-on: ${error.message}`);
+                        console.error("Error deleting add-on:", error);
+                    }
+                }
+            }
+
+            // Fungsi Logout
             function logout() {
-                // Remove token from localStorage
                 localStorage.removeItem("token");
-                // Redirect user to login page
                 window.location.href = "../login.html";
             }
         </script>

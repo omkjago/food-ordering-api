@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tambah Menu - FoodOrder Admin</title>
+        <title>Tambah Add-On - FoodOrder Admin</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -53,7 +53,7 @@
                     >
                         Menu
                     </button>
-                    <button
+                     <button
                         onclick="Addons()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
                     >
@@ -97,7 +97,7 @@
             <main class="flex-1 p-6 overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-3xl font-bold text-blue-600">
-                        Tambah Menu Baru
+                        Tambah Add-On Baru
                     </h1>
                     <button
                         id="open-sidebar-button"
@@ -121,12 +121,12 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-                    <form id="menuForm" class="space-y-4">
+                    <form id="addonForm" class="space-y-4">
                         <div>
                             <label
                                 for="nama"
                                 class="block text-gray-700 text-sm font-bold mb-2"
-                                >Nama Menu</label
+                                >Nama Add-On</label
                             >
                             <input
                                 type="text"
@@ -154,22 +154,9 @@
                         </div>
                         <div>
                             <label
-                                for="diskripsi"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Deskripsi</label
-                            >
-                            <textarea
-                                id="diskripsi"
-                                name="diskripsi"
-                                rows="3"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            ></textarea>
-                        </div>
-                        <div>
-                            <label
                                 for="kategori"
                                 class="block text-gray-700 text-sm font-bold mb-2"
-                                >Kategori</label
+                                >Kategori (Opsional)</label
                             >
                             <input
                                 type="text"
@@ -180,30 +167,14 @@
                         </div>
                         <div>
                             <label
-                                for="stok"
+                                for="sub_kategori"
                                 class="block text-gray-700 text-sm font-bold mb-2"
-                                >Stok</label
-                            >
-                            <select
-                                id="stok"
-                                name="stok"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            >
-                                <option value="tersedia">Tersedia</option>
-                                <option value="kosong">Kosong</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                for="image"
-                                class="block text-gray-700 text-sm font-bold mb-2"
-                                >Gambar Menu</label
+                                >Sub Kategori (Opsional)</label
                             >
                             <input
-                                type="file"
-                                id="image"
-                                name="image"
-                                accept="image/*"
+                                type="text"
+                                id="sub_kategori"
+                                name="sub_kategori"
                                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             />
                         </div>
@@ -212,7 +183,7 @@
                                 type="submit"
                                 class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
                             >
-                                Tambah Menu Baru
+                                Tambah Add-On Baru
                             </button>
                         </div>
                     </form>
@@ -226,10 +197,9 @@
         </div>
 
         <script>
-            // Define token globally so it's accessible everywhere
-            let token = localStorage.getItem("token"); // Get token once on script load
+            let token = localStorage.getItem("token");
 
-            const form = document.getElementById("menuForm");
+            const form = document.getElementById("addonForm");
             const messageDiv = document.getElementById("message");
 
             // Fungsi navigasi sidebar
@@ -238,6 +208,9 @@
             }
             function Menu() {
                 window.location.href = `admin-menu.html`;
+            }
+            function Addons() {
+                window.location.href = `admin-addons.html`;
             }
             function Addons() {
                 window.location.href = `admin-addons.html`;
@@ -282,7 +255,6 @@
 
             function setInitialSidebarState() {
                 if (window.innerWidth >= 1024) {
-                    // Tailwind's 'lg' breakpoint
                     sidebar.classList.add("sidebar-open");
                     sidebar.classList.remove("sidebar-closed");
                     sidebarOverlay.classList.add(
@@ -306,10 +278,9 @@
             // --- End Sidebar Toggle Functions ---
 
             document.addEventListener("DOMContentLoaded", function () {
-                // Check for token immediately on DOMContentLoaded
                 if (!token) {
-                    window.location.href = "../login.html"; // Redirect to login if no token
-                    return; // Stop execution
+                    window.location.href = "../login.html";
+                    return;
                 }
 
                 fetch("/api/user", {
@@ -320,7 +291,7 @@
                     .then((response) => {
                         if (!response.ok) {
                             if (response.status === 401) {
-                                window.location.href = "../login.html"; // Redirect to login on 401
+                                window.location.href = "../login.html";
                             }
                             throw new Error("Failed to fetch admin data");
                         }
@@ -339,19 +310,14 @@
                         document.getElementById("admin-email").textContent =
                             "Error Loading";
                     });
-                // Removed fetchProduk(); as it was undefined and likely not needed here.
             });
 
             form.addEventListener("submit", async function (e) {
                 e.preventDefault();
 
                 const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
 
-                // Ensure stok value is correctly sent
-                const stokValue = document.getElementById("stok").value;
-                formData.set("stok", stokValue);
-
-                // Use the globally defined token
                 if (!token) {
                     messageDiv.textContent =
                         "Token tidak ditemukan. Silakan login.";
@@ -360,36 +326,36 @@
                     setTimeout(
                         () => (window.location.href = "../login.html"),
                         2000
-                    ); // Redirect after message
+                    );
                     return;
                 }
 
                 try {
-                    const res = await fetch("/api/admin/menu", {
+                    const res = await fetch("/api/admin/addons", {
                         method: "POST",
                         headers: {
                             Authorization: `Bearer ${token}`,
-                            // 'Accept': 'application/json' // FormData automatically sets Content-Type to multipart/form-data
+                            "Content-Type": "application/json", // Kirim sebagai JSON
+                            Accept: "application/json",
                         },
-                        body: formData,
+                        body: JSON.stringify(data), // Kirim data sebagai JSON string
                     });
 
-                    const data = await res.json();
+                    const responseData = await res.json(); // Mengganti 'data' menjadi 'responseData'
 
                     if (!res.ok) {
                         let errorMessage =
-                            data.message || "Gagal menambahkan menu.";
+                            responseData.message || "Gagal menambahkan add-on.";
                         if (res.status === 401) {
-                            // Check if status 401 (Unauthenticated)
                             errorMessage =
                                 "Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.";
                             setTimeout(
                                 () => (window.location.href = "../login.html"),
                                 2000
-                            ); // Redirect to login page
-                        } else if (data.errors) {
-                            for (const key in data.errors) {
-                                errorMessage += `\n${key}: ${data.errors[
+                            );
+                        } else if (responseData.errors) {
+                            for (const key in responseData.errors) {
+                                errorMessage += `\n${key}: ${responseData.errors[
                                     key
                                 ].join(", ")}`;
                             }
@@ -398,12 +364,11 @@
                         messageDiv.className =
                             "mt-4 text-center text-red-500 font-semibold";
                     } else {
-                        messageDiv.textContent = "Menu berhasil ditambahkan!";
+                        messageDiv.textContent = "Add-on berhasil ditambahkan!";
                         messageDiv.className =
                             "mt-4 text-center text-green-500 font-semibold";
                         form.reset();
-                        // Optional: Redirect or update product list after success
-                        // setTimeout(() => window.location.href = 'admin-menu.html', 1500);
+                        setTimeout(() => window.location.href = 'admin-addons.html', 1500); // Redirect to list after success
                     }
                 } catch (error) {
                     console.error("Terjadi kesalahan:", error);
@@ -415,9 +380,7 @@
             });
 
             function logout() {
-                // Remove token from localStorage
                 localStorage.removeItem("token");
-                // Redirect user to login page
                 window.location.href = "../login.html";
             }
         </script>

@@ -48,10 +48,16 @@
                         Dashboard
                     </button>
                     <button
-                        onclick="Produk()"
+                        onclick="Menu()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
                     >
-                        Produk
+                        Menu
+                    </button>
+                    <button
+                        onclick="Addons()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Add-Ons
                     </button>
                     <button
                         onclick="Kasir()"
@@ -573,8 +579,11 @@
                 window.location.href = `dashboard_admin.html`;
             }
 
-            function Produk() {
+            function Menu() {
                 window.location.href = `admin/admin-menu.html`;
+            }
+            function Addons() {
+                window.location.href = `admin/admin-addons.html`;
             }
             function Pesanan() {
                 window.location.href = `admin/admin-order-aktif.html`;
