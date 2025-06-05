@@ -134,6 +134,7 @@
                                 <th class="py-2">Gambar</th>
                                 <th>Nama</th>
                                 <th>Kategori</th>
+                                <th>Sub-Kategori</th> <!-- Tambah kolom Sub-Kategori -->
                                 <th>Harga</th>
                                 <th>Stok</th>
                                 <th>Aksi</th>
@@ -308,6 +309,7 @@
                                 </td>
                                 <td>${p.nama}</td>
                                 <td>${p.kategori}</td>
+                                <td>${p.sub_kategori || '-'}</td> <!-- Tampilkan sub_kategori -->
                                 <td>Rp ${p.harga.toLocaleString("id-ID")}</td>
                                 <td>${p.stok}</td>
                                 <td>
@@ -326,12 +328,12 @@
                             produk
                         );
                         produkList.innerHTML =
-                            '<tr><td colspan="6" class="text-center py-4">Tidak ada produk ditemukan.</td></tr>';
+                            '<tr><td colspan="7" class="text-center py-4">Tidak ada produk ditemukan.</td></tr>'; 
                     }
                 } catch (error) {
                     console.error("Gagal memuat produk:", error);
                     produkList.innerHTML =
-                        '<tr><td colspan="6" class="text-center py-4 text-red-500">Gagal memuat produk. Silakan coba lagi.</td></tr>';
+                        '<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat produk. Silakan coba lagi.</td></tr>';
                 }
             }
 

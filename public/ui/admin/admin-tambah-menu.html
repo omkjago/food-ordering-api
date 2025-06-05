@@ -178,6 +178,20 @@
                                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             />
                         </div>
+                        <!-- Tambah input untuk Sub-Kategori -->
+                        <div>
+                            <label
+                                for="sub_kategori"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Sub-Kategori (Opsional)</label
+                            >
+                            <input
+                                type="text"
+                                id="sub_kategori"
+                                name="sub_kategori"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
                         <div>
                             <label
                                 for="stok"
@@ -350,6 +364,11 @@
                 // Ensure stok value is correctly sent
                 const stokValue = document.getElementById("stok").value;
                 formData.set("stok", stokValue);
+
+                // Ambil nilai sub_kategori dan tambahkan ke formData
+                const subKategoriValue = document.getElementById("sub_kategori").value;
+                formData.set("sub_kategori", subKategoriValue);
+
 
                 // Use the globally defined token
                 if (!token) {

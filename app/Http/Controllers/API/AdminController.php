@@ -64,17 +64,22 @@ class AdminController extends Controller
 
     public function storeMenu(Request $request)
     {
+        // Menambahkan validasi untuk 'sub_kategori'
         $request->validate([
             'nama' => 'required|string',
             'harga' => 'required|numeric',
             'diskripsi' => 'nullable|string',
+            'kategori' => 'nullable|string', // Pastikan kategori juga divalidasi
+            'sub_kategori' => 'nullable|string', // Menambahkan validasi sub_kategori
+            'stok' => 'required|string', // Pastikan stok divalidasi
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $fileName = 'menu_images/' . str_replace(' ', '_', strtolower($request->nama)) .'.' . $image->getClientOriginalExtension();
+            // Menggunakan slug nama menu untuk nama file gambar
+            $fileName = 'menu_images/' . \Illuminate\Support\Str::slug($request->nama) . '.' . $image->getClientOriginalExtension();
             $image->storeAs('public', $fileName);
             $imagePath = $fileName;
         }
@@ -84,6 +89,7 @@ class AdminController extends Controller
             'harga' => $request->harga,
             'diskripsi' => $request->diskripsi,
             'kategori' => $request->kategori,
+            'sub_kategori' => $request->sub_kategori, // Menyimpan sub_kategori
             'stok' => $request->stok,
             'image_path' => $imagePath,
         ]);
@@ -96,8 +102,20 @@ class AdminController extends Controller
     {
         $menu = Menu::findOrFail($id);
 
+        // Menambahkan validasi untuk 'sub_kategori' pada update
+        $request->validate([
+            'nama' => 'required|string',
+            'harga' => 'required|numeric',
+            'diskripsi' => 'nullable|string',
+            'kategori' => 'nullable|string',
+            'sub_kategori' => 'nullable|string', // Menambahkan validasi sub_kategori
+            'stok' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
         $menu->nama = $request->nama;
         $menu->kategori = $request->kategori;
+        $menu->sub_kategori = $request->sub_kategori; // Memperbarui sub_kategori
         $menu->harga = $request->harga;
         $menu->stok = $request->stok;
         $menu->diskripsi = $request->diskripsi;
@@ -105,7 +123,8 @@ class AdminController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $fileName = 'menu_images/' . str_replace(' ', '_', strtolower($request->nama)) . '.' . $image->getClientOriginalExtension();
+            // Menggunakan slug nama menu untuk nama file gambar
+            $fileName = 'menu_images/' . \Illuminate\Support\Str::slug($request->nama) . '.' . $image->getClientOriginalExtension();
             $image->storeAs('public', $fileName);
             $menu->image_path = $fileName;
         }
@@ -332,7 +351,7 @@ class AdminController extends Controller
 
         $mejaInfo = $pesanan->meja ? ($pesanan->meja->nama_meja ?? $pesanan->meja->kode_barcode) : 'Tidak Ada Meja';
         if ($mejaInfo === 'Tidak Ada Meja' && $pesanan->pemesanInfo && $pesanan->pemesanInfo->nama_pemesan) {
-            $mejaInfo = $pesanan->pelanggan_nama;
+            $mejaInfo = $pesanan->pemesanInfo->nama_pemesan; // Menggunakan nama_pemesan dari pemesanInfo
         }
 
         // Ambil nama admin yang sedang login
@@ -342,7 +361,7 @@ class AdminController extends Controller
             'order_id' => $pesanan->id,
             'order_token' => $pesanan->order_token,
             'timestamp' => Carbon::parse($pesanan->updated_at)->format('d F Y H:i:s'),
-            'customer_name' => $pesanan->pelanggan_nama,
+            'customer_name' => $pesanan->user ? $pesanan->user->name : ($pesanan->pemesanInfo->nama_pemesan ?? 'Tamu'), // Menggunakan nama user atau pemesanInfo
             'table_info' => $mejaInfo,
             'global_notes' => $pesanan->global_notes,
             'status' => $pesanan->status,

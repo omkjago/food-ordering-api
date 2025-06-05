@@ -25,6 +25,7 @@
                     <input
                         type="text"
                         id="nama"
+                        name="nama" 
                         required
                         class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
                     />
@@ -37,16 +38,30 @@
                     <input
                         type="text"
                         id="kategori"
+                        name="kategori" 
                         required
                         class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
                     />
                 </div>
 
                 <div>
+                  <label class="block font-medium text-gray-600"
+                      >Sub-Kategori</label
+                  >
+                  <input
+                      type="text"
+                      id="sub_kategori" 
+                      name="sub_kategori" 
+                      class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
+                  />
+              </div>
+
+                <div>
                     <label class="block font-medium text-gray-600">Harga</label>
                     <input
                         type="number"
                         id="harga"
+                        name="harga" 
                         required
                         class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
                     />
@@ -56,6 +71,7 @@
                     <label class="block font-medium text-gray-600">Stok</label>
                     <select
                         id="stok"
+                        name="stok" 
                         required
                         class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
                     >
@@ -66,10 +82,10 @@
 
                 <div>
                     <label class="block font-medium text-gray-600"
-                        >diskripsi (Opsional)</label
-                    >
+                        >Deskripsi (Opsional)</label> 
                     <textarea
                         id="diskripsi"
+                        name="diskripsi" 
                         rows="3"
                         class="w-full mt-1 p-2 border rounded-md focus:ring focus:border-blue-400"
                     ></textarea>
@@ -77,11 +93,11 @@
 
                 <div>
                     <label class="block font-medium text-gray-600"
-                        >image (Opsional)</label
-                    >
+                        >Gambar (Opsional)</label> 
                     <input
                         type="file"
                         id="image"
+                        name="image" 
                         accept="image/*"
                         class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
@@ -105,14 +121,30 @@
             fetch(`/api/admin/menu/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
-                .then((res) => res.json())
+                .then((res) => {
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            alert("Sesi Anda telah berakhir atau tidak valid. Silakan login kembali.");
+                            window.location.href = "../login.html";
+                            return;
+                        }
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.json();
+                })
                 .then((data) => {
                     document.getElementById("nama").value = data.nama;
                     document.getElementById("kategori").value = data.kategori;
+                    // Pastikan id input sesuai dengan nama kolom di database (sub_kategori)
+                    document.getElementById("sub_kategori").value = data.sub_kategori || ''; // Menggunakan || '' untuk menghindari undefined
                     document.getElementById("harga").value = data.harga;
                     document.getElementById("stok").value = data.stok;
                     document.getElementById("diskripsi").value =
                         data.diskripsi || "";
+                })
+                .catch((error) => {
+                    console.error("Gagal memuat data menu:", error);
+                    alert("Gagal memuat data menu. Silakan coba lagi.");
                 });
 
             // Submit perubahan
@@ -122,26 +154,17 @@
                     e.preventDefault();
 
                     const formData = new FormData();
-                    formData.append(
-                        "nama",
-                        document.getElementById("nama").value
-                    );
-                    formData.append(
-                        "kategori",
-                        document.getElementById("kategori").value
-                    );
-                    formData.append(
-                        "harga",
-                        document.getElementById("harga").value
-                    );
-                    formData.append(
-                        "stok",
-                        document.getElementById("stok").value
-                    );
-                    formData.append(
-                        "diskripsi",
-                        document.getElementById("diskripsi").value
-                    );
+                    // Menggunakan FormData(form) langsung untuk mengambil semua input dengan atribut 'name'
+                    // formData akan otomatis mengambil semua input dengan 'name' attribute
+                    // Pastikan semua input memiliki attribute 'name' yang sesuai dengan kolom database
+                    formData.append("_method", "POST"); // Laravel requires _method for PUT/PATCH via form
+                    formData.append("nama", document.getElementById("nama").value);
+                    formData.append("kategori", document.getElementById("kategori").value);
+                    formData.append("sub_kategori", document.getElementById("sub_kategori").value); // Pastikan id dan name sesuai
+                    formData.append("harga", document.getElementById("harga").value);
+                    formData.append("stok", document.getElementById("stok").value);
+                    formData.append("diskripsi", document.getElementById("diskripsi").value);
+
 
                     const image = document.getElementById("image").files[0];
                     if (image) {
@@ -149,21 +172,32 @@
                     }
 
                     fetch(`/api/admin/menu/${id}`, {
-                        method: "POST", // Gunakan PUT jika backend support multipart PUT
+                        method: "POST", // Tetap POST karena _method=PUT digunakan
                         headers: {
                             Authorization: `Bearer ${token}`,
                             Accept: "application/json",
+                            // 'Content-Type': 'multipart/form-data' tidak perlu diset manual untuk FormData
                         },
                         body: formData,
                     })
-                        .then((res) => res.json())
+                        .then((res) => {
+                            if (!res.ok) {
+                                if (res.status === 401) {
+                                    alert("Sesi Anda telah berakhir atau tidak valid. Silakan login kembali.");
+                                    window.location.href = "../login.html";
+                                    return;
+                                }
+                                return res.json().then(err => { throw new Error(err.message || "Gagal update menu"); });
+                            }
+                            return res.json();
+                        })
                         .then((response) => {
                             alert("Menu berhasil diupdate!");
                             window.location.href = "/ui/admin/admin-menu.html";
                         })
                         .catch((error) => {
                             console.error("Gagal update:", error);
-                            alert("Gagal update menu");
+                            alert(`Gagal update menu: ${error.message}`);
                         });
                 });
             // Fungsi Logout
