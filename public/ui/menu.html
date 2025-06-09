@@ -23,16 +23,17 @@
             <h2 class="text-4xl font-extrabold text-gray-800">Menu</h2>
         </header>
         <div id="sticky-filters-container" class="bg-white z-50">
-            <div class="container mx-auto px-4 py-2">
-                <div class="mb-8">
+            <div class="container mx-auto py-2"> <!-- Removed px-4 here -->
+                <div class="mb-8 px-4"> <!-- Added px-4 here for consistent horizontal padding -->
                     <div class="relative">
                         <input type="text"
                             id="menu-search"
-                            oninput="filterMenu()"
+                            oninput="filterMenu(); toggleSearchIcon();" 
                             placeholder="Cari Menu"
                             class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         <div
-                            class="absolute inset-y-0 left-0 pl-10 flex items-center pointer-events-none">
+                            id="search-icon" 
+                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <!-- Adjusted pl-3 -->
                             <svg
                                 class="h-5 w-5 text-gray-400"
                                 fill="none"
@@ -48,7 +49,7 @@
                         </div>
                     </div>
                 </div>
-                <section class="menu-filter-section mb-8">
+                <section class="menu-filter-section mb-8 px-4"> <!-- Added px-4 here -->
                     <div
                         id="category-filters"
                         class="flex flex-nowrap overflow-x-auto justify-start gap-2 pb-4"></div>
@@ -66,7 +67,7 @@
                     <p>on all orders above 1k</p>
                 </div>
                 <img
-                    src="https://placehold.co/180x120/8b5cf6/ffffff?text=Fries"
+                src="/storage/image 9.png"
                     alt="Free Fries Promotion"
                     class="promotions-image" />
             </section>
@@ -1354,6 +1355,21 @@
                 window.location.href = `order.html?kode_barcode=${kodeBarcode}`;
             }
 
+            // Function to toggle search icon visibility
+            function toggleSearchIcon() {
+                const searchInput = document.getElementById('menu-search');
+                const searchIcon = document.getElementById('search-icon');
+                if (searchInput.value.length > 0) {
+                    searchIcon.style.display = 'none';
+                    searchInput.classList.remove('pl-10'); // Remove padding-left when icon is hidden
+                    searchInput.classList.add('pl-4'); // Add smaller padding-left
+                } else {
+                    searchIcon.style.display = 'flex';
+                    searchInput.classList.remove('pl-4'); // Restore padding-left when icon is visible
+                    searchInput.classList.add('pl-10');
+                }
+            }
+
             // --- Initialization ---
             window.onload = function () {
                 checkTableNumber();
@@ -1374,6 +1390,7 @@
                     });
                 }
                 updateFixedOrderSummary(); // Initial update of the fixed summary bar
+                toggleSearchIcon(); // Initial check for search icon visibility on load
                 // Removed redundant call to startPopularSliderAutoSlide here, it's called in displayPopularMenus
             };
 
@@ -1394,6 +1411,7 @@
                     });
                     popularSliderCurrentPosition = 0;
                 }
+                toggleSearchIcon(); // Check search icon visibility on resize
             });
 
             // --- Event Listener to close modal when clicking outside content ---

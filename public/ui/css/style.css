@@ -179,7 +179,7 @@ body.menu-page {
 .promotions-section {
     background: linear-gradient(135deg, #8b5cf6, #6366f1); /* Gradient ungu */
     color: white;
-    padding: 2rem;
+    padding: 1.5rem; /* Reduced padding slightly for a more compact look */
     border-radius: 16px;
     margin: 0 1rem 2rem 1rem; /* Margin konsisten */
     display: flex;
@@ -188,28 +188,37 @@ body.menu-page {
     overflow: hidden;
     position: relative;
     box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    height: 120px; /* Fixed height for consistency */
+}
+
+.promotions-content {
+    flex-shrink: 0; /* Prevent content from shrinking */
+    padding-right: 100px; /* Ensure space for image */
+    z-index: 2; /* Ensure text is above image */
 }
 
 .promotions-content h3 {
-    font-size: 1.8rem;
+    font-size: 1.3rem; /* Slightly smaller for compactness */
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem; /* Reduced margin */
 }
 
 .promotions-content p {
-    font-size: 1.1rem;
+    font-size: 0.9rem; /* Smaller font for details */
     font-weight: 400;
     opacity: 0.9;
+    line-height: 1.3;
 }
 
 .promotions-image {
     position: absolute;
-    right: -20px;
+    right: -20px; /* Adjust as needed to match visual */
     top: 50%;
     transform: translateY(-50%);
-    width: 180px; /* Ukuran gambar promosi */
+    width: 150px; /* Ukuran gambar promosi, adjusted based on image */
     height: auto;
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+    z-index: 1; /* Ensure image is behind text */
 }
 
 /* Menu Item Cards (Popular & General) */
@@ -1238,25 +1247,32 @@ body.menu-page {
     }
 
     .promotions-section {
-        padding: 1.5rem;
-        flex-direction: column;
-        text-align: center;
-        margin-bottom: 1.5rem;
+        padding: 1rem; /* Further reduced padding */
+        height: 100px; /* Reduced height for mobile */
     }
     .promotions-content {
-        margin-bottom: 1rem;
+        padding-right: 80px; /* Adjust padding for image */
+    }
+    .promotions-content h3 {
+        font-size: 1.2rem; /* Adjusted for mobile */
+    }
+    .promotions-content p {
+        font-size: 0.8rem; /* Adjusted for mobile */
     }
     .promotions-image {
-        position: static;
-        transform: none;
-        width: 150px;
-        margin-top: 1rem;
+        width: 120px; /* Reduced image size for mobile */
+        right: -10px; /* Adjusted position */
     }
 
     .menu-item img {
         height: 140px;
     }
+    .modal-content.menu-detail-modal-content {
+        flex-direction: column;
+        overflow-y: auto;
+    }
 
+    
     /* Modal Detail for Mobile */
     .menu-detail-modal-content {
         flex-direction: column; /* Tumpuk vertikal di mobile */
@@ -1283,6 +1299,8 @@ body.menu-page {
         border-radius: 0 0 16px 16px; /* Bulatkan sudut bawah */
         padding-top: 3rem; /* Sesuaikan padding atas */
         overflow-y: auto; /* Pastikan ini ada untuk scroll jika konten panjang */
+        padding: 1.5rem;
+        overflow-y: auto;
     }
 
     /* Addons grid for mobile */
@@ -1342,6 +1360,33 @@ body.menu-page {
 
     #order-modal .order-summary-item .flex-col .space-x-2 {
         margin-top: 0;
+    }
+    #sticky-filters-container {
+        max-height: 50vw;
+        transform-origin: top center;
+    }
+
+    #sticky-filters-container .container.mx-auto.py-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    #menu-search {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem 0.5rem 2.5rem;
+    }
+
+    #search-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    #category-filters button,
+    #subcategory-filters button {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+        margin-right: 0.1rem;
+        border-radius: 10px;
     }
 }
 
@@ -1472,21 +1517,5 @@ body.menu-page {
     #fixed-order-summary button {
         width: 100%;
         margin: 0;
-    }
-}
-
-/* ======================= */
-/* Additional Responsive menu.html */
-/* ======================= */
-@media (max-width: 768px) {
-    /* Menu detail modal can scroll */
-    .modal-content.menu-detail-modal-content {
-        flex-direction: column;
-        overflow-y: auto;
-    }
-
-    .menu-detail-modal-body {
-        padding: 1.5rem;
-        overflow-y: auto;
     }
 }
