@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Manajemen Produk - FoodOrder</title>
+        <title>Tambah Add-On - FoodOrder Admin</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -53,7 +53,7 @@
                     >
                         Menu
                     </button>
-                    <button
+                     <button
                         onclick="Addons()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
                     >
@@ -95,16 +95,10 @@
             ></div>
 
             <main class="flex-1 p-6 overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-6">
                     <h1 class="text-3xl font-bold text-blue-600">
-                        Manajemen Produk
+                        Tambah Add-On Baru
                     </h1>
-                    <button
-                        onclick="tambahMenu()"
-                        class="bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded-md transition-colors duration-200"
-                    >
-                        Tambah Menu
-                    </button>
                     <button
                         id="open-sidebar-button"
                         class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -126,30 +120,87 @@
                     </button>
                 </div>
 
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-4">Daftar Produk</h2>
-                    <table class="w-full table-auto text-left">
-                        <thead>
-                            <tr class="text-gray-600 border-b">
-                                <th class="py-2">Gambar</th>
-                                <th>Nama</th>
-                                <th>Kategori</th>
-                                <th>Sub-Kategori</th> <!-- Tambah kolom Sub-Kategori -->
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="produkList"></tbody>
-                    </table>
+                <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+                    <form id="addonForm" class="space-y-4">
+                        <div>
+                            <label
+                                for="nama"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Nama Add-On</label
+                            >
+                            <input
+                                type="text"
+                                id="nama"
+                                name="nama"
+                                required
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="harga"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Harga</label
+                            >
+                            <input
+                                type="number"
+                                id="harga"
+                                name="harga"
+                                required
+                                step="0.01"
+                                min="0"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="kategori"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Kategori (Opsional)</label
+                            >
+                            <input
+                                type="text"
+                                id="kategori"
+                                name="kategori"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="sub_kategori"
+                                class="block text-gray-700 text-sm font-bold mb-2"
+                                >Sub Kategori (Opsional)</label
+                            >
+                            <input
+                                type="text"
+                                id="sub_kategori"
+                                name="sub_kategori"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div class="pt-4">
+                            <button
+                                type="submit"
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
+                            >
+                                Tambah Add-On Baru
+                            </button>
+                        </div>
+                    </form>
+
+                    <div
+                        id="message"
+                        class="mt-4 text-center text-sm font-semibold"
+                    ></div>
                 </div>
             </main>
         </div>
 
         <script>
-            const apiUrl = "/api/admin/menu";
-            const token = localStorage.getItem("token"); // Get token once on script load
-            const produkList = document.getElementById("produkList");
+            let token = localStorage.getItem("token");
+
+            const form = document.getElementById("addonForm");
+            const messageDiv = document.getElementById("message");
 
             // Fungsi navigasi sidebar
             function Dashboard() {
@@ -157,6 +208,9 @@
             }
             function Menu() {
                 window.location.href = `admin-menu.html`;
+            }
+            function Addons() {
+                window.location.href = `admin-addons.html`;
             }
             function Addons() {
                 window.location.href = `admin-addons.html`;
@@ -170,16 +224,13 @@
             function LaporanPenjualan() {
                 window.location.href = `admin-sales-report.html`;
             }
-            function tambahMenu() {
-                window.location.href = `admin-tambah-menu.html`;
-            }
 
             // --- Sidebar Toggle Functions ---
             const sidebar = document.getElementById("sidebar");
             const sidebarOverlay = document.getElementById("sidebar-overlay");
             const openSidebarBtn = document.getElementById(
                 "open-sidebar-button"
-            ); // This button is now in HTML
+            );
             const closeSidebarBtn = document.getElementById(
                 "close-sidebar-button"
             );
@@ -192,7 +243,6 @@
                 sidebarOverlay.classList.toggle("pointer-events-none");
             }
 
-            // Add event listeners only if buttons exist (which they now do)
             if (openSidebarBtn) {
                 openSidebarBtn.addEventListener("click", toggleSidebar);
             }
@@ -205,7 +255,6 @@
 
             function setInitialSidebarState() {
                 if (window.innerWidth >= 1024) {
-                    // Tailwind's 'lg' breakpoint
                     sidebar.classList.add("sidebar-open");
                     sidebar.classList.remove("sidebar-closed");
                     sidebarOverlay.classList.add(
@@ -230,11 +279,10 @@
 
             document.addEventListener("DOMContentLoaded", function () {
                 if (!token) {
-                    window.location.href = "../login.html"; // Redirect if no token
-                    return; // Stop execution
+                    window.location.href = "../login.html";
+                    return;
                 }
 
-                // Fetch admin user data
                 fetch("/api/user", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -243,7 +291,7 @@
                     .then((response) => {
                         if (!response.ok) {
                             if (response.status === 401) {
-                                window.location.href = "../login.html"; // Redirect to login on 401
+                                window.location.href = "../login.html";
                             }
                             throw new Error("Failed to fetch admin data");
                         }
@@ -262,127 +310,78 @@
                         document.getElementById("admin-email").textContent =
                             "Error Loading";
                     });
-
-                // Initial fetch of products when the DOM is ready
-                fetchProduk();
             });
 
-            // Ambil data produk
-            async function fetchProduk() {
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
                 if (!token) {
-                    // Double-check token before fetching products
-                    console.warn("Token not found, cannot fetch products.");
-                    window.location.href = "../login.html";
+                    messageDiv.textContent =
+                        "Token tidak ditemukan. Silakan login.";
+                    messageDiv.className =
+                        "mt-4 text-center text-red-500 font-semibold";
+                    setTimeout(
+                        () => (window.location.href = "../login.html"),
+                        2000
+                    );
                     return;
                 }
 
                 try {
-                    const res = await fetch(apiUrl, {
+                    const res = await fetch("/api/admin/addons", {
+                        method: "POST",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json", // Kirim sebagai JSON
+                            Accept: "application/json",
                         },
+                        body: JSON.stringify(data), // Kirim data sebagai JSON string
                     });
 
-                    if (!res.ok) {
-                        if (res.status === 401) {
-                            console.error(
-                                "Unauthorized. Redirecting to login."
-                            );
-                            window.location.href = "../login.html";
-                            return;
-                        }
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
+                    const responseData = await res.json(); // Mengganti 'data' menjadi 'responseData'
 
-                    const produk = await res.json();
-                    produkList.innerHTML = ""; // Clear existing list
-                    if (produk && Array.isArray(produk)) {
-                        produk.forEach((p) => {
-                            produkList.innerHTML += `
-                            <tr class="border-t">
-                                <td class="py-2">
-                                    <img src="/storage/${
-                                        p.image_path ?? "default.jpg"
-                                    }" alt="${
-                                p.nama
-                            }" class="w-16 h-16 object-cover rounded" />
-                                </td>
-                                <td>${p.nama}</td>
-                                <td>${p.kategori}</td>
-                                <td>${p.sub_kategori || '-'}</td> <!-- Tampilkan sub_kategori -->
-                                <td>Rp ${p.harga.toLocaleString("id-ID")}</td>
-                                <td>${p.stok}</td>
-                                <td>
-                                    <button onclick="window.location.href='/ui/admin/admin-edit-menu.html?id=${
-                                        p.id
-                                    }'" class="text-blue-600 hover:underline mr-2">Edit</button>
-                                    <button onclick="hapusProduk(${
-                                        p.id
-                                    })" class="text-red-600 hover:underline">Hapus</button>
-                                </td>
-                            </tr>`;
-                        });
+                    if (!res.ok) {
+                        let errorMessage =
+                            responseData.message || "Gagal menambahkan add-on.";
+                        if (res.status === 401) {
+                            errorMessage =
+                                "Sesi Anda telah berakhir atau token tidak valid. Silakan login kembali.";
+                            setTimeout(
+                                () => (window.location.href = "../login.html"),
+                                2000
+                            );
+                        } else if (responseData.errors) {
+                            for (const key in responseData.errors) {
+                                errorMessage += `\n${key}: ${responseData.errors[
+                                    key
+                                ].join(", ")}`;
+                            }
+                        }
+                        messageDiv.textContent = errorMessage;
+                        messageDiv.className =
+                            "mt-4 text-center text-red-500 font-semibold";
                     } else {
-                        console.warn(
-                            "API returned unexpected data format:",
-                            produk
-                        );
-                        produkList.innerHTML =
-                            '<tr><td colspan="7" class="text-center py-4">Tidak ada produk ditemukan.</td></tr>'; 
+                        messageDiv.textContent = "Add-on berhasil ditambahkan!";
+                        messageDiv.className =
+                            "mt-4 text-center text-green-500 font-semibold";
+                        form.reset();
+                        setTimeout(() => window.location.href = 'admin-addons.html', 1500); // Redirect to list after success
                     }
                 } catch (error) {
-                    console.error("Gagal memuat produk:", error);
-                    produkList.innerHTML =
-                        '<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat produk. Silakan coba lagi.</td></tr>';
+                    console.error("Terjadi kesalahan:", error);
+                    messageDiv.textContent =
+                        "Terjadi kesalahan saat menghubungi server.";
+                    messageDiv.className =
+                        "mt-4 text-center text-red-500 font-semibold";
                 }
-            }
+            });
 
-            // Hapus Produk
-            async function hapusProduk(id) {
-                if (!token) {
-                    alert("Sesi Anda telah berakhir. Silakan login kembali.");
-                    window.location.href = "../login.html";
-                    return;
-                }
-
-                if (confirm("Yakin ingin menghapus produk ini?")) {
-                    try {
-                        const response = await fetch(`${apiUrl}/${id}`, {
-                            method: "DELETE",
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        });
-
-                        if (!response.ok) {
-                            if (response.status === 401) {
-                                alert(
-                                    "Sesi Anda telah berakhir atau tidak valid. Silakan login kembali."
-                                );
-                                window.location.href = "../login.html";
-                                return;
-                            }
-                            const errorData = await response.json();
-                            throw new Error(
-                                errorData.message || "Gagal menghapus produk"
-                            );
-                        }
-
-                        alert("Produk berhasil dihapus!");
-                        fetchProduk(); // Refresh list after deletion
-                    } catch (error) {
-                        alert(`Gagal menghapus produk: ${error.message}`);
-                        console.error("Error deleting product:", error);
-                    }
-                }
-            }
-
-            // Fungsi Logout
             function logout() {
-                // Hapus token dari localStorage
                 localStorage.removeItem("token");
-                // Arahkan pengguna ke halaman login
-                window.location.href = "../login.html"; // Adjust path if login page is elsewhere
+                window.location.href = "../login.html";
             }
         </script>
     </body>

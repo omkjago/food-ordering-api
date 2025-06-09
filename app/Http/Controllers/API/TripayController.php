@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Pesanan;
 use App\Models\PemesanInfo;
 use App\Models\Meja;
+use App\Models\AddOn; // Import AddOn model
 
 class TripayController extends Controller
 {
@@ -142,7 +143,7 @@ class TripayController extends Controller
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
 
-        // Jika pembayaran sukses, update status jadi aktif dan simpan pemesan_info
+        // Jika pembayaran sukses, update status jadi selesai dan simpan pemesan_info
         if (($data['status'] ?? '') === 'PAID') {
             $order->status = 'selesai';
             
@@ -197,19 +198,33 @@ class TripayController extends Controller
             'order_token' => 'required|string'
         ]);
 
-        $pesanan = Pesanan::with(['items.menu'])->where('order_token', $request->order_token)->first();
+        // Eager load menu, addons for each pesanan_item
+        $pesanan = Pesanan::with(['items.menu', 'items.addons'])->where('order_token', $request->order_token)->first();
 
         if (!$pesanan) {
             return response()->json(['message' => 'Pesanan tidak ditemukan'], 404);
         }
 
         $summary = $pesanan->items->map(function ($item) {
+            $subtotal = ($item->menu->harga ?? 0) * $item->jumlah;
+            $addonsData = [];
+            foreach ($item->addons as $addon) {
+                $subtotal += $addon->harga * $item->jumlah; // Add addon price per quantity of main item
+                $addonsData[] = [
+                    'id' => $addon->id,
+                    'name' => $addon->nama,
+                    'price' => $addon->harga,
+                ];
+            }
+
             return [
                 'nama_menu' => $item->menu->nama ?? 'Menu tidak ditemukan',
                 'harga'     => $item->menu->harga ?? 0,
                 'jumlah'    => $item->jumlah,
-                'subtotal'  => ($item->menu->harga ?? 0) * $item->jumlah,
-                'image_path' => $item->menu->image_path ?? ''  // Menambahkan path gambar
+                'subtotal'  => $subtotal, // Subtotal termasuk add-ons
+                'image_path' => $item->menu->image_path ?? '',
+                'catatan' => $item->catatan, // Sertakan catatan per item
+                'addons' => $addonsData, // Sertakan data add-ons
             ];
         });
 
@@ -219,42 +234,44 @@ class TripayController extends Controller
             'order_token' => $pesanan->order_token,
             'items'       => $summary,
             'total'       => $total,
+            'status'      => $pesanan->status, // Sertakan status pesanan
+            'global_notes' => $pesanan->global_notes, // Sertakan catatan global
         ]);
     }
 
     // Metode baru untuk menerima redirect dari Tripay dan mengarahkan ke halaman meja
     public function paymentReturn(Request $request)
-{
-    $orderToken = $request->input('order_token');
-    
-    Log::info('Payment return received', ['order_token' => $orderToken]);
-    
-    $order = Pesanan::where('order_token', $orderToken)->first();
-    if (!$order) {
-        Log::error('Order not found in payment return', ['order_token' => $orderToken]);
-        return redirect()->route('home')->with('error', 'Pesanan tidak ditemukan');
+    {
+        $orderToken = $request->input('order_token');
+        
+        Log::info('Payment return received', ['order_token' => $orderToken]);
+        
+        $order = Pesanan::where('order_token', $orderToken)->first();
+        if (!$order) {
+            Log::error('Order not found in payment return', ['order_token' => $orderToken]);
+            return redirect()->route('home')->with('error', 'Pesanan tidak ditemukan');
+        }
+        
+        // Ambil ID meja
+        $tableId = $order->meja_id;
+        
+        // Ambil kode barcode dari tabel Meja berdasarkan ID meja
+        $table = Meja::find($tableId); // Asumsikan model Meja
+        
+        if (!$table) {
+            Log::error('Table not found', ['table_id' => $tableId]);
+            return redirect()->route('home')->with('error', 'Meja tidak ditemukan');
+        }
+        
+        $barcodeCode = $table->kode_barcode; // Asumsikan kolom kode_barcode
+        
+        Log::info('Redirecting to table page', [
+            'order_token' => $orderToken,
+            'table_id' => $tableId,
+            'barcode_code' => $barcodeCode
+        ]);
+        
+        // Redirect dengan format yang benar (?= bukan ?id=)
+        return redirect("/ui/menu.html?=" . $barcodeCode);
     }
-    
-    // Ambil ID meja
-    $tableId = $order->meja_id;
-    
-    // Ambil kode barcode dari tabel Meja berdasarkan ID meja
-    $table = Meja::find($tableId); // Asumsikan model Meja
-    
-    if (!$table) {
-        Log::error('Table not found', ['table_id' => $tableId]);
-        return redirect()->route('home')->with('error', 'Meja tidak ditemukan');
-    }
-    
-    $barcodeCode = $table->kode_barcode; // Asumsikan kolom kode_barcode
-    
-    Log::info('Redirecting to table page', [
-        'order_token' => $orderToken,
-        'table_id' => $tableId,
-        'barcode_code' => $barcodeCode
-    ]);
-    
-    // Redirect dengan format yang benar (?= bukan ?id=)
-    return redirect("/ui/menu.html?=" . $barcodeCode);
-}
 }

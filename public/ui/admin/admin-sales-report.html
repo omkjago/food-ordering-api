@@ -51,10 +51,16 @@
                         Dashboard
                     </button>
                     <button
-                        onclick="Produk()"
+                        onclick="Menu()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
                     >
-                        Produk
+                        Menu
+                    </button>
+                    <button
+                        onclick="Addons()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Add-Ons
                     </button>
                     <button
                         onclick="Kasir()"
@@ -246,8 +252,11 @@
             function Dashboard() {
                 window.location.href = `../dashboard_admin.html`;
             }
-            function Produk() {
+            function Menu() {
                 window.location.href = `admin-menu.html`;
+            }
+            function Addons() {
+                window.location.href = `admin-addons.html`;
             }
             function Kasir() {
                 window.location.href = `admin-validasi.html`;

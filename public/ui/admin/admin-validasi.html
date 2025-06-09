@@ -13,6 +13,87 @@
             href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
         />
         <link rel="stylesheet" href="../css/style.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://unpkg.com/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.js"></script>
+        <style>
+            /* Custom styles for modal */
+            .custom-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            .custom-modal-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            .custom-modal-content {
+                background-color: white;
+                padding: 2.5rem; /* Increased padding */
+                border-radius: 0.75rem; /* Rounded corners */
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                max-width: 90%;
+                width: 400px; /* Fixed width for consistency */
+                transform: translateY(-20px);
+                transition: transform 0.3s ease;
+            }
+            .custom-modal-overlay.active .custom-modal-content {
+                transform: translateY(0);
+            }
+            .custom-modal-content p {
+                margin-bottom: 1.5rem; /* Increased margin */
+                font-size: 1.125rem; /* Larger font size */
+                color: #333;
+            }
+            .custom-modal-content button {
+                padding: 0.75rem 1.5rem; /* Larger buttons */
+                font-size: 1rem;
+                border-radius: 0.5rem; /* More rounded buttons */
+                cursor: pointer;
+                transition: background-color 0.2s ease, transform 0.1s ease;
+            }
+            .custom-modal-content button:hover {
+                transform: translateY(-1px);
+            }
+            .confirm-buttons {
+                display: flex;
+                justify-content: space-around; /* Space out buttons */
+                gap: 1rem; /* Gap between buttons */
+            }
+            .confirm-buttons button {
+                flex: 1; /* Make buttons take equal width */
+            }
+            .input-group {
+                margin-bottom: 1rem;
+                text-align: left;
+            }
+            .input-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: #4a5568;
+            }
+            .input-group input {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid #cbd5e0;
+                border-radius: 0.5rem;
+                font-size: 1rem;
+            }
+            .text-red-500 {
+                color: #ef4444;
+            }
+        </style>
     </head>
     <body class="bg-gray-100 font-sans">
         <div class="flex h-screen">
@@ -52,10 +133,16 @@
                         Dashboard
                     </button>
                     <button
-                        onclick="Produk()"
+                        onclick="Menu()"
                         class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
                     >
-                        Produk
+                        Menu
+                    </button>
+                    <button
+                        onclick="Addons()"
+                        class="block w-full text-left py-2 px-3 rounded-md text-gray-700 hover:bg-gray-200 transition-colors duration-200"
+                    >
+                        Add-Ons
                     </button>
                     <button
                         onclick="Kasir()"
@@ -165,15 +252,23 @@
                             ></span>
                         </p>
                         <p class="mb-3">
+                            <strong class="text-gray-700">Nama Pelanggan:</strong>
+                            <span id="customer-name" class="text-gray-900"></span>
+                        </p>
+                        <p class="mb-3">
                             <strong class="text-gray-700">Meja:</strong>
                             <span id="meja-info" class="text-gray-900"></span>
                         </p>
-                        <p class="mb-5">
+                        <p class="mb-3">
                             <strong class="text-gray-700">Status:</strong>
                             <span
                                 id="order-status"
                                 class="text-gray-900 font-semibold"
                             ></span>
+                        </p>
+                        <p class="mb-5" id="global-note-container" style="display: none;">
+                            <strong class="text-gray-700">Catatan Global:</strong>
+                            <span id="global-note" class="text-gray-900 italic"></span>
                         </p>
 
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">
@@ -209,13 +304,40 @@
             </main>
         </div>
 
+        <!-- Payment Modal -->
+        <div id="payment-modal" class="custom-modal-overlay">
+            <div class="custom-modal-content">
+                <h2 class="text-2xl font-bold mb-4">Pembayaran Tunai</h2>
+                <p class="text-lg mb-4">Total Pesanan: <span id="modal-total-amount" class="font-semibold"></span></p>
+                
+                <div class="input-group">
+                    <label for="amount-paid">Uang Diberikan (Rp):</label>
+                    <input type="number" id="amount-paid" class="w-full p-2 border rounded" min="0" value="0">
+                    <p id="amount-paid-error" class="text-red-500 text-sm mt-1 hidden">Nominal uang tidak mencukupi.</p>
+                </div>
+                
+                <div class="input-group mt-4">
+                    <label for="change-amount">Kembalian (Rp):</label>
+                    <input type="text" id="change-amount" class="w-full p-2 border rounded bg-gray-100" readonly value="0">
+                </div>
+
+                <div class="flex justify-end gap-4 mt-6">
+                    <button id="cancel-payment" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">Batal</button>
+                    <button id="process-payment" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md" disabled>Bayar</button>
+                </div>
+            </div>
+        </div>
+
         <script>
-            // Navigation functions
+            // Fungsi navigasi
             function Dashboard() {
                 window.location.href = `../dashboard_admin.html`;
             }
-            function Produk() {
+            function Menu() {
                 window.location.href = `admin-menu.html`;
+            }
+            function Addons() {
+                window.location.href = `admin-addons.html`;
             }
             function Kasir() {
                 window.location.href = `admin-validasi.html`;
@@ -227,7 +349,7 @@
                 window.location.href = `admin-sales-report.html`;
             }
 
-            // DOM Elements
+            // Elemen DOM
             const messageElement = document.getElementById("message");
             const barcodeInput = document.getElementById("barcode-input");
             const orderDetailsDiv = document.getElementById("order-details");
@@ -235,19 +357,33 @@
             const orderTokenDisplay = document.getElementById(
                 "order-token-display"
             );
+            const customerNameSpan = document.getElementById("customer-name");
             const mejaInfoSpan = document.getElementById("meja-info");
             const orderStatusSpan = document.getElementById("order-status");
+            const globalNoteContainer = document.getElementById("global-note-container");
+            const globalNoteSpan = document.getElementById("global-note");
             const orderItemsList = document.querySelector("#order-items ul");
             const totalValueSpan = document.getElementById("total-value");
             const confirmButton = document.getElementById("confirm-button");
 
-            // Authentication token
+            // Elemen Modal Pembayaran
+            const paymentModal = document.getElementById("payment-modal");
+            const modalTotalAmount = document.getElementById("modal-total-amount");
+            const amountPaidInput = document.getElementById("amount-paid");
+            const amountPaidError = document.getElementById("amount-paid-error");
+            const changeAmountInput = document.getElementById("change-amount");
+            const processPaymentButton = document.getElementById("process-payment");
+            const cancelPaymentButton = document.getElementById("cancel-payment");
+
+            // Token otentikasi
             const token = localStorage.getItem("token");
 
-            let currentOrderId = null; // Stores the ID of the currently displayed order
+            let currentOrderId = null; // Menyimpan ID pesanan yang sedang ditampilkan
+            let currentOrderTotal = 0; // Menyimpan total harga pesanan yang sedang ditampilkan
+
             document.addEventListener("DOMContentLoaded", function () {
                 if (!token) {
-                    window.location.href = "../login.html"; // Adjust path if needed
+                    window.location.href = "../login.html"; // Sesuaikan path jika diperlukan
                     // return;
                 }
                 fetch("/api/user", {
@@ -258,9 +394,9 @@
                     .then((response) => {
                         if (!response.ok) {
                             if (response.status === 401) {
-                                window.location.href = "../login.html"; // Redirect to login
+                                window.location.href = "../login.html"; // Redirect ke halaman login
                             }
-                            throw new Error("Failed to fetch admin data");
+                            throw new Error("Gagal mengambil data admin");
                         }
                         return response.json();
                     })
@@ -277,9 +413,8 @@
                         document.getElementById("admin-email").textContent =
                             "Error Loading";
                     });
-                fetchProduk();
             });
-            // --- Sidebar Toggle Functions ---
+            // --- Fungsi Toggle Sidebar ---
             const sidebar = document.getElementById("sidebar");
             const sidebarOverlay = document.getElementById("sidebar-overlay");
             const openSidebarBtn = document.getElementById(
@@ -330,9 +465,9 @@
 
             setInitialSidebarState();
             window.addEventListener("resize", setInitialSidebarState);
-            // --- End Sidebar Toggle Functions ---
+            // --- End Fungsi Toggle Sidebar ---
 
-            // Function to reset the UI to its initial state
+            // Fungsi untuk mereset UI ke keadaan awal
             const resetUI = () => {
                 messageElement.textContent =
                     "Siap untuk menerima input barcode pesanan...";
@@ -340,36 +475,47 @@
                 orderDetailsDiv.style.display = "none";
                 orderIdSpan.textContent = "";
                 orderTokenDisplay.textContent = "";
+                customerNameSpan.textContent = "";
                 mejaInfoSpan.textContent = "";
                 orderStatusSpan.textContent = "";
+                globalNoteSpan.textContent = "";
+                globalNoteContainer.style.display = "none";
                 orderItemsList.innerHTML = "";
                 totalValueSpan.textContent = "0";
                 confirmButton.disabled = true;
+                confirmButton.textContent = 'Konfirmasi Pembayaran (Tunai)';
+                confirmButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                confirmButton.classList.add('bg-green-600', 'hover:bg-green-700');
                 currentOrderId = null;
-                barcodeInput.value = ""; // Clear the barcode input
-                barcodeInput.focus(); // Focus the input for the next scan
+                currentOrderTotal = 0;
+                barcodeInput.value = "";
+                barcodeInput.focus();
             };
 
-            // Check for authentication token
+            // Periksa token otentikasi
             if (!token) {
                 messageElement.textContent =
                     "Token otentikasi tidak ditemukan. Silakan login sebagai kasir.";
                 messageElement.classList.add("error");
-                barcodeInput.disabled = true; // Disable input if no token
+                barcodeInput.disabled = true;
             } else {
-                // Event listener for barcode input (on Enter key press)
+                // Event listener untuk input barcode (saat tombol Enter ditekan)
                 barcodeInput.addEventListener("keyup", async (event) => {
                     if (event.key === "Enter") {
                         const decodedToken = barcodeInput.value.trim();
+                        console.log('Decoded Token from input:', decodedToken); // Added log for debugging
 
                         if (!decodedToken) {
+                            displayCustomAlert(
+                                "Barcode (Order Token) tidak boleh kosong."
+                            );
                             messageElement.textContent =
                                 "Barcode (Order Token) tidak boleh kosong.";
                             messageElement.classList.add("error");
                             return;
                         }
 
-                        resetUI(); // Reset UI before fetching new data
+                        resetUI(); // Reset UI sebelum mengambil data baru
 
                         messageElement.textContent =
                             "Mencari pesanan berdasarkan order token...";
@@ -401,11 +547,14 @@
                                 messageElement.classList.add("success");
 
                                 currentOrderId = data.id;
+                                // Pastikan currentOrderTotal adalah angka
+                                currentOrderTotal = parseFloat(data.total_harga || 0); 
+                                
                                 orderIdSpan.textContent = data.id;
                                 orderTokenDisplay.textContent =
                                     data.order_token;
+                                customerNameSpan.textContent = data.pelanggan_nama;
 
-                                // Display table info with fallbacks based on your JSON structure
                                 mejaInfoSpan.textContent = data.meja
                                     ? `${
                                           data.meja.kode_barcode ||
@@ -424,16 +573,41 @@
                                 orderStatusSpan.textContent = (
                                     data.status || "Status Tidak Diketahui"
                                 ).toUpperCase();
-                                totalValueSpan.textContent = parseFloat(
-                                    data.total_harga || 0
-                                ).toLocaleString("id-ID");
+                                totalValueSpan.textContent = currentOrderTotal.toLocaleString("id-ID");
 
-                                orderItemsList.innerHTML = ""; // Clear previous items
+                                if (data.global_notes) {
+                                    globalNoteSpan.textContent = data.global_notes;
+                                    globalNoteContainer.style.display = "block";
+                                } else {
+                                    globalNoteSpan.textContent = "";
+                                    globalNoteContainer.style.display = "none";
+                                }
+
+                                // Logika untuk tombol konfirmasi berdasarkan status
+                                if (data.status === 'selesai') {
+                                    confirmButton.textContent = 'Cetak Resi';
+                                    confirmButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                                    confirmButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                                    confirmButton.disabled = false;
+                                } else {
+                                    confirmButton.textContent = 'Konfirmasi Pembayaran (Tunai)';
+                                    confirmButton.classList.remove('bg-blue-600', 'hover:bg-green-700');
+                                    confirmButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                                    confirmButton.disabled = false;
+                                }
+
+                                orderItemsList.innerHTML = "";
                                 if (data.items && data.items.length > 0) {
                                     data.items.forEach((item) => {
+                                        console.log("Processing item:", item.menu ? item.menu.nama : 'Unknown Menu');
+                                        // Ensure item.addons is an array, even if undefined or null
+                                        const itemAddons = item.addons || []; 
+                                        console.log("Addons for this item:", itemAddons); // Log add-ons data
+
                                         const li = document.createElement("li");
                                         li.classList.add(
                                             "flex",
+                                            "flex-wrap",
                                             "justify-between",
                                             "items-center",
                                             "py-2",
@@ -441,7 +615,6 @@
                                             "border-b",
                                             "last:border-b-0"
                                         );
-                                        // Use 'nama' for menu name and parse 'harga' as float
                                         const menuName = item.menu
                                             ? item.menu.nama
                                             : "Menu Tidak Diketahui";
@@ -452,12 +625,35 @@
                                         const subtotal = jumlah * menuPrice;
 
                                         li.innerHTML = `
-                                        <span class="item-name text-gray-800 font-medium">${menuName}</span>
-                                        <span class="item-qty text-gray-600">${jumlah}x</span>
-                                        <span class="item-price text-gray-900 font-semibold">Rp ${subtotal.toLocaleString(
-                                            "id-ID"
-                                        )}</span>
-                                    `;
+                                            <div class="flex justify-between items-center w-full">
+                                            <span class="item-name text-gray-800 font-medium">${menuName}</span>
+                                            <div class="flex items-center">
+                                                <span class="item-qty text-gray-600 mr-2">${jumlah}x</span>
+                                                <span class="item-price text-gray-900 font-semibold">Rp ${subtotal.toLocaleString(
+                                                    "id-ID"
+                                                )}</span>
+                                            </div>
+                                        </div>
+                                        ${
+                                            item.catatan
+                                                ? `<span class="item-note text-gray-500 text-sm italic w-full text-left mt-1">Catatan: ${item.catatan}</span>`
+                                                : ""
+                                        }
+                                        ${
+                                            // Menampilkan add-ons jika ada dan harganya lebih dari 0
+                                            itemAddons.length > 0 && itemAddons.filter(addon => {
+                                                // Access price from addon.add_on.harga
+                                                const addonPrice = parseFloat(addon.add_on.harga); 
+                                                return addonPrice > 0;
+                                            }).length > 0
+                                                ? `<div class="w-full text-left mt-1">
+                                                    ${itemAddons.filter(addon => parseFloat(addon.add_on.harga) > 0).map(addon => `
+                                                        <span class="item-addon text-gray-600 text-sm italic block">- ${addon.add_on.nama} (Rp ${parseFloat(addon.add_on.harga).toLocaleString("id-ID")})</span>
+                                                    `).join('')}
+                                                </div>`
+                                                : ""
+                                        }
+                                        `;
                                         orderItemsList.appendChild(li);
                                     });
                                 } else {
@@ -472,8 +668,7 @@
                                     orderItemsList.appendChild(li);
                                 }
 
-                                orderDetailsDiv.style.display = "block"; // Show order details
-                                confirmButton.disabled = false; // Enable confirm button
+                                orderDetailsDiv.style.display = "block";
                             }
                         } catch (error) {
                             console.error("Error fetching order:", error);
@@ -485,79 +680,365 @@
                     }
                 });
 
-                // Event listener for confirmation button
+                // Event listener untuk tombol konfirmasi
                 confirmButton.addEventListener("click", async () => {
                     if (!currentOrderId) {
                         displayCustomAlert(
-                            "Tidak ada pesanan yang dipilih untuk dikonfirmasi."
+                            "Tidak ada pesanan yang dipilih."
                         );
                         return;
                     }
 
-                    const confirmed = await displayCustomConfirm(
-                        `Anda yakin ingin mengkonfirmasi pembayaran untuk Pesanan ID ${currentOrderId} sebesar Rp ${totalValueSpan.textContent}?`
-                    );
+                    if (confirmButton.textContent === 'Cetak Resi') {
+                        await printOrderReceipt(currentOrderId);
+                        resetUI();
+                        return;
+                    }
 
-                    if (confirmed) {
-                        messageElement.textContent =
-                            "Mengkonfirmasi pembayaran...";
-                        messageElement.classList.remove("error", "success");
-                        confirmButton.disabled = true;
+                    // Tampilkan modal pembayaran untuk konfirmasi pembayaran tunai
+                    modalTotalAmount.textContent = currentOrderTotal.toLocaleString("id-ID");
+                    amountPaidInput.value = currentOrderTotal; // Isi otomatis dengan total harga
+                    calculateChange(); // Hitung kembalian awal
+                    paymentModal.classList.add("active");
+                    amountPaidInput.focus();
+                });
 
-                        try {
-                            const res = await fetch(
-                                "/api/admin/confirm-payment",
-                                {
-                                    method: "POST",
-                                    headers: {
-                                        Authorization: "Bearer " + token,
-                                        "Content-Type": "application/json",
-                                        Accept: "application/json",
-                                    },
-                                    body: JSON.stringify({
-                                        order_id: currentOrderId,
-                                        metode_pembayaran: "tunai", // Hardcoded to 'tunai' as requested
-                                    }),
-                                }
-                            );
+                // Logika modal pembayaran
+                amountPaidInput.addEventListener("input", calculateChange);
 
-                            const data = await res.json();
+                function calculateChange() {
+                    const total = currentOrderTotal;
+                    // Pastikan amountPaid adalah angka, default ke 0 jika kosong atau tidak valid
+                    const amountPaid = parseFloat(amountPaidInput.value) || 0; 
+                    const change = amountPaid - total;
 
-                            if (!res.ok) {
-                                messageElement.textContent =
-                                    data.message ||
-                                    "Gagal mengkonfirmasi pembayaran.";
-                                messageElement.classList.add("error");
-                                confirmButton.disabled = false;
-                                displayCustomAlert(
-                                    data.message ||
-                                        "Gagal mengkonfirmasi pembayaran."
-                                );
-                            } else {
-                                messageElement.textContent =
-                                    data.message ||
-                                    "Pembayaran berhasil dikonfirmasi!";
-                                messageElement.classList.add("success");
-                                displayCustomAlert(
-                                    "Pembayaran berhasil dikonfirmasi!"
-                                );
-                                resetUI(); // Reset UI for the next scan
+                    if (isNaN(amountPaid) || amountPaid < total) {
+                        amountPaidError.classList.remove("hidden");
+                        processPaymentButton.disabled = true;
+                        changeAmountInput.value = "0";
+                    } else {
+                        amountPaidError.classList.add("hidden");
+                        processPaymentButton.disabled = false;
+                        // Hapus toFixed(2) agar toLocaleString dapat menangani desimal secara otomatis
+                        changeAmountInput.value = change.toLocaleString("id-ID");
+                    }
+                }
+
+                processPaymentButton.addEventListener("click", async () => {
+                    const amountPaid = parseFloat(amountPaidInput.value);
+                    if (isNaN(amountPaid) || amountPaid < currentOrderTotal) {
+                        displayCustomAlert("Uang yang diberikan tidak mencukupi.");
+                        return;
+                    }
+
+                    paymentModal.classList.remove("active"); // Sembunyikan modal
+                    messageElement.textContent = "Mengkonfirmasi pembayaran...";
+                    messageElement.classList.remove("error", "success");
+                    confirmButton.disabled = true;
+
+                    // Log nilai sebelum dikirim ke backend
+                    console.log("Mengirim ke backend:");
+                    console.log("Order ID:", currentOrderId);
+                    console.log("Uang Diberikan:", amountPaid);
+                    console.log("Total Pesanan Saat Ini (frontend):", currentOrderTotal);
+
+
+                    try {
+                        const res = await fetch(
+                            "/api/admin/confirm-payment",
+                            {
+                                method: "POST",
+                                headers: {
+                                    Authorization: "Bearer " + token,
+                                    "Content-Type": "application/json",
+                                    Accept: "application/json",
+                                },
+                                body: JSON.stringify({
+                                    order_id: currentOrderId,
+                                    metode_pembayaran: "tunai",
+                                    amount_paid: amountPaid // Kirim uang yang diberikan
+                                }),
                             }
-                        } catch (error) {
-                            console.error("Error confirming payment:", error);
+                        );
+
+                        const data = await res.json();
+
+                        // Log nilai yang diterima dari backend
+                        console.log("Diterima dari backend:");
+                        console.log("Data Respons:", data);
+
+                        if (!res.ok) {
                             messageElement.textContent =
-                                "Terjadi kesalahan saat mengkonfirmasi pembayaran.";
+                                data.message ||
+                                "Gagal mengkonfirmasi pembayaran.";
                             messageElement.classList.add("error");
                             confirmButton.disabled = false;
                             displayCustomAlert(
-                                "Terjadi kesalahan saat mengkonfirmasi pembayaran."
+                                data.message ||
+                                    "Gagal mengkonfirmasi pembayaran."
+                            );
+                        } else {
+                            messageElement.textContent =
+                                data.message ||
+                                "Pembayaran berhasil dikonfirmasi!";
+                            messageElement.classList.add("success");
+                            
+                            // Pastikan data.change adalah angka sebelum diteruskan ke toLocaleString
+                            // Gunakan operator nullish coalescing untuk default ke 0 jika data.change null atau undefined
+                            const actualChange = parseFloat(data.change ?? 0); 
+                            
+                            // Ambil nilai kembalian yang sudah diformat dari input field
+                            const displayedChange = changeAmountInput.value;
+
+                            // Tampilkan alert, lalu cetak resi dan reset UI
+                            displayCustomAlert(
+                                `Pembayaran berhasil dikonfirmasi! Kembalian: Rp ${displayedChange}`, // Gunakan nilai dari input
+                                async () => { // Fungsi callback
+                                    // Teruskan amountPaid dan actualChange (dijamin angka)
+                                    await printOrderReceipt(currentOrderId, amountPaid, actualChange); 
+                                    // resetUI() sekarang dipanggil di dalam printOrderReceipt
+                                }
                             );
                         }
+                    } catch (error) {
+                        console.error("Error confirming payment:", error);
+                        messageElement.textContent =
+                            "Terjadi kesalahan saat mengkonfirmasi pembayaran.";
+                        messageElement.classList.add("error");
+                        confirmButton.disabled = false;
+                        displayCustomAlert(
+                            "Terjadi kesalahan saat mengkonfirmasi pembayaran."
+                        );
                     }
                 });
 
-                // --- Custom Alert/Confirm Functions (to replace window.alert/confirm) ---
-                function displayCustomAlert(message) {
+                cancelPaymentButton.addEventListener("click", () => {
+                    paymentModal.classList.remove("active");
+                    amountPaidInput.value = "0"; // Reset input
+                    changeAmountInput.value = "0"; // Reset kembalian
+                    amountPaidError.classList.add("hidden"); // Sembunyikan error
+                    processPaymentButton.disabled = true; // Nonaktifkan tombol bayar
+                });
+
+
+                // --- FUNGSI UNTUK MENCETAK RESI (DIREVISI TOTAL) ---
+                async function printOrderReceipt(orderId, amountPaidFromFrontend = null, changeFromFrontend = null) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+            unit: "mm",
+            format: [80, 200] // Ukuran kertas termal 80mm lebar, tinggi bisa disesuaikan
+        });
+
+        messageElement.textContent = "Mengambil data resi...";
+        messageElement.classList.remove("error", "success");
+
+        try {
+            const res = await fetch(`/api/admin/receipt/${orderId}`, {
+                headers: {
+                    Authorization: "Bearer " + token,
+                    Accept: "application/json",
+                },
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    displayCustomAlert("Sesi Anda telah berakhir. Silakan login kembali.");
+                    window.location.href = "../login.html";
+                    return;
+                }
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Gagal mengambil data resi.");
+            }
+
+            const receiptData = await res.json();
+            console.log("Receipt Data from Backend:", receiptData); // Debugging: Check all data received
+
+            // Fallback untuk nama admin jika tidak ada
+            const cashierName = receiptData.admin_name || 'Kasir';
+
+            // Logika baru untuk menentukan finalChange dan finalAmountPaid
+            // Prioritaskan nilai dari frontend jika ada (untuk transaksi baru),
+            // lalu nilai dari backend (untuk cetak ulang), terakhir default ke 0.
+            let finalAmountPaid = parseFloat(amountPaidFromFrontend || receiptData.amount_paid || 0);
+            let finalTotalAmount = parseFloat(receiptData.total_amount || 0);
+            let finalChange = parseFloat(changeFromFrontend || receiptData.change || 0);
+
+            console.log("Parsed finalAmountPaid (for receipt):", finalAmountPaid);
+            console.log("Parsed finalTotalAmount (for receipt):", finalTotalAmount);
+            console.log("Parsed finalChange (before re-calc for receipt):", finalChange);
+
+            // Jika kembalian dari backend/frontend masih 0 atau null, tapi uang diberikan lebih, hitung ulang
+            if (finalChange === 0 && finalAmountPaid > finalTotalAmount) {
+                finalChange = finalAmountPaid - finalTotalAmount;
+                console.log("Recalculated finalChange (for receipt):", finalChange);
+            }
+            
+            // Pastikan finalChange tidak negatif (seharusnya dicegah oleh UI/backend, tapi untuk keamanan)
+            if (finalChange < 0) {
+                finalChange = 0;
+                console.log("Adjusted finalChange to 0 (was negative for receipt):", finalChange);
+            }
+
+
+            // --- Buat Konten PDF ---
+            const receiptWidth = 80; // Lebar resi dalam mm
+            const centerX = receiptWidth / 2;
+            let yPos = 5; // Posisi Y awal
+
+            // Header Restoran
+            doc.setFontSize(12);
+            doc.text("FoodOrder", centerX, yPos, { align: "center" });
+            yPos += 5;
+            doc.setFontSize(8);
+            doc.text("Jl. Contoh No. 123, Semarang", centerX, yPos, { align: "center" });
+            yPos += 3;
+            doc.text("Telp: 0812-3456-7890", centerX, yPos, { align: "center" });
+            yPos += 5;
+            doc.line(5, yPos, receiptWidth - 5, yPos); // Garis pemisah
+            yPos += 4;
+
+            // Detail Pesanan
+            doc.setFontSize(8);
+            doc.text(`Tanggal/Waktu: ${receiptData.timestamp}`, 5, yPos);
+            yPos += 4;
+            doc.text(`Order ID: #${receiptData.order_id}`, 5, yPos);
+            yPos += 4;
+            doc.text(`Pelanggan: ${receiptData.customer_name}`, 5, yPos);
+            yPos += 4;
+            doc.text(`Meja: ${receiptData.table_info}`, 5, yPos);
+            yPos += 4;
+            doc.text(`Kasir: ${cashierName}`, 5, yPos); // Menampilkan nama admin/kasir
+            yPos += 5;
+            doc.line(5, yPos, receiptWidth - 5, yPos); // Garis pemisah
+            yPos += 4;
+
+            // Catatan Global jika ada
+            if (receiptData.global_notes) {
+                doc.text("Catatan:", 5, yPos);
+                yPos += 4;
+                doc.text(receiptData.global_notes, 5, yPos, { maxWidth: receiptWidth - 10 });
+                yPos += (Math.ceil(doc.getStringUnitWidth(receiptData.global_notes) * doc.internal.getFontSize() / (receiptWidth - 10)) * 4) + 2; // Menghitung tinggi teks multilines
+                doc.line(5, yPos, receiptWidth - 5, yPos);
+                yPos += 4;
+            }
+
+            // Daftar Item
+            const tableColumn = ["Item", "Qty", "Harga", "Subtotal"];
+            const tableRows = [];
+
+            receiptData.items.forEach(item => {
+                const formattedPrice = `Rp ${parseFloat(item.price_per_item).toLocaleString('id-ID')}`;
+                const formattedSubtotal = `Rp ${parseFloat(item.subtotal).toLocaleString('id-ID')}`;
+                
+                let itemLine = item.menu_name;
+                if (item.notes) {
+                    // Menampilkan catatan item, bukan add-on
+                    itemLine += `\n  (Catatan: ${item.notes})`;
+                }
+
+                // Menampilkan add-on jika ada dan harganya lebih dari 0
+                // Ensure item.addons is an array, even if undefined or null
+                const receiptItemAddons = item.addons || []; 
+                if (receiptItemAddons.length > 0) {
+                    receiptItemAddons.filter(addon => parseFloat(addon.price) > 0).forEach(addon => {
+                        itemLine += `\n  + ${addon.name} (Rp ${parseFloat(addon.price).toLocaleString('id-ID')})`;
+                    });
+                }
+
+                tableRows.push([
+                    itemLine,
+                    item.quantity,
+                    formattedPrice,
+                    formattedSubtotal
+                ]);
+            });
+
+            doc.autoTable({
+                startY: yPos,
+                head: [tableColumn],
+                body: tableRows,
+                theme: 'plain', // Tema minimalis
+                headStyles: {
+                    fillColor: [255, 255, 255], // Latar belakang putih
+                    textColor: [0, 0, 0],       // Teks hitam
+                    fontStyle: 'bold',
+                    lineWidth: 0, // No border for header
+                    cellPadding: 1
+                },
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 1, // Reduced padding
+                    overflow: "linebreak",
+                    lineColor: [0, 0, 0], // Border color for cells (will be 0 for 'plain' theme)
+                    lineWidth: 0, // No border for cells
+                },
+                columnStyles: {
+                    0: { cellWidth: 30, halign: 'left' }, // Item name
+                    1: { cellWidth: 8, halign: 'center' }, // Qty
+                    2: { cellWidth: 15, halign: 'right' }, // Harga Satuan
+                    3: { cellWidth: 15, halign: 'right' }, // Subtotal
+                },
+                margin: { left: 5, right: 5 }, // Sesuaikan margin untuk konten tabel
+                didDrawPage: function (data) {
+                    // Tidak perlu footer di sini
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'head') {
+                        data.cell.styles.fillColor = [255, 255, 255]; // Tetap putih
+                        data.cell.styles.textColor = [0, 0, 0];       // Tetap hitam
+                    }
+                }
+            });
+
+            yPos = doc.autoTable.previous.finalY + 3;
+            doc.line(5, yPos, receiptWidth - 5, yPos); // Garis pemisah
+            yPos += 4;
+
+            // Total Pembayaran
+            doc.setFontSize(9);
+            doc.text(`Total Harga: Rp ${finalTotalAmount.toLocaleString('id-ID')}`, 5, yPos);
+            doc.text(`Rp ${finalTotalAmount.toLocaleString('id-ID')}`, receiptWidth - 5, yPos, { align: 'right' });
+            yPos += 5;
+
+            // Detail Pembayaran (Uang Diberikan & Kembalian)
+            if (finalAmountPaid !== null) { // finalAmountPaid selalu ada jika pembayaran berhasil
+                doc.text(`Uang Diberikan: Rp ${finalAmountPaid.toLocaleString('id-ID')}`, 5, yPos);
+                doc.text(`Rp ${finalAmountPaid.toLocaleString('id-ID')}`, receiptWidth - 5, yPos, { align: 'right' });
+                yPos += 5;
+                doc.text(`Kembalian: Rp ${finalChange.toLocaleString('id-ID')}`, 5, yPos); // Gunakan finalChange
+                doc.text(`Rp ${finalChange.toLocaleString('id-ID')}`, receiptWidth - 5, yPos, { align: 'right' });
+                yPos += 5;
+            }
+            yPos += 3;
+            doc.line(5, yPos, receiptWidth - 5, yPos); // Garis pemisah
+            yPos += 4;
+
+            // Footer
+            doc.setFontSize(8);
+            doc.text("Terima kasih atas kunjungan Anda!", centerX, yPos, { align: "center" });
+            yPos += 4;
+            doc.text("Silakan datang kembali!", centerX, yPos, { align: "center" });
+            yPos += 4;
+            doc.text("Powered by FoodOrder", centerX, yPos, { align: "center" });
+
+
+            // Simpan PDF
+            doc.save(`resi_pesanan_${receiptData.order_id}.pdf`);
+
+            messageElement.textContent = "Resi berhasil diunduh!";
+            messageElement.classList.add("success");
+            resetUI(); // Reset UI setelah berhasil dicetak dan diunduh
+        } catch (error) {
+            console.error("Error printing receipt:", error);
+            messageElement.textContent = `Error: ${error.message}. Gagal mencetak resi.`;
+            messageElement.classList.add("error");
+            resetUI(); // Reset UI bahkan saat terjadi error untuk memungkinkan pemindaian baru
+        }
+    }
+
+                // --- Fungsi Custom Alert/Confirm (untuk mengganti window.alert/confirm) ---
+                // Dimodifikasi untuk menerima fungsi callback opsional
+                function displayCustomAlert(message, callback = null) {
                     const overlay = document.createElement("div");
                     overlay.classList.add("custom-modal-overlay");
                     overlay.innerHTML = `
@@ -567,9 +1048,13 @@
                     </div>
                 `;
                     document.body.appendChild(overlay);
+                    overlay.classList.add("active"); // Aktifkan modal
 
                     overlay.querySelector("button").onclick = () => {
                         document.body.removeChild(overlay);
+                        if (callback && typeof callback === 'function') {
+                            callback(); 
+                        }
                     };
                 }
 
@@ -587,6 +1072,7 @@
                         </div>
                     `;
                         document.body.appendChild(overlay);
+                        overlay.classList.add("active"); // Aktifkan modal
 
                         overlay.querySelector(".confirm-yes").onclick = () => {
                             document.body.removeChild(overlay);
@@ -598,7 +1084,7 @@
                         };
                     });
                 }
-                // --- End Custom Alert/Confirm Functions ---
+                // --- End Fungsi Custom Alert/Confirm ---
             }
             // Fungsi Logout
             function logout() {

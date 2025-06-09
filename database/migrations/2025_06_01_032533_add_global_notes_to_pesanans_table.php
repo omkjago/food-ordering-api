@@ -4,26 +4,30 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class AddGlobalNotesToPesanansTable extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('pesanans', function (Blueprint $table) {
-            $table->foreignId('pemesan_info_id')->nullable()->constrained('pemesan_infos')->onDelete('cascade');
+            // Tambahkan kolom global_notes setelah kolom order_token
+            $table->text('global_notes')->nullable()->after('order_token');
         });
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::table('pesanans', function (Blueprint $table) {
-            $table->dropForeign(['pemesan_info_id']);
-            $table->dropColumn('pemesan_info_id');
+            $table->dropColumn('global_notes');
         });
     }
-};
+}

@@ -9,17 +9,34 @@
             rel="stylesheet"
         />
         <link href="css/style.css" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body class="p-4 order-page">
         <div class="container">
             <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-8">
-                Ringkasan Pesanan Anda
-            </h2>
-
+                </h2>
             <div
                 id="order-details"
                 class="mb-6 border-b border-gray-200 pb-4"
             ></div>
+
+            <div class="order-instructions-section mb-8">
+                <label
+                    for="global-order-notes"
+                    class="block text-gray-700 text-sm font-bold mb-2"
+                    >Order instructions</label
+                >
+                <textarea
+                    id="global-order-notes"
+                    placeholder="Tambahkan instruksi umum untuk seluruh pesanan Anda di sini..."
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                ></textarea>
+            </div>
 
             <div
                 id="order-total"
@@ -27,31 +44,19 @@
             ></div>
 
             <button
-                class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-lg transition duration-300 ease-in-out shadow-lg transform hover:scale-105"
+                class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-lg transition duration-300 ease-in-out shadow-lg transform hover:scale-105 submit-order-btn"
                 onclick="submitOrder()"
             >
-                Konfirmasi & Kirim Pesanan
+                Checkout
             </button>
 
-            <div class="favorites mt-12">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
-                    Menu Favorit
-                </h3>
-                <div
-                    class="carousel flex overflow-x-auto gap-4 pb-4"
-                    id="favorite-menus"
-                ></div>
-                <div class="add-more text-center mt-6">
-                    <p class="text-gray-600">
-                        Tidak menemukan menu yang Anda inginkan?
-                    </p>
-                    <a
-                        id="add-menu-link"
-                        class="inline-block mt-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md cursor-pointer"
-                    >
-                        Tambahkan dari Daftar Menu Lengkap
-                    </a>
-                </div>
+            <div class="add-more text-center mt-6">
+                <a
+                    id="add-menu-link"
+                    class="inline-block mt-2 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300 ease-in-out transform hover:scale-105 shadow-md cursor-pointer"
+                >
+                    Back to Menu
+                </a>
             </div>
         </div>
 
@@ -60,10 +65,16 @@
             const mejaId = localStorage.getItem("id_meja");
             const orderToken = localStorage.getItem("order_token");
 
+            console.log("Order page loaded.");
+            console.log("mejaId from localStorage:", mejaId);
+            console.log("orderToken from localStorage:", orderToken);
+            console.log("Current order from localStorage:", order);
+
             const orderContainer = document.getElementById("order-details");
             const totalContainer = document.getElementById("order-total");
-            const favoritesContainer =
-                document.getElementById("favorite-menus");
+            const globalOrderNotesInput = document.getElementById("global-order-notes");
+            const cartItemCountHeader = document.querySelector(".order-page h2");
+
 
             // Link to Menu Page
             document
@@ -72,12 +83,12 @@
                     e.preventDefault();
                     const kode = localStorage.getItem("kode_barcode");
                     if (kode) {
-                        window.location.href = `menu.html?=${kode}`; // Ensure consistent parameter name
+                        window.location.href = `menu.html?=${kode}`;
                     } else {
                         alert(
                             "Nomor meja tidak ditemukan, silakan scan ulang QR Code di meja Anda."
                         );
-                        window.location.href = "index.html"; // Redirect to QR scan page
+                        window.location.href = "index.html";
                     }
                 });
 
@@ -86,15 +97,21 @@
                 alert(
                     "Nomor meja tidak ditemukan. Silakan scan QR Code di meja Anda terlebih dahulu."
                 );
-                window.location.href = "index.html"; // Redirect to QR scan page
+                window.location.href = "index.html";
             }
 
             // Calculate and display total
             function calculateTotal() {
-                let total = order.reduce(
-                    (sum, item) => sum + item.harga * item.jumlah,
-                    0
-                );
+                let total = 0;
+                order.forEach(item => {
+                    let itemPrice = parseInt(item.harga) || 0; 
+                    let itemSubtotal = item.jumlah * itemPrice;
+                    item.addons.forEach(addon => {
+                        let addonPrice = parseInt(addon.harga) || 0;
+                        itemSubtotal += addonPrice * item.jumlah;
+                    });
+                    total += itemSubtotal;
+                });
                 totalContainer.innerText = `Total: Rp ${total.toLocaleString(
                     "id-ID"
                 )}`;
@@ -106,40 +123,59 @@
                 if (order.length === 0) {
                     orderContainer.innerHTML =
                         '<p class="text-center text-gray-500 text-lg py-4">Pesanan Anda kosong. Silakan tambahkan menu.</p>';
+                    cartItemCountHeader.textContent = "0 items in cart";
                 } else {
                     order.forEach((item, index) => {
                         const div = document.createElement("div");
                         div.className =
-                            "order-item flex justify-between items-center border-b border-gray-100 py-3 last:border-b-0";
+                            "order-item flex items-start border-b border-gray-100 py-3 last:border-b-0";
+
+                        let itemPriceDisplay = parseInt(item.harga) || 0;
+                        let itemSubtotalDisplay = item.jumlah * itemPriceDisplay;
+                        item.addons.forEach(addon => {
+                            let addonPrice = parseInt(addon.harga) || 0;
+                            itemSubtotalDisplay += addonPrice * item.jumlah;
+                        });
+
                         div.innerHTML = `
-                        <div class="flex-grow">
-                            <strong class="text-lg text-gray-800">${
-                                item.nama
-                            }</strong><br>
-                            <span class="text-gray-600">Rp ${parseInt(
-                                item.harga
-                            ).toLocaleString("id-ID")} x ${item.jumlah}</span>
+                        <img src="/storage/${item.image_path ?? "default.jpg"}" alt="${item.nama}" class="w-20 h-20 object-cover rounded-md mr-4">
+                        <div class="order-item-details flex-grow">
+                            <strong class="text-lg text-gray-800">${item.nama}</strong><br>
+                            <span class="price-qty text-gray-600">Rp ${itemPriceDisplay.toLocaleString("id-ID")}</span>
+                            <div class="order-actions flex items-center space-x-2 mt-2">
+                                <button onclick="changeQty(${index}, -1)" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-3 rounded-full text-sm focus:outline-none">
+                                    -
+                                </button>
+                                <span class="font-bold text-gray-700">${item.jumlah}</span>
+                                <button onclick="changeQty(${index}, 1)" class="bg-green-100 hover:bg-green-200 text-green-700 font-bold py-1 px-3 rounded-full text-sm focus:outline-none">
+                                    +
+                                </button>
+                            </div>
+                            ${item.addons && item.addons.length > 0 ?
+                                `<ul class="addons-list mt-2">` +
+                                item.addons.map(addon => `<li>+ ${addon.nama} (Rp ${ (parseInt(addon.harga) || 0).toLocaleString("id-ID")})</li>`).join('') +
+                                `</ul>` : ''
+                            }
+                            <textarea
+                                class="notes mt-2 w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Tambahkan catatan untuk item ini..."
+                                oninput="updateItemNotes(${index}, this.value)"
+                            >${item.catatan || ''}</textarea>
                         </div>
-                        <div class="order-actions flex items-center space-x-2">
-                            <button onclick="changeQty(${index}, -1)" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-3 rounded-full transition duration-200 text-sm focus:outline-none">
-                                -
-                            </button>
-                            <span class="font-bold text-gray-700">${
-                                item.jumlah
-                            }</span>
-                            <button onclick="changeQty(${index}, 1)" class="bg-green-100 hover:bg-green-200 text-green-700 font-bold py-1 px-3 rounded-full transition duration-200 text-sm focus:outline-none">
-                                +
-                            </button>
-                            <button onclick="removeItem(${index})" class="bg-gray-100 hover:bg-gray-200 text-gray-600 py-1 px-3 rounded-full transition duration-200 text-sm focus:outline-none">
+                        <div class="text-right flex flex-col items-end">
+                            <span class="font-bold text-gray-700 text-lg">Rp ${itemSubtotalDisplay.toLocaleString("id-ID")}</span>
+                            <button onclick="removeItem(${index})" class="remove-item-btn bg-gray-100 hover:bg-gray-200 text-gray-600 py-1 px-3 rounded-full transition duration-200 text-sm focus:outline-none mt-2">
                                 🗑️
                             </button>
                         </div>
                     `;
                         orderContainer.appendChild(div);
                     });
+                     cartItemCountHeader.textContent = `${order.length} items in cart`;
                 }
                 calculateTotal();
-                localStorage.setItem("order_temp", JSON.stringify(order)); // Save changes to localStorage
+                localStorage.setItem("order_temp", JSON.stringify(order));
+                console.log("Order rendered and saved to localStorage:", JSON.parse(localStorage.getItem("order_temp")));
             }
 
             // Change quantity of an item in the main order list
@@ -149,123 +185,21 @@
                     order.splice(index, 1);
                 }
                 renderOrder();
-                fetchFavorites(); // Re-render favorites to update +/- buttons based on current order
+            }
+
+            // Update notes for a specific item
+            function updateItemNotes(index, notes) {
+                if (order[index]) {
+                    order[index].catatan = notes.trim();
+                    localStorage.setItem("order_temp", JSON.stringify(order));
+                    console.log(`Notes for item ${order[index].nama} updated:`, order[index].catatan);
+                }
             }
 
             // Remove item from the main order list
             function removeItem(index) {
                 order.splice(index, 1);
                 renderOrder();
-                fetchFavorites(); // Re-render favorites to update +/- buttons based on current order
-            }
-
-            // Render favorite menus
-            function renderFavorites(menus) {
-                favoritesContainer.innerHTML = "";
-                if (menus.length === 0) {
-                    favoritesContainer.innerHTML =
-                        '<p class="text-center text-gray-500 w-full">Tidak ada menu favorit tersedia.</p>';
-                } else {
-                    menus.forEach((menu) => {
-                        // Check if the favorite menu is already in the current order
-                        const existingInOrder = order.find(
-                            (item) => item.menu_id === menu.id
-                        ); // Assuming 'id' is the menu ID in favorite data
-
-                        const card = document.createElement("div");
-                        card.className =
-                            "menu-card flex-shrink-0 w-40 bg-gray-50 rounded-lg shadow-md p-3 text-center transition duration-300 ease-in-out transform hover:scale-105";
-                        card.innerHTML = `
-                        <img src="/storage/${
-                            menu.image_path ?? "default.jpg"
-                        }" alt="${
-                            menu.nama
-                        }" class="w-full h-24 object-cover rounded-md mb-2">
-                        <div class="menu-name font-semibold text-gray-800 text-base mb-1">${
-                            menu.nama
-                        }</div>
-                        <div class="diskripsi text-xs text-gray-500 mb-2 truncate">${
-                            menu.diskripsi
-                        }</div>
-                        <div class="harga font-bold text-sm text-blue-600 mb-3">Rp ${parseInt(
-                            menu.harga
-                        ).toLocaleString("id-ID")}</div>
-                        <div class="actions">
-                            ${
-                                existingInOrder
-                                    ? `
-                                <div class="flex justify-center items-center space-x-2">
-                                    <button onclick="changeQtyInFavorites(${menu.id}, -1)" class="bg-red-200 hover:bg-red-300 text-red-700 font-bold py-1 px-2 rounded-full text-sm focus:outline-none">-</button>
-                                    <span class="font-bold text-gray-700 text-base">${existingInOrder.jumlah}</span>
-                                    <button onclick="changeQtyInFavorites(${menu.id}, 1)" class="bg-green-200 hover:bg-green-300 text-green-700 font-bold py-1 px-2 rounded-full text-sm focus:outline-none">+</button>
-                                </div>
-                            `
-                                    : `
-                                <button onclick="addMenuFromFavorite(decodeURIComponent('${encodeURIComponent(
-                                    JSON.stringify(menu)
-                                )}'))" 
-                                    class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-3 rounded-md text-sm transition duration-300 ease-in-out shadow">
-                                    Tambah
-                                </button>
-                            `
-                            }
-                        </div>
-                    `;
-                        favoritesContainer.appendChild(card);
-                    });
-                }
-            }
-
-            // Change quantity of an item from the favorites list (and update main order)
-            function changeQtyInFavorites(menuId, delta) {
-                const itemIndex = order.findIndex(
-                    (item) => item.menu_id === menuId
-                );
-                const menuInFavorites = favoritesContainer
-                    .querySelector(
-                        `.menu-card .actions button[onclick*='changeQtyInFavorites(${menuId}, ${delta})']`
-                    )
-                    .closest(".menu-card");
-
-                if (itemIndex > -1) {
-                    order[itemIndex].jumlah += delta;
-                    if (order[itemIndex].jumlah <= 0) {
-                        order.splice(itemIndex, 1);
-                    }
-                } else {
-                    // This case should ideally not happen if 'changeQtyInFavorites' is only called for existing items,
-                    // but adding a safeguard.
-                    // You might want to get the full menu details from the `allMenus` array if you had one.
-                    // For now, assuming `menu` object passed to `addMenuFromFavorite` contains all necessary data.
-                    alert(
-                        "Item tidak ditemukan di pesanan. Tambahkan dulu dari menu favorit."
-                    );
-                    return;
-                }
-                renderOrder();
-                fetchFavorites(); // Re-render favorites to show updated counts/buttons
-            }
-
-            // Add menu from favorites to the order
-            function addMenuFromFavorite(menuJson) {
-                const menu = JSON.parse(menuJson);
-                const existing = order.find((item) => item.menu_id === menu.id); // Assuming 'id' is the menu ID in favorite data
-
-                if (existing) {
-                    existing.jumlah += 1;
-                } else {
-                    // Ensure the added item has the correct structure for the order
-                    order.push({
-                        menu_id: menu.id,
-                        nama: menu.nama,
-                        harga: menu.harga,
-                        jumlah: 1,
-                        image_path: menu.image_path, // Include if needed for other pages
-                        diskripsi: menu.diskripsi, // Include if needed for other pages
-                    });
-                }
-                renderOrder();
-                fetchFavorites(); // Re-render favorites to update buttons (e.g., from Add to +/-)
             }
 
             // Submit the order to the API
@@ -277,40 +211,52 @@
                     return;
                 }
 
+                const globalNotes = globalOrderNotesInput.value.trim();
+
                 const payload = {
                     meja_id: mejaId,
-                    order_token: orderToken ?? null, // Send existing token if available
+                    order_token: orderToken ?? null,
+                    global_notes: globalNotes,
                     items: order.map((item) => ({
                         menu_id: item.menu_id,
                         jumlah: item.jumlah,
+                        catatan: item.catatan || null,
+                        addons: item.addons.map(addon => addon.id) || []
                     })),
                 };
+
+                console.log("Payload sent to /api/pesanan:", payload);
 
                 fetch("/api/pesanan", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Accept: "application/json",
+                        "Accept": "application/json",
                     },
                     body: JSON.stringify(payload),
                 })
-                    .then((res) => {
+                    .then(async (res) => { // Make this async to await res.json()
+                        console.log("Raw response from /api/pesanan:", res);
+                        const responseData = await res.json(); // Parse JSON here
+                        console.log("Parsed response data:", responseData); // Log parsed data
+
                         if (!res.ok) {
-                            // Check for HTTP errors (e.g., 400, 500)
-                            return res.json().then((errData) => {
-                                throw new Error(
-                                    errData.message || "Gagal mengirim pesanan"
-                                );
-                            });
+                            // If response is not OK, it's an error. Use responseData for error message.
+                            throw new Error(
+                                responseData.message || "Gagal mengirim pesanan"
+                            );
                         }
-                        return res.json();
+                        return responseData; // Return parsed data for the next .then()
                     })
                     .then((data) => {
+                        console.log("Successful API response data:", data);
                         if (data.success) {
                             const token = data.data.order_token;
-                            localStorage.setItem("order_token", token); // Save the new/updated token
-                            localStorage.removeItem("order_temp"); // Clear temporary order after successful submission
-                            // Redirect to payment page with the order token
+                            localStorage.setItem("order_token", token);
+                            localStorage.removeItem("order_temp");
+                            localStorage.setItem("order_completed", "true"); 
+                            localStorage.removeItem("global_order_notes");
+                            console.log("Order token received and saved:", token);
                             window.location.href = `payment.html?order_token=${token}`;
                         } else {
                             alert(
@@ -329,32 +275,30 @@
                     });
             }
 
-            // Fetch favorite menus from API
-            function fetchFavorites() {
-                fetch("/api/menu/favorit") // Ensure this endpoint returns a list of menu objects
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (Array.isArray(data)) {
-                            // Assuming favorite menu objects have 'id', 'nama', 'harga', 'image_path', 'diskripsi'
-                            renderFavorites(data);
-                        } else {
-                            console.warn(
-                                "Format menu favorit tidak dikenali atau kosong",
-                                data
-                            );
-                            renderFavorites([]); // Render empty if data is not an array
-                        }
-                    })
-                    .catch((err) => {
-                        console.error("Gagal memuat menu favorit", err);
-                        favoritesContainer.innerHTML =
-                            '<p class="text-center text-red-500 w-full">Gagal memuat menu favorit.</p>';
-                    });
-            }
-
             // Initialize on page load
-            renderOrder(); // Render initial order from localStorage
-            fetchFavorites(); // Fetch and render favorite menus
+            window.onload = function () {
+                let tempOrder = JSON.parse(localStorage.getItem("order_temp")) || [];
+                order = tempOrder.map(item => {
+                    return {
+                        ...item,
+                        harga: parseInt(item.harga) || 0,
+                        addons: (item.addons || []).map(addon => ({
+                            ...addon,
+                            harga: parseInt(addon.harga) || 0
+                        }))
+                    };
+                });
+
+                renderOrder();
+                const storedGlobalNotes = localStorage.getItem("global_order_notes");
+                if (storedGlobalNotes) {
+                    globalOrderNotesInput.value = storedGlobalNotes;
+                }
+                globalOrderNotesInput.addEventListener("input", () => {
+                    localStorage.setItem("global_order_notes", globalOrderNotesInput.value);
+                    console.log("Global notes saved:", globalOrderNotesInput.value);
+                });
+            };
         </script>
     </body>
 </html>
